@@ -2,6 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_whoami"
+        android:orderInCategory="100"
+        android:title="@string/action_whoami"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_anonauth"
+        android:orderInCategory="100"
+        android:title="@string/action_anonauth"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_emailauth"
+        android:orderInCategory="100"
+        android:title="@string/action_emailauth"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_googleauth"
+        android:orderInCategory="100"
+        android:title="@string/action_googleauth"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"

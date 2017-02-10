@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "341152874567",
+    "firebase_url": "https://ahathing1.firebaseio.com",
+    "project_id": "ahathing1",
+    "storage_bucket": "ahathing1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341152874567:android:83322ecf0520ebbf",
+        "android_client_info": {
+          "package_name": "com.adaptivehandyapps.ahathing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "341152874567-iesr9qhisl2g3pcrdb1p2e886v3ismju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArT_WkiaSmmlDeromrN89-W-bj3md_usk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "341152874567-iesr9qhisl2g3pcrdb1p2e886v3ismju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

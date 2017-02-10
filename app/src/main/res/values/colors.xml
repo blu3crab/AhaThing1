@@ -15,4 +15,8 @@
     <color name="colorTextMajor">#999900</color>
     <color name="colorTextMinor">#555500</color>
     <color name="colorTextAccent">#FFFF00</color>
+
+    <color name="grey_100">#F5F5F5</color>
+    <color name="grey_300">#E0E0E0</color>
+
 </resources>

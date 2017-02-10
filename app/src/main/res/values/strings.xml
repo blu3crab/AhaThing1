@@ -4,5 +4,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="action_whoami">Who am I?</string>
+    <string name="action_anonauth">Anonymous Signin</string>
+    <string name="action_emailauth">Email Signin</string>
+    <string name="action_googleauth">Google Signin</string>
     <string name="action_settings">Settings</string>
 </resources>
