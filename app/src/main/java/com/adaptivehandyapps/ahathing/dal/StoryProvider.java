@@ -4,33 +4,38 @@ import android.content.Context;
 import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.StageModelRing;
-import com.adaptivehandyapps.ahathing.dao.DaoPlay;
-import com.adaptivehandyapps.ahathing.dao.DaoPlayList;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
+import com.adaptivehandyapps.ahathing.dao.DaoStoryList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStageList;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatreList;
 
 //
 // Created by mat on 1/20/2017.
 //
 ///////////////////////////////////////////////////////////////////////////
 // Play model provider
-public class PlayProvider {
-    private static final String TAG = "PlayProvider";
+public class StoryProvider {
+    private static final String TAG = "StoryProvider";
 
-    private static final String DEFAULT_PLAY_NICKNAME = "PlayThing";
+    private static final String DEFAULT_THEATRE_NICKNAME = "TheatreThing";
+    private static final String DEFAULT_STORY_NICKNAME = "StoryThing";
     private static final String DEFAULT_STAGE_NICKNAME = "StageThing";
 
     private Context mContext;
     private OnPlayProviderRefresh mDelegate = null; //call back interface
 
-    private PlayProvider mPlayProvider;
+    private StoryProvider mStoryProvider;
 
     private Boolean mPlayReady = false;
 
-    private DaoPlayList mDaoPlayList;
+    private DaoTheatreList mDaoTheatreList;
+    private DaoStoryList mDaoStoryList;
     private DaoStageList mDaoStageList;
 
-    private DaoPlay mActivePlay;
+    private DaoTheatre mActiveTheatre;
+    private DaoStory mActiveStory;
     private DaoStage mActiveStage;
 
     private StageModelRing mStageModelRing;
@@ -42,19 +47,23 @@ public class PlayProvider {
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public PlayProvider(Context context, OnPlayProviderRefresh callback) {
+    public StoryProvider(Context context, OnPlayProviderRefresh callback) {
         // retain context & callback
         mContext = context;
         mDelegate = callback;
-        mPlayProvider = this;
+        mStoryProvider = this;
 
+        // create theatre list
+        mDaoTheatreList = new DaoTheatreList();
+        // add new theatre
+        addNewTheatre(mDaoTheatreList);
         // create play list
-        mDaoPlayList = new DaoPlayList();
+        mDaoStoryList = new DaoStoryList();
         // add new play
-        addNewPlay(mDaoPlayList);
+        addNewStory(mDaoStoryList);
 
-        if (mActivePlay != null) {
-            Log.d(TAG, mActivePlay.toString());
+        if (mActiveStory != null) {
+            Log.d(TAG, mActiveStory.toString());
             if (mActiveStage != null) {
                 Log.d(TAG, mActiveStage.toString());
             }
@@ -64,18 +73,22 @@ public class PlayProvider {
     // getters/setters/helpers
     public Boolean isPlayReady() { return mPlayReady;}
 
-    public DaoPlayList getDaoPlayList() { return mDaoPlayList; }
-    public void setDaoPlayList(DaoPlayList daoPlayList) {
-        this.mDaoPlayList = daoPlayList;
+    public DaoStoryList getDaoPlayList() { return mDaoStoryList; }
+    public void setDaoPlayList(DaoStoryList daoStoryList) {
+        this.mDaoStoryList = daoStoryList;
     }
     public DaoStageList getDaoStageList() { return mDaoStageList; }
     public void setDaoStageList(DaoStageList daoStageList) {
         this.mDaoStageList = daoStageList;
     }
 
-    public DaoPlay getActivePlay() { return mActivePlay; }
-    public void setActivePlay(DaoPlay activePlay) {
-        this.mActivePlay = activePlay;
+    public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
+    public void setActiveTheatre(DaoTheatre activeTheatre) {
+        this.mActiveTheatre = activeTheatre;
+    }
+    public DaoStory getActiveStory() { return mActiveStory; }
+    public void setActiveStory(DaoStory activeStory) {
+        this.mActiveStory = activeStory;
     }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeStage) {
@@ -90,13 +103,23 @@ public class PlayProvider {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean addNewPlay(DaoPlayList daoPlayList) {
+    public Boolean addNewTheatre(DaoTheatreList daoTheatreList) {
 
         // create new play & set active
-        DaoPlay activePlay = new DaoPlay();
-        daoPlayList.plays.add(activePlay);
-        setActivePlay(activePlay);
-        activePlay.setMoniker(DEFAULT_PLAY_NICKNAME + daoPlayList.plays.size());
+        DaoTheatre activeTheatre = new DaoTheatre();
+        daoTheatreList.theatres.add(activeTheatre);
+        setActiveTheatre(activeTheatre);
+        activeTheatre.setMoniker(DEFAULT_THEATRE_NICKNAME + daoTheatreList.theatres.size());
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean addNewStory(DaoStoryList daoStoryList) {
+
+        // create new play & set active
+        DaoStory activeStory = new DaoStory();
+        daoStoryList.stories.add(activeStory);
+        setActiveStory(activeStory);
+        activeStory.setMoniker(DEFAULT_STORY_NICKNAME + daoStoryList.stories.size());
 
         // create stage list, new stage & set active
         DaoStageList daoStageList = new DaoStageList();

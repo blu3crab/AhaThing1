@@ -2,7 +2,7 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dal.PlayProvider;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -35,23 +35,23 @@ public class StageModelRing {
     private Double RADIAN_START = (Math.PI * ANGLE_START)/180;
     private Double RADIAN_DELTA = (Math.PI * ANGLE_DELTA)/180;
 
-    public static final Integer RING_MAX_X = 1024;
-    public static final Integer RING_MIN_X = 0;
-    public static final Integer RING_MAX_Y = 1024;
-    public static final Integer RING_MIN_Y = 0;
-    public static final Integer RING_MAX_Z = 0;
-    public static final Integer RING_MIN_Z = 0;
-    public static final Integer RING_CENTER_X = (RING_MAX_X - RING_MIN_X)/2;
-    public static final Integer RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
-    public static final Integer RING_CENTER_Z = 0;
+    public static final Long RING_MAX_X = 1024l;
+    public static final Long RING_MIN_X = 0l;
+    public static final Long RING_MAX_Y = 1024l;
+    public static final Long RING_MIN_Y = 0l;
+    public static final Long RING_MAX_Z = 0l;
+    public static final Long RING_MIN_Z = 0l;
+    public static final Long RING_CENTER_X = (RING_MAX_X - RING_MIN_X)/2;
+    public static final Long RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
+    public static final Long RING_CENTER_Z = 0l;
 
-    private PlayProvider mPlayProvider;
+    private StoryProvider mStoryProvider;
     private Integer mRingMax = 1;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public StageModelRing(PlayProvider playProvider) {
-        mPlayProvider = playProvider;
+    public StageModelRing(StoryProvider storyProvider) {
+        mStoryProvider = storyProvider;
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters, setters, helpers
@@ -62,8 +62,8 @@ public class StageModelRing {
     public Boolean buildModel(Integer ringMax) {
         mRingMax = ringMax;
 
-        DaoStageList daoStageList = mPlayProvider.getDaoStageList();
-        DaoStage activeStage = mPlayProvider.getActiveStage();
+        DaoStageList daoStageList = mStoryProvider.getDaoStageList();
+        DaoStage activeStage = mStoryProvider.getActiveStage();
         activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + daoStageList.stages.size());
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
@@ -111,10 +111,10 @@ public class StageModelRing {
 //        Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
         Double rad = RADIAN_START;
         Integer angleCount = 0;
-        Integer z = 0;
+        Long z = 0l;
         while (angleCount < ANGLE_COUNT_TOTAL) {
-            Integer x = (int)(origin.getVertX() + (LOCUS_DIST*Math.cos(rad)));
-            Integer y = (int)(origin.getVertY() + (LOCUS_DIST*Math.sin(rad)));
+            Long x = (long)(origin.getVertX() + (LOCUS_DIST*Math.cos(rad)));
+            Long y = (long)(origin.getVertY() + (LOCUS_DIST*Math.sin(rad)));
 
             if (findLocus(daoLocusList, x, y, z) == null) {
                 ++locusId;
@@ -137,11 +137,11 @@ public class StageModelRing {
         return locusId;
     }
     ///////////////////////////////////////////////////////////////////////////
-    private DaoLocus findLocus(DaoLocusList daoLocusList, Integer x, Integer y, Integer z) {
+    private DaoLocus findLocus(DaoLocusList daoLocusList, Long x, Long y, Long z) {
 //        Log.d(TAG, "testing for match at x,y,z: " + x + ", " + y + ", " + z);
         // scan list of locus
         for (DaoLocus l : daoLocusList.locii) {
-            if (Math.abs(l.getVertX() - x)< FUDGE_DIST &&
+            if (Math.abs(l.getVertX() - x) < FUDGE_DIST &&
                     Math.abs(l.getVertY() - y) < FUDGE_DIST &&
                     Math.abs(l.getVertZ() - z) < FUDGE_DIST) {
                 return l;
@@ -152,7 +152,7 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-        DaoStage daoStage = mPlayProvider.getActiveStage();
+        DaoStage daoStage = mStoryProvider.getActiveStage();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList
@@ -163,10 +163,10 @@ public class StageModelRing {
 
         Double rad = RADIAN_START;
         Integer angleCount = 0;
-        Integer z = 0;
+        Long z = 0l;
         while (angleCount < ANGLE_COUNT_TOTAL) {
-            Integer x = (int)(origin.getVertX() + (LOCUS_DIST*Math.cos(rad)));
-            Integer y = (int)(origin.getVertY() + (LOCUS_DIST*Math.sin(rad)));
+            Long x = (long)(origin.getVertX() + (LOCUS_DIST*Math.cos(rad)));
+            Long y = (long)(origin.getVertY() + (LOCUS_DIST*Math.sin(rad)));
 
             DaoLocus locus = findLocus(daoLocusList, x, y, z);
             if (locus != null) {

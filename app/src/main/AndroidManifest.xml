@@ -20,14 +20,14 @@
         </activity>
 
         <activity
-            android:name=".AnonymousAuthActivity"
+            android:name=".auth.AnonymousAuthActivity"
             android:label="@string/label_anonymous_auth" />
         <activity
-            android:name=".EmailPasswordActivity"
+            android:name=".auth.EmailPasswordActivity"
             android:label="@string/label_emailpassword"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name=".GoogleSignInActivity"
+            android:name=".auth.GoogleSignInActivity"
             android:label="@string/label_google_sign_in" />
 
     </application>

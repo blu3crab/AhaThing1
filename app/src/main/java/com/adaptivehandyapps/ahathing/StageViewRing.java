@@ -8,25 +8,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.support.v4.view.GestureDetectorCompat;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
-import com.adaptivehandyapps.ahathing.dal.PlayProvider;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
-import com.adaptivehandyapps.ahathing.dao.DaoPlay;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class StageViewRing {
@@ -42,7 +32,7 @@ public class StageViewRing {
     private Context mContext;
     private StageViewController mParentViewController;
 
-    private PlayProvider mPlayProvider;
+    private StoryProvider mStoryProvider;
 
     private Canvas mCanvas;
 
@@ -76,16 +66,16 @@ public class StageViewRing {
         mCanvasHeight = mParentViewController.getCanvasHeight();
         mDensity = mParentViewController.getDensity();
 
-        // ensure PlayProvider ready
-        mPlayProvider = parentViewController.getPlayProvider();
-        if (mPlayProvider != null && mPlayProvider.isPlayReady()) {
-            Log.v(TAG, "PlayProvider ready for " + mPlayProvider.getActivePlay().getMoniker() + "...");
-            DaoStage daoStage = mPlayProvider.getActiveStage();
+        // ensure StoryProvider ready
+        mStoryProvider = parentViewController.getPlayProvider();
+        if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+            Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
+            DaoStage daoStage = mStoryProvider.getActiveStage();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.e(TAG, "PlayProvider UNKNOWN stage type: " + daoStage.getStageType());
+                Log.e(TAG, "StoryProvider UNKNOWN stage type: " + daoStage.getStageType());
             }
         } else {
-            Log.e(TAG, "PlayProvider NULL or NOT ready!");
+            Log.e(TAG, "StoryProvider NULL or NOT ready!");
         }
         init(context);
     }
@@ -154,7 +144,7 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public float vertToDeviceX(Integer vertX, float scaleFactor) {
+    public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -167,7 +157,7 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public float vertToDeviceY(Integer vertY, float scaleFactor) {
+    public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -232,15 +222,15 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (mPlayProvider != null && mPlayProvider.isPlayReady()) {
-            Log.v(TAG, "PlayProvider ready for " + mPlayProvider.getActivePlay().getMoniker() + "...");
+        if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+            Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
         }
         else {
-            Log.e(TAG, "PlayProvider NOT ready...");
+            Log.e(TAG, "StoryProvider NOT ready...");
             return false;
         }
 
-        DaoStage daoStage = mPlayProvider.getActiveStage();
+        DaoStage daoStage = mStoryProvider.getActiveStage();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
         int color;
@@ -304,7 +294,7 @@ public class StageViewRing {
                 mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
                 // if selecting plus ring
                 if (plus) {
-                    List<Integer> ringIndexList = mPlayProvider.getStageModelRing().findRing(selectIndex);
+                    List<Integer> ringIndexList = mStoryProvider.getStageModelRing().findRing(selectIndex);
                     // toggle each rect in ring list
                     for (Integer i : ringIndexList) {
                         mSelectList.set(i, !mSelectList.get(i));

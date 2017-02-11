@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.adaptivehandyapps.ahathing;
+package com.adaptivehandyapps.ahathing.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.R;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;

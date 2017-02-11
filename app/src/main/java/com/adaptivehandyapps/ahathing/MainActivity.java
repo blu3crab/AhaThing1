@@ -20,7 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.dal.PlayProvider;
+import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
+import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
+import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     private boolean mVacating = false;
 
-    PlayProvider mPlayProvider;
+    StoryProvider mStoryProvider;
 
     // Firebase auth
     private FirebaseAuth mAuth;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // create play provider
-        setPlayProvider(new PlayProvider(this, getPlayProviderCallback()));
+        setPlayProvider(new StoryProvider(this, getPlayProviderCallback()));
 
         // update the main content with stage
         int contentId = R.layout.content_stage;
@@ -92,8 +95,8 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public PlayProvider getPlayProvider() { return mPlayProvider;}
-    public Boolean setPlayProvider(PlayProvider playProvider) { mPlayProvider = playProvider; return true;}
+    public StoryProvider getPlayProvider() { return mStoryProvider;}
+    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public void onBackPressed() {
@@ -128,6 +131,14 @@ public class MainActivity extends AppCompatActivity
                 String email = user.getEmail();
                 Uri photoUrl = user.getPhotoUrl();
 
+                user.updateProfile({
+                        displayName: "Jane Q. User",
+                        photoURL: "https://example.com/jane-q-user/profile.jpg"
+                }).then(function() {
+                    // Update successful.
+                }, function(error) {
+                    // An error happened.
+                });
                 // The user's ID, unique to the Firebase project. Do NOT use this value to
                 // authenticate with your backend server, if you have one. Use
                 // FirebaseUser.getToken() instead.
@@ -248,9 +259,9 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // provider refresh callback
-    private PlayProvider.OnPlayProviderRefresh getPlayProviderCallback() {
+    private StoryProvider.OnPlayProviderRefresh getPlayProviderCallback() {
         // instantiate callback
-        PlayProvider.OnPlayProviderRefresh callback = new PlayProvider.OnPlayProviderRefresh() {
+        StoryProvider.OnPlayProviderRefresh callback = new StoryProvider.OnPlayProviderRefresh() {
 
             @Override
             public void onPlayProviderRefresh(Boolean refresh) {
@@ -270,7 +281,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = new ContentFragment();
 
         ContentFragment cf = (ContentFragment)fragment;
-        cf.setPlayProvider(mPlayProvider);
+        cf.setPlayProvider(mStoryProvider);
 
         Bundle args = new Bundle();
         args.putInt(ContentFragment.ARG_CONTENT_ID, contentId);

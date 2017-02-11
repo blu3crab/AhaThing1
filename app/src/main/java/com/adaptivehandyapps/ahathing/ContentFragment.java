@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adaptivehandyapps.ahathing.dal.PlayProvider;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 
 /**
  * Created by matuc on 12/22/2016.
@@ -26,13 +26,13 @@ public class ContentFragment extends Fragment {
     private int mContentId = -1;
     private NewUiHandler mNewUiHandler;
 
-    private PlayProvider mPlayProvider;
+    private StoryProvider mStoryProvider;
 
     ///////////////////////////////////////////////////////////////////////////
     public ContentFragment() {}
     ///////////////////////////////////////////////////////////////////////////
-    public PlayProvider getPlayProvider() { return mPlayProvider;}
-    public Boolean setPlayProvider(PlayProvider playProvider) { mPlayProvider = playProvider; return true;}
+    public StoryProvider getPlayProvider() { return mStoryProvider;}
+    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class ContentFragment extends Fragment {
                 Fragment fragment = new ContentFragment();
 
                 ContentFragment cf = (ContentFragment)fragment;
-                cf.setPlayProvider(mPlayProvider);
+                cf.setPlayProvider(mStoryProvider);
 
                 Bundle args = new Bundle();
 //                int content_id = R.layout.content_new;

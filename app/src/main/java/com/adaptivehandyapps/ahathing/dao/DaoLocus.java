@@ -37,13 +37,13 @@ public class DaoLocus implements Serializable {
 	private String nickname;
 
 	@SerializedName("vertX")	// X
-	private Integer vertX;
+	private Long vertX;
 
  	@SerializedName("vertY")	// Y
-	private Integer vertY;
+	private Long vertY;
 
 	@SerializedName("vertZ")	// Z
-	private Integer vertZ;
+	private Long vertZ;
 
 	@SerializedName("lon")		// longitude
 	private Double lon;
@@ -61,9 +61,9 @@ public class DaoLocus implements Serializable {
 	public DaoLocus() {
 //		this.daoInfo = new DaoInfo();
 		this.nickname = DaoDefs.INIT_STRING_MARKER;
-		this.vertX = DaoDefs.INIT_INTEGER_MARKER;
-		this.vertY = DaoDefs.INIT_INTEGER_MARKER;
-		this.vertZ = DaoDefs.INIT_INTEGER_MARKER;
+		this.vertX = DaoDefs.INIT_LONG_MARKER;
+		this.vertY = DaoDefs.INIT_LONG_MARKER;
+		this.vertZ = DaoDefs.INIT_LONG_MARKER;
 		this.lon = DaoDefs.INIT_DOUBLE_MARKER;
 		this.lat = DaoDefs.INIT_DOUBLE_MARKER;
 		this.elev = DaoDefs.INIT_DOUBLE_MARKER;
@@ -74,9 +74,9 @@ public class DaoLocus implements Serializable {
 	public DaoLocus(
 //            DaoInfo daoInfo,
 			String nickname,
-			Integer vertX,
-			Integer vertY,
-			Integer vertZ,
+			Long vertX,
+			Long vertY,
+			Long vertZ,
 			Double lon,
 			Double lat,
 			Double elev,
@@ -120,27 +120,27 @@ public class DaoLocus implements Serializable {
 		this.nickname = nickname;
 	}
 
-	public Integer getVertX() {
+	public Long getVertX() {
 		return vertX;
 	}
 
-	public void setVertX(Integer vertX) {
+	public void setVertX(Long vertX) {
 		this.vertX = vertX;
 	}
 
-	public Integer getVertY() {
+	public Long getVertY() {
 		return vertY;
 	}
 
-	public void setVertY(Integer vertY) {
+	public void setVertY(Long vertY) {
 		this.vertY = vertY;
 	}
 
-	public Integer getVertZ() {
+	public Long getVertZ() {
 		return vertZ;
 	}
 
-	public void setVertZ(Integer vertZ) {
+	public void setVertZ(Long vertZ) {
 		this.vertZ = vertZ;
 	}
 

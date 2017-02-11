@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoPlay implements Serializable {
+public class DaoStory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -41,14 +41,6 @@ public class DaoPlay implements Serializable {
 	@SerializedName("ruleList")	// rule list
 	private List<String> ruleList;
 
-	// DAO info
-	@SerializedName("daoInfo")		// object info
-	private DaoInfo daoInfo;
-
-	// DAO locale info
-	@SerializedName("daoLocale")		// site locate info
-	private DaoLocale daoLocale;
-
 	@SerializedName("tagList")		// tag list
 	private List<String> tagList;
 
@@ -56,25 +48,21 @@ public class DaoPlay implements Serializable {
 	private String reserve1;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoPlay() {
+	public DaoStory() {
 		this.moniker = DaoDefs.INIT_STRING_MARKER;
 		this.stageList = new DaoStageList();
 		this.actorList = new ArrayList<>();
 		this.ruleList = new ArrayList<>();
 
-		this.daoInfo = new DaoInfo();
-		this.daoLocale = new DaoLocale();
 		this.tagList = new ArrayList<>();
 		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoPlay(
+	public DaoStory(
 			String moniker,
 			DaoStageList stageList,
 			List<String> actorList,
 			List<String> ruleList,
-            DaoInfo daoInfo,
-			DaoLocale daoLocale,
             List<String> tagList,
             String reserve1
     ) {
@@ -83,8 +71,6 @@ public class DaoPlay implements Serializable {
 		this.actorList = actorList;
 		this.ruleList = ruleList;
 
-		this.daoInfo = daoInfo;
-		this.daoLocale = daoLocale;
 		this.tagList = tagList;
 		this.reserve1 = reserve1;
 	}
@@ -92,8 +78,6 @@ public class DaoPlay implements Serializable {
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
 		return moniker + ", " + stageList + ", " + actorList + ", " + ruleList + ", " +
-				daoInfo.toString() + ", " +
-				daoLocale.toString() +
                 tagList + ", " + reserve1;
 	}
 
@@ -131,23 +115,6 @@ public class DaoPlay implements Serializable {
 
 	public void setRuleList(List<String> ruleList) {
 		this.ruleList = ruleList;
-	}
-
-	///////////////////////////////////////////////////////////////////////////
-	public DaoInfo getDaoInfo() {
-        return daoInfo;
-    }
-
-    public void setDaoInfo(DaoInfo daoInfo) {
-        this.daoInfo = daoInfo;
-    }
-
-	public DaoLocale getDaoLocale() {
-		return daoLocale;
-	}
-
-	public void setDaoLocale(DaoLocale daoLocale) {
-		this.daoLocale = daoLocale;
 	}
 
 	public List<String> getTagList() {

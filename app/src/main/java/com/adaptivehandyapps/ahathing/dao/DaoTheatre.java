@@ -25,31 +25,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoStage implements Serializable {
+public class DaoTheatre implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	public static final String STAGE_TYPE_RING = "RingWorld";
 
 	@SerializedName("moniker")		// name
 	private String moniker;
 
-	@SerializedName("stageType")		// stage type
-	private String stageType;
+	@SerializedName("playList")		// play list
+	private List<String>  playList;
 
-	@SerializedName("locusList")		// locus list
-	private DaoLocusList locusList;
-
-	@SerializedName("propList")	// actor id list
-	private List<String> propList;
-
-	// DAO info
-	@SerializedName("daoInfo")		// object info
-	private DaoInfo daoInfo;
-
-	// DAO locale info
-	@SerializedName("daoLocale")		// site locate info
-	private DaoLocale daoLocale;
+//	// DAO locale info
+//	@SerializedName("daoLocale")		// theatre location info
+//	private DaoLocale daoLocale;
 
 	@SerializedName("tagList")		// tag list
 	private List<String> tagList;
@@ -58,44 +46,32 @@ public class DaoStage implements Serializable {
 	private String reserve1;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoStage() {
+	public DaoTheatre() {
 		this.moniker = DaoDefs.INIT_STRING_MARKER;
-		this.stageType = DaoDefs.INIT_STRING_MARKER;
-		this.locusList = new DaoLocusList();
-		this.propList = new ArrayList<>();
-
-		this.daoInfo = new DaoInfo();
-		this.daoLocale = new DaoLocale();
+		this.playList = new ArrayList<>();
+//		this.daoLocale = new DaoLocale();
 		this.tagList = new ArrayList<>();
 		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoStage(
+	public DaoTheatre(
 			String moniker,
-			String stageType,
-            DaoInfo daoInfo,
-			DaoLocale daoLocale,
+			List<String> playList,
+//			DaoLocale daoLocale,
             List<String> tagList,
-			DaoLocusList locusList,
-			List<String> propList,
             String reserve1
     ) {
 		this.moniker = moniker;
-		this.stageType = stageType;
-		this.locusList = locusList;
-		this.propList = propList;
-
-		this.daoInfo = daoInfo;
-		this.daoLocale = daoLocale;
+		this.playList = playList;
+//		this.daoLocale = daoLocale;
 		this.tagList = tagList;
 		this.reserve1 = reserve1;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
-		return moniker + ", " + locusList + ", " + propList + ", " +
-				daoInfo.toString() + ", " +
-				daoLocale.toString() +
+		return moniker + ", " + playList + ", " +
+//				daoLocale.toString() +
                 tagList + ", " + reserve1;
 	}
 
@@ -111,45 +87,21 @@ public class DaoStage implements Serializable {
 		this.moniker = moniker;
 	}
 
-	public String getStageType() {
-		return stageType;
+	public List<String> getPlayList() {
+		return playList;
 	}
 
-	public void setStageType(String stageType) {
-		this.stageType = stageType;
+	public void setPlayList(List<String> actorList) {
+		this.playList = actorList;
 	}
 
-	public DaoLocusList getLocusList() {
-		return locusList;
-	}
-
-	public void setLocusList(DaoLocusList locusList) {
-		this.locusList = locusList;
-	}
-
-	public List<String> getPropList() {
-		return propList;
-	}
-
-	public void setPropList(List<String> propList) {
-		this.propList = propList;
-	}
-
-	public DaoInfo getDaoInfo() {
-        return daoInfo;
-    }
-
-    public void setDaoInfo(DaoInfo daoInfo) {
-        this.daoInfo = daoInfo;
-    }
-
-	public DaoLocale getDaoLocale() {
-		return daoLocale;
-	}
-
-	public void setDaoLocale(DaoLocale daoLocale) {
-		this.daoLocale = daoLocale;
-	}
+//	public DaoLocale getDaoLocale() {
+//		return daoLocale;
+//	}
+//
+//	public void setDaoLocale(DaoLocale daoLocale) {
+//		this.daoLocale = daoLocale;
+//	}
 
 	public List<String> getTagList() {
 		return tagList;

@@ -24,21 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoPlayList {
-	public static final String JSON_CONTAINER = "plays";
+public class DaoTheatreList {
+	public static final String JSON_CONTAINER = "theatres";
 
-	@SerializedName("plays")
-	public List<DaoPlay> plays;
-	
-	public DaoPlayList(){plays = new ArrayList<>();}
+	@SerializedName("theatres")
+	public List<DaoTheatre> theatres;
+
+	public DaoTheatreList(){theatres = new ArrayList<>();}
 
 	///////////////////////////////////////////////////////////////////////////
 	// returns DAO if found in list or null if not found
 	// TODO: use hashmap rather than serial scan
-	public DaoPlay getDao(String ahaId) {
-		for (DaoPlay daoPlay : plays) {
-			if (daoPlay.getDaoInfo().getAhaId().equals(ahaId)) {
-				return daoPlay;
+	public DaoTheatre getDao(String moniker) {
+		for (DaoTheatre daoTheatre : theatres) {
+			if (daoTheatre.getMoniker().equals(moniker)) {
+				return daoTheatre;
 			}
 		}
 		return null;

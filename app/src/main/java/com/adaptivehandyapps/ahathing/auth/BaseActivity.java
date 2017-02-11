@@ -1,8 +1,10 @@
-package com.adaptivehandyapps.ahathing;
+package com.adaptivehandyapps.ahathing.auth;
 
 import android.app.ProgressDialog;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
+
+import com.adaptivehandyapps.ahathing.R;
 
 public class BaseActivity extends AppCompatActivity {
 

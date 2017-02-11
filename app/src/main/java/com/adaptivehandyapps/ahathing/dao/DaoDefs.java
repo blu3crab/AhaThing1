@@ -54,6 +54,7 @@ public class DaoDefs {
     //
     public static final String INIT_STRING_MARKER = "nada";
     public static final Integer INIT_INTEGER_MARKER = -1;
+    public static final Long INIT_LONG_MARKER = -1l;
     public static final Double INIT_DOUBLE_MARKER = -1.0;
 
     //

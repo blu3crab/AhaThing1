@@ -18,10 +18,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
-import com.adaptivehandyapps.ahathing.dal.PlayProvider;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
-import com.adaptivehandyapps.ahathing.dao.DaoPlay;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class StageViewController extends View implements
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
-    private PlayProvider mPlayProvider;
+    private StoryProvider mStoryProvider;
     private DaoStage mActiveStage;
 
     private StageViewRing mStageViewRing;
@@ -102,12 +101,12 @@ public class StageViewController extends View implements
         mContext = context;
         MainActivity parent = (MainActivity) context;
         if (parent != null) {
-            mPlayProvider = parent.getPlayProvider();
-            if (mPlayProvider != null && mPlayProvider.isPlayReady()) {
-                Log.v(TAG, "PlayProvider ready for " + mPlayProvider.getActivePlay().getMoniker() + "...");
+            mStoryProvider = parent.getPlayProvider();
+            if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+                Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
             }
             else {
-                Log.e(TAG, "PlayProvider NULL or NOT ready!");
+                Log.e(TAG, "StoryProvider NULL or NOT ready!");
                 return false;
             }
         }
@@ -160,9 +159,9 @@ public class StageViewController extends View implements
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public PlayProvider getPlayProvider() { return mPlayProvider; }
+    public StoryProvider getPlayProvider() { return mStoryProvider; }
 
-    public Boolean setPlayProvider(PlayProvider playProvider) { mPlayProvider = playProvider; return true; }
+    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true; }
 
     public int getCanvasWidth() {
         return mCanvasWidth;
@@ -233,9 +232,9 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
 
-            mActiveStage = mPlayProvider.getActiveStage();
+            mActiveStage = mStoryProvider.getActiveStage();
             if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.v(TAG, "PlayProvider stage type: " + mActiveStage.getStageType());
+                Log.v(TAG, "StoryProvider stage type: " + mActiveStage.getStageType());
                 // create stage view helper
                 mStageViewRing = new StageViewRing(mContext, this);
                 DaoLocusList daoLocusList = mActiveStage.getLocusList();
@@ -245,7 +244,7 @@ public class StageViewController extends View implements
                 mStageViewRing.setSelectLocus(daoLocusList, false);
             }
             else {
-                Log.e(TAG, "PlayProvider UNKNOWN stage type: " + mActiveStage.getStageType());
+                Log.e(TAG, "StoryProvider UNKNOWN stage type: " + mActiveStage.getStageType());
             }
 
         }
@@ -443,7 +442,7 @@ public class StageViewController extends View implements
             if (mRawScaleFactor != detector.getScaleFactor()) {
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
-                mActiveStage = mPlayProvider.getActiveStage();
+                mActiveStage = mStoryProvider.getActiveStage();
                 if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();
