@@ -24,8 +24,11 @@ import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 ///////////////////////////////////////////////////////////////////////////
 public class MainActivity extends AppCompatActivity
@@ -131,14 +134,38 @@ public class MainActivity extends AppCompatActivity
                 String email = user.getEmail();
                 Uri photoUrl = user.getPhotoUrl();
 
-                user.updateProfile({
-                        displayName: "Jane Q. User",
-                        photoURL: "https://example.com/jane-q-user/profile.jpg"
-                }).then(function() {
-                    // Update successful.
-                }, function(error) {
-                    // An error happened.
-                });
+                // display nam eundefined
+                if (name == null) {
+                    // try splitting email at @
+                    String split[];
+                    split = email.split("@");
+                    // if @ present
+                    if (split.length > 1) {
+                        // assign display name from email name less domain
+                        name = split[0];
+                    }
+                    else {
+                        // if no @ extract up to 1st 8 chars of email - will this ever happen?
+                        int len = 8;
+                        if (email.length() < 8) len = name.length() - 1;
+                        name = email.substring(0, len);
+                    }
+                    // update profile with display name
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+//                        .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                            .build();
+
+                    user.updateProfile(profileUpdates)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "User profile updated.");
+                                    }
+                                }
+                            });
+                }
                 // The user's ID, unique to the Firebase project. Do NOT use this value to
                 // authenticate with your backend server, if you have one. Use
                 // FirebaseUser.getToken() instead.
