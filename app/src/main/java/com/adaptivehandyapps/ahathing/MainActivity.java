@@ -3,8 +3,10 @@ package com.adaptivehandyapps.ahathing;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -18,6 +20,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
@@ -35,6 +39,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+    private static final Integer REQUEST_CODE_GALLERY = 1;
+    private static final Boolean FORCE_PHOTO_SELECTION = true;
 
     private boolean mVacating = false;
 
@@ -63,9 +69,39 @@ public class MainActivity extends AppCompatActivity
             }
         });
         // setup drawer
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerStateChanged(int newState) {
+//                if( newState == DrawerLayout.STATE_DRAGGING && drawer.isDrawerOpen(GravityCompat.START) == false ) {
+                 if( !drawer.isDrawerOpen(GravityCompat.START)) {
+                     // Drawer starting to open
+                     Log.d(TAG, "Opening drawer...");
+                     FirebaseUser user = mAuth.getCurrentUser();
+                     if (user != null) {
+                         // if photo exists, u
+                         ImageView iv_photo = (ImageView) findViewById(R.id.iv_navphoto);
+                         iv_photo.setImageResource(R.drawable.bluecrab48);
+                         if (iv_photo != null) {
+                             Uri photoUri = user.getPhotoUrl();
+                             if (photoUri != null) iv_photo.setImageURI(photoUri);
+                         }
+                         TextView tv_name = (TextView) findViewById(R.id.tv_navname);
+                         if (tv_name != null) {
+                             String name = user.getDisplayName();
+                             if (name != null) tv_name.setText(name);
+                         }
+                         TextView tv_email = (TextView) findViewById(R.id.tv_navemail);
+                         if (tv_email != null) {
+                             String email = user.getEmail();
+                             if (email != null) tv_email.setText(email);
+                         }
+                     }
+                    super.onDrawerStateChanged(newState);
+                 }
+            }
+        };
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         // setup navigation view
@@ -88,13 +124,15 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
+                }
+                else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...TODO?
             }
         };
+
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
@@ -134,48 +172,31 @@ public class MainActivity extends AppCompatActivity
                 String email = user.getEmail();
                 Uri photoUrl = user.getPhotoUrl();
 
-                // display nam eundefined
+                // if display name undefined
                 if (name == null) {
-                    // try splitting email at @
-                    String split[];
-                    split = email.split("@");
-                    // if @ present
-                    if (split.length > 1) {
-                        // assign display name from email name less domain
-                        name = split[0];
-                    }
-                    else {
-                        // if no @ extract up to 1st 8 chars of email - will this ever happen?
-                        int len = 8;
-                        if (email.length() < 8) len = name.length() - 1;
-                        name = email.substring(0, len);
-                    }
-                    // update profile with display name
-                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(name)
-//                        .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
-                            .build();
-
-                    user.updateProfile(profileUpdates)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d(TAG, "User profile updated.");
-                                    }
-                                }
-                            });
+                    // update firebase user profile with display name derived from email
+                    name = updateFirebaseDisplayNameFromEmail(user, email);
                 }
-                // The user's ID, unique to the Firebase project. Do NOT use this value to
-                // authenticate with your backend server, if you have one. Use
-                // FirebaseUser.getToken() instead.
-                String uid = user.getUid();
-                Log.d(TAG, name + ", " + email + ", " + uid);
-                Toast.makeText(this, name + ", " + email + ", " + uid, Toast.LENGTH_LONG).show();
+
+                if (FORCE_PHOTO_SELECTION || photoUrl == null) {
+                    // update firebase user profile with photo uri selected from gallery
+                    updateFirebasePhotoUrlFromGallery();
+                }
+
+                // confirm Firebase updates
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    // The user's ID, unique to the Firebase project. Do NOT use this value to
+                    // authenticate with your backend server, if you have one. Use
+                    // FirebaseUser.getToken() instead.
+                    String uid = user.getUid();
+                    Log.d(TAG, name + ", " + email + ", " + uid);
+                    Toast.makeText(this, user.getDisplayName() + ", " + user.getEmail() + ", " + user.getPhotoUrl() + ", " + uid, Toast.LENGTH_LONG).show();
+                }
             }
             else {
-                Log.d(TAG, "No FirebaseUser found.");
-                Toast.makeText(this, "Please signin. No FirebaseUser found.", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "No Firebase User found.");
+                Toast.makeText(this, "Please signin. No Firebase User found.", Toast.LENGTH_LONG).show();
             }
             return true;
         }
@@ -320,5 +341,108 @@ public class MainActivity extends AppCompatActivity
 
         return true;
     }
-///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // update firebase user profile with display name derived from email
+    private String updateFirebaseDisplayNameFromEmail(FirebaseUser user, String email) {
+        // default name by extracting up to 8 chars from start of email
+        int len = 8;
+        if (email.length() < 8) len = email.length() - 1;
+        String name = email.substring(0, len);
+
+        // try splitting email at @
+        String split[];
+        split = email.split("@");
+        // if @ present
+        if (split.length > 1) {
+            // assign display name from email name less domain
+            name = split[0];
+        }
+
+        // update profile with display name
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+//                        .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                .build();
+
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User profile updated.");
+                        }
+                    }
+                });
+        return name;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // update firebase user profile with photo uri selected from gallery
+    private Boolean updateFirebasePhotoUrlFromGallery() {
+
+        // To open up a gallery browser
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"),REQUEST_CODE_GALLERY);
+
+        return true;
+    }
+    // To handle when an image is selected from the browser, add the following to your Activity
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK) {
+
+            if (requestCode == REQUEST_CODE_GALLERY) {
+
+                // currImageURI is the global variable I'm using to hold the content:// URI of the image
+                final Uri currImageURI = data.getData();
+                Log.d(TAG, "Gallery photoUri selection: " + currImageURI.toString());
+
+                String realPath = getRealPathFromURI(currImageURI);
+                Log.d(TAG, "Gallery photo (real path) selection: " + realPath);
+
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+
+                    // update profile with display name
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(currImageURI)
+//                .setDisplayName(name)
+//                    .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                            .build();
+
+                    user.updateProfile(profileUpdates)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "User profile updated with photoUri " + currImageURI.toString());
+                                    }
+                                    else {
+                                        Log.e(TAG, "User profile NOT updated with photoUri " + currImageURI.toString());
+                                    }
+                                }
+                            });
+                }
+            }
+        }
+    }
+
+    // And to convert the image URI to the direct file system path of the image file
+    public String getRealPathFromURI(Uri contentUri) {
+
+        // can post image
+        String [] proj={MediaStore.Images.Media.DATA};
+//        Cursor cursor = managedQuery( contentUri,
+        Cursor cursor = getContentResolver().query(contentUri,
+                proj, // Which columns to return
+                null,       // WHERE clause; which rows to return (all rows)
+                null,       // WHERE clause selection arguments (none)
+                null); // Order-by clause (ascending by name)
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+
+        return cursor.getString(column_index);
+    }///////////////////////////////////////////////////////////////////////////
 }
