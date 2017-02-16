@@ -73,8 +73,12 @@ public class StoryProvider {
     // getters/setters/helpers
     public Boolean isPlayReady() { return mPlayReady;}
 
-    public DaoStoryList getDaoPlayList() { return mDaoStoryList; }
-    public void setDaoPlayList(DaoStoryList daoStoryList) {
+    public DaoTheatreList getDaoTheatreList() { return mDaoTheatreList; }
+    public void setDaoTheatreList(DaoTheatreList daoTheatreList) {
+        this.mDaoTheatreList = daoTheatreList;
+    }
+    public DaoStoryList getDaoStoryList() { return mDaoStoryList; }
+    public void setDaoStoryList(DaoStoryList daoStoryList) {
         this.mDaoStoryList = daoStoryList;
     }
     public DaoStageList getDaoStageList() { return mDaoStageList; }

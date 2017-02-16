@@ -25,7 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 
 ///////////////////////////////////////////////////////////////////////////
 //
-// Play[1..N]
+// Theatre[1..N]
+// Story[1..N]
 //      nickname
 //      creation date
 //      Stage[1..N]
@@ -42,7 +43,7 @@ import java.lang.annotation.RetentionPolicy;
 //          Avatar[1..N]
 //              type
 //              capabilities
-//      Rule[1..N]
+//      Action[1..N]
 //          Avatar navigation on stage
 //          conflict creation
 //          conflict resolution
@@ -62,20 +63,30 @@ public class DaoDefs {
     @Retention(RetentionPolicy.SOURCE)
     // dao object types
     @IntDef({DAOOBJ_TYPE_UNKNOWN,
-            DAOOBJ_TYPE_PLAY,
+            DAOOBJ_TYPE_THEATRE,
+            DAOOBJ_TYPE_STORY,
             DAOOBJ_TYPE_STAGE,
             DAOOBJ_TYPE_ACTOR,
-            DAOOBJ_TYPE_RULE,
+            DAOOBJ_TYPE_ACTION,
             DAOOBJ_TYPE_RESERVE
     })
     public @interface DaoObjType {}
 
     public static final int DAOOBJ_TYPE_UNKNOWN = -1;
-    public static final int DAOOBJ_TYPE_PLAY = 0;
-    public static final int DAOOBJ_TYPE_STAGE = 1;
-    public static final int DAOOBJ_TYPE_ACTOR = 2;
-    public static final int DAOOBJ_TYPE_RULE = 3;
-    public static final int DAOOBJ_TYPE_RESERVE = 4;
+    public static final int DAOOBJ_TYPE_THEATRE = 0;
+    public static final int DAOOBJ_TYPE_STORY = 1;
+    public static final int DAOOBJ_TYPE_STAGE = 2;
+    public static final int DAOOBJ_TYPE_ACTOR = 3;
+    public static final int DAOOBJ_TYPE_ACTION = 4;
+    public static final int DAOOBJ_TYPE_RESERVE = 5;
+
+    public static final String DAOOBJ_TYPE_UNKNOWN_TITLE = "Unknown";
+    public static final String DAOOBJ_TYPE_THEATRE_TITLE = "Theatre";
+    public static final String DAOOBJ_TYPE_STORY_TITLE = "Story";
+    public static final String DAOOBJ_TYPE_STAGE_TITLE = "Stage";
+    public static final String DAOOBJ_TYPE_ACTOR_TITLE = "Actor";
+    public static final String DAOOBJ_TYPE_ACTION_TITLE = "Action";
+    public static final String DAOOBJ_TYPE_RESERVE_TITLE = "Reserve";
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -92,8 +103,11 @@ public class DaoDefs {
             case DAOOBJ_TYPE_UNKNOWN:
                 daoPipeObjType = DAOOBJ_TYPE_UNKNOWN;
                 break;
-            case DAOOBJ_TYPE_PLAY:
-                daoPipeObjType = DAOOBJ_TYPE_PLAY;
+            case DAOOBJ_TYPE_THEATRE:
+                daoPipeObjType = DAOOBJ_TYPE_THEATRE;
+                break;
+            case DAOOBJ_TYPE_STORY:
+                daoPipeObjType = DAOOBJ_TYPE_STORY;
                 break;
             case DAOOBJ_TYPE_STAGE:
                 daoPipeObjType = DAOOBJ_TYPE_STAGE;
@@ -101,8 +115,8 @@ public class DaoDefs {
             case DAOOBJ_TYPE_ACTOR:
                 daoPipeObjType = DAOOBJ_TYPE_ACTOR;
                 break;
-            case DAOOBJ_TYPE_RULE:
-                daoPipeObjType = DAOOBJ_TYPE_RULE;
+            case DAOOBJ_TYPE_ACTION:
+                daoPipeObjType = DAOOBJ_TYPE_ACTION;
                 break;
             case DAOOBJ_TYPE_RESERVE:
                 daoPipeObjType = DAOOBJ_TYPE_RESERVE;

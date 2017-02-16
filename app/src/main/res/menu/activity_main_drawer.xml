@@ -3,23 +3,24 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_new"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="New Thing" />
+            android:id="@+id/nav_theatre"
+            android:icon="@drawable/ic_local_movies_black_48dp"
+            android:title="Theatre" />
         <item
-            android:id="@+id/nav_join"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Join Thing" />
-        <item
-            android:id="@+id/nav_trash"
+            android:id="@+id/nav_story"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Trash Thing" />
+            android:title="Story" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_stage"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Stage" />
+        <item
+            android:id="@+id/nav_actor"
+            android:icon="@drawable/ic_person_white"
+            android:title="Actor" />
     </group>
 
+    <!--
     <item android:title="Canvas">
         <menu>
             <item
@@ -44,5 +45,5 @@
                 android:title="reserve" />
         </menu>
     </item>
-
+-->
 </menu>

@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,11 +29,21 @@ import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoStage;
+import com.adaptivehandyapps.ahathing.dao.DaoStageList;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
+import com.adaptivehandyapps.ahathing.dao.DaoStoryList;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatreList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
 public class MainActivity extends AppCompatActivity
@@ -40,11 +51,14 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static final Integer REQUEST_CODE_GALLERY = 1;
-    private static final Boolean FORCE_PHOTO_SELECTION = true;
+    private static final Boolean FORCE_PHOTO_SELECTION = false;
 
     private boolean mVacating = false;
 
-    StoryProvider mStoryProvider;
+    private StoryProvider mStoryProvider;
+
+    private NavigationView mNavigationView;
+    private DrawerLayout mDrawerLayout;
 
     // Firebase auth
     private FirebaseAuth mAuth;
@@ -69,7 +83,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
         // setup drawer
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = mDrawerLayout;
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
@@ -82,8 +97,8 @@ public class MainActivity extends AppCompatActivity
                      if (user != null) {
                          // if photo exists, u
                          ImageView iv_photo = (ImageView) findViewById(R.id.iv_navphoto);
-                         iv_photo.setImageResource(R.drawable.bluecrab48);
                          if (iv_photo != null) {
+                             iv_photo.setImageResource(R.drawable.bluecrab48);
                              Uri photoUri = user.getPhotoUrl();
                              if (photoUri != null) iv_photo.setImageURI(photoUri);
                          }
@@ -105,11 +120,15 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         // setup navigation view
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
 
         // create play provider
-        setPlayProvider(new StoryProvider(this, getPlayProviderCallback()));
+        setStoryProvider(new StoryProvider(this, getPlayProviderCallback()));
+
+        // set navigation menu
+        setNavMenu();
 
         // update the main content with stage
         int contentId = R.layout.content_stage;
@@ -136,8 +155,83 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public StoryProvider getPlayProvider() { return mStoryProvider;}
-    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
+    public StoryProvider getStoryProvider() { return mStoryProvider;}
+    public Boolean setStoryProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    private Boolean setNavMenu() {
+        // append active object to menu title
+        String activeName = DaoDefs.INIT_STRING_MARKER;
+        Menu menu = mNavigationView.getMenu();
+        for (int i = 0; i <menu.size(); i++) {
+            MenuItem menuItem = menu.getItem(i);
+            String itemName = menuItem.toString();
+            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+                activeName = mStoryProvider.getActiveTheatre().getMoniker();
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
+                activeName = mStoryProvider.getActiveStory().getMoniker();
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
+                activeName = mStoryProvider.getActiveStage().getMoniker();
+            }
+            else {
+                activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_TITLE;
+            }
+            itemName = itemName.concat(": " + activeName);
+            menuItem.setTitle(itemName);
+        }
+        // add theatres
+        addSubMenu(DaoTheatreList.class, DaoDefs.DAOOBJ_TYPE_THEATRE);
+        // add stories
+        addSubMenu(DaoStoryList.class, DaoDefs.DAOOBJ_TYPE_STORY);
+        // add stages
+        addSubMenu(DaoStageList.class, DaoDefs.DAOOBJ_TYPE_STAGE);
+//        // add actors
+//        addSubMenu(DaoActorList.class, DaoDefs.DAOOBJ_TYPE_ACTOR);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    private SubMenu addSubMenu(Class objClass, @DaoDefs.DaoObjType int objType) {
+        // extract moniker list
+        String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_TITLE;
+        int iconId = R.drawable.ic_star_black_48dp;
+        List<String> monikerList = new ArrayList<>();
+        if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+            title = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
+            for (DaoTheatre daoTheatre : mStoryProvider.getDaoTheatreList().theatres) {
+                monikerList.add(daoTheatre.getMoniker());
+                iconId = R.drawable.ic_local_movies_black_48dp;
+            }
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
+            title = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+            for (DaoStory daoStory : mStoryProvider.getDaoStoryList().stories) {
+                monikerList.add(daoStory.getMoniker());
+                iconId = R.drawable.ic_menu_slideshow;
+            }
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
+            title = DaoDefs.DAOOBJ_TYPE_STAGE_TITLE;
+            for (DaoStage daoStage : mStoryProvider.getDaoStageList().stages) {
+                monikerList.add(daoStage.getMoniker());
+                iconId = R.drawable.ic_menu_gallery;
+            }
+        }
+        // add submenu from moniker list plus a "new" item
+        Menu menu = mNavigationView.getMenu();
+        SubMenu subMenu = menu.addSubMenu(title);
+        MenuItem subMenuItem;
+        for (String moniker : monikerList) {
+            subMenuItem = subMenu.add(moniker);
+            subMenuItem.setIcon(iconId);
+            Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+        }
+        subMenuItem = subMenu.add("New " + title);
+        subMenuItem.setIcon(iconId);
+        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+        return subMenu;
+    }
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public void onBackPressed() {
@@ -224,34 +318,51 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        String itemname = item.toString();
+        Log.d(TAG, "onNavigationItemSelected menu item:" + id + ", itemname: " + itemname);
+        if (id == R.id.nav_theatre) {
+//            addSubMenu(DaoTheatreList.class, DaoDefs.DAOOBJ_TYPE_THEATRE);
+//            // update the main content by replacing fragments
+//            int contentId = R.layout.content_new;
+//            replaceFragment(contentId);
+//            // add a menu item
+//            final Menu menu = mNavigationView.getMenu();
+////            for (int i = 1; i <= 3; i++) {
+////                menu.add("Runtime item "+ i);
+////            }
+//            // add submenu with list of theatres plus a "new" item
+//            SubMenu subMenu = menu.addSubMenu("Theatres");
+//            MenuItem subMenuItem;
+//            for (DaoTheatre daoTheatre : mStoryProvider.getDaoTheatreList().theatres) {
+//                subMenuItem = subMenu.add(daoTheatre.getMoniker());
+//                subMenuItem.setIcon(R.drawable.ic_local_movies_black_48dp);
+//                Log.d(TAG, "onNavigationItemSelected submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+//            }
+//            subMenuItem = subMenu.add("New Theatre");
+//            subMenuItem.setIcon(R.drawable.ic_local_movies_black_48dp);
+//            Log.d(TAG, "onNavigationItemSelected submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+        }
+        else if (id == R.id.nav_story) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else if (id == R.id.nav_stage) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else if (id == R.id.nav_actor) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else if (id == 0) {
+            // submenu selection
 
-        if (id == R.id.nav_new) {
-            // new game
-            // update the main content by replacing fragments
-            int contentId = R.layout.content_new;
-            replaceFragment(contentId);
-        } else if (id == R.id.nav_join) {
 
-        } else if (id == R.id.nav_trash) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_view) {
-
-        } else if (id == R.id.nav_dims) {
-
-        } else if (id == R.id.nav_name) {
-
-        } else if (id == R.id.nav_owners) {
-
-        } else if (id == R.id.nav_spare) {
-
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // lifecycle methods
     @Override
