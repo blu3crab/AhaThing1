@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
 /**
  * Created by matuc on 12/22/2016.
@@ -18,21 +19,33 @@ public class ContentFragment extends Fragment {
 
     private static final String TAG = "ContentFragment";
 
-    public static final String ARG_CONTENT_ID = "content_id";
+    public static final String ARG_CONTENT_KEY_ID = "content_id";
+    public static final String ARG_CONTENT_KEY_OP = "content_op";
+    public static final String ARG_CONTENT_KEY_OBJTYPE = "content_objtype";
+    public static final String ARG_CONTENT_KEY_MONIKER = "content_moniker";
+
+    public static final String ARG_CONTENT_VALUE_OP_NEW = "new";
+    public static final String ARG_CONTENT_VALUE_OP_EDIT = "edit";
+    public static final String ARG_CONTENT_VALUE_OP_PLAY = "play";
 
     private LayoutInflater mInflater;
     private ViewGroup mContainer;
     private View mRootView;
-    private int mContentId = -1;
-    private NewUiHandler mNewUiHandler;
+
+    private int mContentId = DaoDefs.INIT_INTEGER_MARKER;
+    private String mContentOp = DaoDefs.INIT_STRING_MARKER;
+    private String mContentObjType = DaoDefs.INIT_STRING_MARKER;
+    private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
+
+    private DaoMakerUiHandler mDaoMakerUiHandler;
 
     private StoryProvider mStoryProvider;
 
     ///////////////////////////////////////////////////////////////////////////
     public ContentFragment() {}
     ///////////////////////////////////////////////////////////////////////////
-    public StoryProvider getPlayProvider() { return mStoryProvider;}
-    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
+    public StoryProvider getStoryProvider() { return mStoryProvider;}
+    public Boolean setStoryProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,49 +56,77 @@ public class ContentFragment extends Fragment {
 
         // default layout should never be used.
         mContentId = R.layout.content_undefined;
+        mContentOp = DaoDefs.INIT_STRING_MARKER;
+        mContentObjType = DaoDefs.INIT_STRING_MARKER;
+        mContentMoniker = DaoDefs.INIT_STRING_MARKER;
 
-        if (getArguments().containsKey(ARG_CONTENT_ID)) {
-            // set the content id
-            mContentId = getArguments().getInt(ARG_CONTENT_ID);
-            Log.v(TAG, "onCreate mContentId = " + ((Integer) mContentId).toString());
+        if (getArguments().containsKey(ARG_CONTENT_KEY_OP)) {
+            // set the content op
+            mContentOp = getArguments().getString(ARG_CONTENT_KEY_OP);
+            if (mContentOp.equals(ARG_CONTENT_VALUE_OP_PLAY)) {
+                mContentId = R.layout.content_stage;
+            }
+            else {
+                mContentId = R.layout.content_daomaker;
+            }
         }
+        if (getArguments().containsKey(ARG_CONTENT_KEY_OBJTYPE)) {
+            // set the content moniker
+            mContentObjType = getArguments().getString(ARG_CONTENT_KEY_OBJTYPE);
+        }
+        if (getArguments().containsKey(ARG_CONTENT_KEY_MONIKER)) {
+            // set the content moniker
+            mContentMoniker = getArguments().getString(ARG_CONTENT_KEY_MONIKER);
+        }
+        Log.v(TAG, "onCreate: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
 
         return refresh();
     }
     private View refresh() {
         mRootView = mInflater.inflate(mContentId, mContainer, false);
 
-        if (mContentId == R.layout.content_new) {
+        if (mContentId == R.layout.content_daomaker) {
             // create new handler & callback
-            mNewUiHandler = new NewUiHandler(mRootView);
-            mNewUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
+            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+            mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
         }
         return mRootView;
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private NewUiHandler.OnContentHandlerResult getOnContentHandlerResultCallback() {
+    private DaoMakerUiHandler.OnContentHandlerResult getOnContentHandlerResultCallback() {
         // instantiate callback
-        NewUiHandler.OnContentHandlerResult callback = new NewUiHandler.OnContentHandlerResult() {
+        DaoMakerUiHandler.OnContentHandlerResult callback = new DaoMakerUiHandler.OnContentHandlerResult() {
 
             @Override
-            public void onContentHandlerResult(int contentId) {
-                Log.d(TAG, "OnContentHandlerResult callback initiated for " + contentId);
+            public void onContentHandlerResult(String op, String objType, String moniker) {
+                Log.v(TAG, "onContentHandlerResult: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
                 // update the main content by replacing fragments
                 Fragment fragment = new ContentFragment();
 
                 ContentFragment cf = (ContentFragment)fragment;
-                cf.setPlayProvider(mStoryProvider);
+                cf.setStoryProvider(mStoryProvider);
+
+                // TODO: refactor with ContentFragment callback
+                // update the main content with stage
+                if (mStoryProvider.isPlayReady()) {
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+                    mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
+                }
+                else {
+                    // TODO: determine next step based on just completed operation
+                }
 
                 Bundle args = new Bundle();
-//                int content_id = R.layout.content_new;
-                args.putInt(ContentFragment.ARG_CONTENT_ID, contentId);
+                args.putString(ContentFragment.ARG_CONTENT_KEY_OP, mContentOp);
+                args.putString(ContentFragment.ARG_CONTENT_KEY_OBJTYPE, mContentObjType);
+                args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, mContentMoniker);
                 fragment.setArguments(args);
 
                 FragmentManager fragmentManager = getFragmentManager();
 //                fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
                 fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
-                mContentId = contentId;
             }
         };
         return callback;

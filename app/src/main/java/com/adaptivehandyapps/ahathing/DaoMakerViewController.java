@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NewCustomView extends View implements
+public class DaoMakerViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-    private static final String TAG = NewCustomView.class.getSimpleName();
+    private static final String TAG = DaoMakerViewController.class.getSimpleName();
 
     private static final int DEFAULT_MINOR_TEXT_SIZE_DP = 12;
     private static final int DEFAULT_MAJOR_TEXT_SIZE_DP = 24;
@@ -73,12 +73,12 @@ public class NewCustomView extends View implements
 
     ///////////////////////////////////////////////////////////////////////////
     // constructors
-    public NewCustomView(Context context) {
+    public DaoMakerViewController(Context context) {
         super(context);
         init(context);
     }
 
-    public NewCustomView(Context context, AttributeSet attrs) {
+    public DaoMakerViewController(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }

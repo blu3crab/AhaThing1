@@ -60,6 +60,10 @@ public class MainActivity extends AppCompatActivity
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
 
+    private String mContentOp = DaoDefs.INIT_STRING_MARKER;
+    private String mContentObjType = DaoDefs.INIT_STRING_MARKER;
+    private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
+
     // Firebase auth
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -130,9 +134,28 @@ public class MainActivity extends AppCompatActivity
         // set navigation menu
         setNavMenu();
 
+        // TODO: refactor MainActivity onCreate & ContentFragment callback
         // update the main content with stage
-        int contentId = R.layout.content_stage;
-        replaceFragment(contentId);
+        if (mStoryProvider.isPlayReady()) {
+            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+            mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
+            replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+        }
+        else {
+            if (mStoryProvider.getActiveTheatre() != null) {
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
+                mContentMoniker = mStoryProvider.getActiveTheatre().getMoniker();
+                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+            }
+            else {
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoTheatreList().theatres.size();
+                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+            }
+        }
 
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
@@ -221,6 +244,7 @@ public class MainActivity extends AppCompatActivity
         // add submenu from moniker list plus a "new" item
         Menu menu = mNavigationView.getMenu();
         SubMenu subMenu = menu.addSubMenu(title);
+//        subMenu.clear();
         MenuItem subMenuItem;
         for (String moniker : monikerList) {
             subMenuItem = subMenu.add(moniker);
@@ -321,28 +345,23 @@ public class MainActivity extends AppCompatActivity
         String itemname = item.toString();
         Log.d(TAG, "onNavigationItemSelected menu item:" + id + ", itemname: " + itemname);
         if (id == R.id.nav_theatre) {
-//            addSubMenu(DaoTheatreList.class, DaoDefs.DAOOBJ_TYPE_THEATRE);
-//            // update the main content by replacing fragments
-//            int contentId = R.layout.content_new;
-//            replaceFragment(contentId);
-//            // add a menu item
-//            final Menu menu = mNavigationView.getMenu();
-////            for (int i = 1; i <= 3; i++) {
-////                menu.add("Runtime item "+ i);
-////            }
-//            // add submenu with list of theatres plus a "new" item
-//            SubMenu subMenu = menu.addSubMenu("Theatres");
-//            MenuItem subMenuItem;
-//            for (DaoTheatre daoTheatre : mStoryProvider.getDaoTheatreList().theatres) {
-//                subMenuItem = subMenu.add(daoTheatre.getMoniker());
-//                subMenuItem.setIcon(R.drawable.ic_local_movies_black_48dp);
-//                Log.d(TAG, "onNavigationItemSelected submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
-//            }
-//            subMenuItem = subMenu.add("New Theatre");
-//            subMenuItem.setIcon(R.drawable.ic_local_movies_black_48dp);
-//            Log.d(TAG, "onNavigationItemSelected submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+            if (mStoryProvider.getActiveTheatre() != null) {
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE, mStoryProvider.getActiveTheatre().getMoniker());
+            }
+            else {
+                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoTheatreList().theatres.size();
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE, moniker);
+            }
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
         else if (id == R.id.nav_story) {
+            if (mStoryProvider.getActiveStory() != null) {
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_TITLE, mStoryProvider.getActiveStory().getMoniker());
+            }
+            else {
+                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoStoryList().stories.size();
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_TITLE, moniker);
+            }
             mDrawerLayout.closeDrawer(GravityCompat.START);
         }
         else if (id == R.id.nav_stage) {
@@ -435,15 +454,18 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // replace fragment
-    private Boolean replaceFragment(int contentId) {
+    private Boolean replaceFragment(String op, String objType, String moniker) {
 
+        // TODO: refactor MainActivity onCreate & ContentFragment callback
         Fragment fragment = new ContentFragment();
 
         ContentFragment cf = (ContentFragment)fragment;
-        cf.setPlayProvider(mStoryProvider);
+        cf.setStoryProvider(mStoryProvider);
 
         Bundle args = new Bundle();
-        args.putInt(ContentFragment.ARG_CONTENT_ID, contentId);
+        args.putString(ContentFragment.ARG_CONTENT_KEY_OP, op);
+        args.putString(ContentFragment.ARG_CONTENT_KEY_OBJTYPE, objType);
+        args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, moniker);
         fragment.setArguments(args);
 
         FragmentManager fragmentManager = getFragmentManager();

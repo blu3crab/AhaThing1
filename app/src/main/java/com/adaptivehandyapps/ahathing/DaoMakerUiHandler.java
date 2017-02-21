@@ -11,12 +11,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class NewUiHandler {
-    private static final String TAG = "NewUiHandler";
+public class DaoMakerUiHandler {
+    private static final String TAG = "DaoMakerUiHandler";
 
     private View mRootView;
 
@@ -27,7 +28,7 @@ public class NewUiHandler {
     ///////////////////////////////////////////////////////////////////////////
     // interface for a callback invoked when a result occurs e.g. ok/cancal
     public interface OnContentHandlerResult {
-        void onContentHandlerResult(int contentId);
+        void onContentHandlerResult(String op, String objType, String moniker);
     }
     ///////////////////////////////////////////////////////////////////////////
     // setter
@@ -37,8 +38,15 @@ public class NewUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public NewUiHandler(View v) {
+    public DaoMakerUiHandler(View v, StoryProvider storyProvider, final String op, final String objType, final String moniker) {
         mRootView = v;
+
+        // show creation date
+        TextView tvTitle = (TextView) mRootView.findViewById(R.id.tv_title);
+        tvTitle.setText(op + ": " + moniker);
+
+        TextView tvThingLabel = (TextView) mRootView.findViewById(R.id.tv_thing_label);
+        tvThingLabel.setText(op + ": " + moniker);
 
         // show creation date
         TextView tv_last_update = (TextView) mRootView.findViewById(R.id.tv_last_update);
@@ -58,8 +66,8 @@ public class NewUiHandler {
                 Toast.makeText(mRootView.getContext(), "Creating thing " + thingName, Toast.LENGTH_SHORT).show();
 
                 // refresh content view
-                Log.d(TAG, "MetricGauge onDown...");
-                if (mCallback != null) mCallback.onContentHandlerResult(R.layout.content_stage);
+                Log.d(TAG, "buttonCreate.setOnClickListener callback...");
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
 
             }
         });
