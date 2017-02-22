@@ -20,6 +20,7 @@ public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
 
     private View mRootView;
+    private StoryProvider mStoryProvider;
 
     ///////////////////////////////////////////////////////////////////////////
     // define an interface for a callback invoked when a result occurs e.g. ok/cancal
@@ -40,6 +41,7 @@ public class DaoMakerUiHandler {
     // constructor
     public DaoMakerUiHandler(View v, StoryProvider storyProvider, final String op, final String objType, final String moniker) {
         mRootView = v;
+        mStoryProvider = storyProvider;
 
         // show creation date
         TextView tvTitle = (TextView) mRootView.findViewById(R.id.tv_title);
@@ -47,6 +49,9 @@ public class DaoMakerUiHandler {
 
         TextView tvThingLabel = (TextView) mRootView.findViewById(R.id.tv_thing_label);
         tvThingLabel.setText(op + ": " + moniker);
+
+        EditText etThingName = (EditText) mRootView.findViewById(R.id.et_thing_name);
+        etThingName.setText(mStoryProvider.getActiveTheatre().getMoniker());
 
         // show creation date
         TextView tv_last_update = (TextView) mRootView.findViewById(R.id.tv_last_update);
@@ -80,6 +85,7 @@ public class DaoMakerUiHandler {
             public void onClick(View v) {
                 Log.v(TAG, "buttonDestroy.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "Destroying thing...", Toast.LENGTH_SHORT).show();
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
             }
         });
 

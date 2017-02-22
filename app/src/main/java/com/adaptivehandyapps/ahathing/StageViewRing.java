@@ -68,7 +68,7 @@ public class StageViewRing {
 
         // ensure StoryProvider ready
         mStoryProvider = parentViewController.getPlayProvider();
-        if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+        if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
             Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
             DaoStage daoStage = mStoryProvider.getActiveStage();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
@@ -222,7 +222,7 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+        if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
             Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
         }
         else {

@@ -109,7 +109,7 @@ public class ContentFragment extends Fragment {
 
                 // TODO: refactor with ContentFragment callback
                 // update the main content with stage
-                if (mStoryProvider.isPlayReady()) {
+                if (mStoryProvider.isStoryReady()) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
                     mContentMoniker = mStoryProvider.getActiveStory().getMoniker();

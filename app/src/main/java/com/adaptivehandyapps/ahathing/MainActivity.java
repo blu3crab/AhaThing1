@@ -128,15 +128,16 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        // create play provider
-        setStoryProvider(new StoryProvider(this, getPlayProviderCallback()));
+        // create story provider
+        setStoryProvider(new StoryProvider(this, getStoryProviderCallback()));
 
         // set navigation menu
         setNavMenu();
 
         // TODO: refactor MainActivity onCreate & ContentFragment callback
         // update the main content with stage
-        if (mStoryProvider.isPlayReady()) {
+        if (mStoryProvider.isStoryReady()) {
+
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
             mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
@@ -184,24 +185,36 @@ public class MainActivity extends AppCompatActivity
     private Boolean setNavMenu() {
         // append active object to menu title
         String activeName = DaoDefs.INIT_STRING_MARKER;
+        String prefix = DaoDefs.INIT_STRING_MARKER;
+        int iconId = R.drawable.ic_star_black_48dp;
         Menu menu = mNavigationView.getMenu();
-        for (int i = 0; i <menu.size(); i++) {
-            MenuItem menuItem = menu.getItem(i);
-            String itemName = menuItem.toString();
-            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+        menu.clear();
+        int objTypeCount = 3;
+        for (int i = 0; i < objTypeCount; i++) {
+            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE && mStoryProvider.isTheatreReady()) {
+                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
                 activeName = mStoryProvider.getActiveTheatre().getMoniker();
+                iconId = R.drawable.ic_local_movies_black_48dp;
             }
-            else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
+            else if (i == DaoDefs.DAOOBJ_TYPE_STORY && mStoryProvider.isStoryReady()) {
+                prefix = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
                 activeName = mStoryProvider.getActiveStory().getMoniker();
+                iconId = R.drawable.ic_menu_slideshow;
             }
-            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
+            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE  && mStoryProvider.isStageReady()) {
+                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_TITLE;
                 activeName = mStoryProvider.getActiveStage().getMoniker();
+                iconId = R.drawable.ic_menu_gallery;
             }
             else {
                 activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_TITLE;
             }
-            itemName = itemName.concat(": " + activeName);
-            menuItem.setTitle(itemName);
+            String itemName = prefix.concat(": " + activeName);
+
+            MenuItem menuItem = menu.add(itemName);
+            menuItem.setIcon(iconId);
+            Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
+
         }
         // add theatres
         addSubMenu(DaoTheatreList.class, DaoDefs.DAOOBJ_TYPE_THEATRE);
@@ -244,7 +257,7 @@ public class MainActivity extends AppCompatActivity
         // add submenu from moniker list plus a "new" item
         Menu menu = mNavigationView.getMenu();
         SubMenu subMenu = menu.addSubMenu(title);
-//        subMenu.clear();
+        subMenu.clear();
         MenuItem subMenuItem;
         for (String moniker : monikerList) {
             subMenuItem = subMenu.add(moniker);
@@ -437,15 +450,18 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // provider refresh callback
-    private StoryProvider.OnPlayProviderRefresh getPlayProviderCallback() {
+    private StoryProvider.OnStoryProviderRefresh getStoryProviderCallback() {
         // instantiate callback
-        StoryProvider.OnPlayProviderRefresh callback = new StoryProvider.OnPlayProviderRefresh() {
+        StoryProvider.OnStoryProviderRefresh callback = new StoryProvider.OnStoryProviderRefresh() {
 
             @Override
             public void onPlayProviderRefresh(Boolean refresh) {
-                Log.d(TAG, "getPlayProviderCallback onPlayProviderRefresh interior...");
+                Log.d(TAG, "getStoryProviderCallback onPlayProviderRefresh interior...");
                 if (!mVacating) {
-                    Log.d(TAG, "getPlayProviderCallback onPlayProviderRefresh not vacating...");
+                    Log.d(TAG, "getStoryProviderCallback onStoryProviderRefresh not vacating...setNavMenu");
+                    // set navigation menu
+                    setNavMenu();
+
 //                    refresh(refresh);
                 }
             }

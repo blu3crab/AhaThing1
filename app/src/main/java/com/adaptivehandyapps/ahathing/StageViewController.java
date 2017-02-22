@@ -102,7 +102,7 @@ public class StageViewController extends View implements
         MainActivity parent = (MainActivity) context;
         if (parent != null) {
             mStoryProvider = parent.getStoryProvider();
-            if (mStoryProvider != null && mStoryProvider.isPlayReady()) {
+            if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
                 Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
             }
             else {
