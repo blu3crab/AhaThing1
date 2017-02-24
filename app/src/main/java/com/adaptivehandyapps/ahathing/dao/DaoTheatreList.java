@@ -27,21 +27,43 @@ import java.util.List;
 public class DaoTheatreList {
 	public static final String JSON_CONTAINER = "theatres";
 
-	@SerializedName("theatres")
-	public List<DaoTheatre> theatres;
+	@SerializedName("moniker")
+	public List<String> moniker;
+	@SerializedName("dao")
+	public List<DaoTheatre> dao;
 
-	public DaoTheatreList(){theatres = new ArrayList<>();}
+	public DaoTheatreList(){
+		moniker = new ArrayList<>();
+		dao = new ArrayList<>();
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// returns DAO if found in list or null if not found
-	// TODO: use hashmap rather than serial scan
-	public DaoTheatre getDao(String moniker) {
-		for (DaoTheatre daoTheatre : theatres) {
-			if (daoTheatre.getMoniker().equals(moniker)) {
-				return daoTheatre;
+	public DaoTheatre getDao(String monikerTest) {
+		DaoTheatre daoTheatre = null;
+//		if (moniker.contains(monikerTest)) {
+			int inx = moniker.indexOf(monikerTest);
+			if (inx != -1) {
+				daoTheatre = dao.get(inx);
 			}
-		}
-		return null;
+//		}
+		return daoTheatre;
 	}
+	///////////////////////////////////////////////////////////////////////////
+	// returns DAO index if found in list or -1l if not found
+	public int getIndex(String monikerTest) {
+//		if (moniker.contains(monikerTest)) {
+			return moniker.indexOf(monikerTest);
+//		}
+//		return -1;
+	}
+//	public DaoTheatre getDao(String moniker) {
+//		for (DaoTheatre daoTheatre : dao) {
+//			if (daoTheatre.getMoniker().equals(moniker)) {
+//				return daoTheatre;
+//			}
+//		}
+//		return null;
+//	}
 }
 ///////////////////////////////////////////////////////////////////////////

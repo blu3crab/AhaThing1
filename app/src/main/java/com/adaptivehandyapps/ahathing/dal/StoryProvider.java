@@ -139,16 +139,47 @@ public class StoryProvider {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean addNewTheatre(DaoTheatreList daoTheatreList) {
 
-        // create new play & set active
+        // create new theatre, add to theatre dao list & set active
         DaoTheatre activeTheatre = new DaoTheatre();
-        daoTheatreList.theatres.add(activeTheatre);
+        daoTheatreList.dao.add(activeTheatre);
         setActiveTheatre(activeTheatre);
-        activeTheatre.setMoniker(DEFAULT_THEATRE_NICKNAME + daoTheatreList.theatres.size());
-
+        // default moniker & add to moniker list
+        String moniker = DEFAULT_THEATRE_NICKNAME + daoTheatreList.dao.size();
+        activeTheatre.setMoniker(moniker);
+        daoTheatreList.moniker.add(moniker);
+        // add child to db
         mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(activeTheatre);
 
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateTheatreRepo(DaoTheatre daoTheatre) {
+        // create or update theatre list & db
+        Log.d(TAG, "updateTheatreRepo: daoTheatre " + daoTheatre.toString());
+        // if added child not already present
+        if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
+            // add moniker & dao to lists
+            getDaoTheatreList().moniker.add(daoTheatre.getMoniker());
+            getDaoTheatreList().dao.add(daoTheatre);
+            // no active theatre, set added child active
+            if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
+            Log.d(TAG, "updateTheatreRepo created daoTheatre: " + daoTheatre.getMoniker());
+        }
+        else {
+            // added child already present, replace dao
+            int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
+            getDaoTheatreList().dao.set(i, daoTheatre);
+            Log.d(TAG, "updateTheatreRepo updated daoTheatre(" + i + "): " + daoTheatre.getMoniker());
+        }
+        mTheatreReady = true;
+        // add child to db
+        mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(daoTheatre);
+        // refresh 
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     public Boolean addNewStory(DaoStoryList daoStoryList) {
 
@@ -228,18 +259,32 @@ public class StoryProvider {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
                 DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
                 if (daoTheatre != null) {
-                    Log.d(TAG, "theatreListener childEventListener onChildAdded: daoTheatre " + daoTheatre.toString());
-                    getDaoTheatreList().theatres.add(daoTheatre);
-                    if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
-                    mTheatreReady = true;
-                    if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+                    Log.d(TAG, "childEventListener onChildAdded: daoTheatre " + daoTheatre.toString());
+                    updateTheatreRepo(daoTheatre);
+//                    // if added child not already present
+//                    if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
+//                        // add moniker & dao to lists
+//                        getDaoTheatreList().moniker.add(daoTheatre.getMoniker());
+//                        getDaoTheatreList().dao.add(daoTheatre);
+//                        // no active theatre, set added child active
+//                        if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
+//                        Log.d(TAG, "childEventListener onChildAdded added daoTheatre: " + daoTheatre.getMoniker());
+//                    }
+//                    else {
+//                        // added child already present, replace dao
+//                        int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
+//                        getDaoTheatreList().dao.set(i, daoTheatre);
+//                        Log.d(TAG, "childEventListener onChildAdded updated daoTheatre(" + i + "): " + daoTheatre.getMoniker());
+//                    }
+//                    mTheatreReady = true;
+//                    if (mCallback != null) mCallback.onPlayProviderRefresh(true);
                 }
                 // ...
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+                Log.d(TAG, "childEventListener onChildChanged:" + dataSnapshot.getKey());
                 DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
                 String commentKey = dataSnapshot.getKey();
 
@@ -248,7 +293,7 @@ public class StoryProvider {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
 
                 // A comment has changed, use the key to determine if we are displaying this
                 // comment and if so remove it.
@@ -259,7 +304,7 @@ public class StoryProvider {
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
 
                 DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
                 String commentKey = dataSnapshot.getKey();
@@ -269,8 +314,8 @@ public class StoryProvider {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "ChildEventListener:onCancelled", databaseError.toException());
-                Toast.makeText(mContext, "Failed to load comments.",
+                Log.w(TAG, "childEventListener onCancelled: ", databaseError.toException());
+                Toast.makeText(mContext, "Failed to load...",
                         Toast.LENGTH_SHORT).show();
             }
         };
@@ -287,19 +332,33 @@ public class StoryProvider {
                     DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
                     if (daoTheatre != null) {
                         Log.d(TAG, "queryTheatres onDataChange daoTheatre: " + daoTheatre.toString());
-                        getDaoTheatreList().theatres.add(daoTheatre);
-                        if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
-                        mTheatreReady = true;
+                        updateTheatreRepo(daoTheatre);
+//                        // if changed child not already present
+//                        if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
+//                            // add moniker & dao to lists
+//                            getDaoTheatreList().moniker.add(daoTheatre.getMoniker());
+//                            getDaoTheatreList().dao.add(daoTheatre);
+//                            // no active theatre, set added child active
+//                            if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
+//                            Log.d(TAG, "queryTheatres onDataChange added daoTheatre: " + daoTheatre.getMoniker());
+//                        }
+//                        else {
+//                            // changed child already present, replace dao
+//                            int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
+//                            getDaoTheatreList().dao.set(i, daoTheatre);
+//                            Log.d(TAG, "queryTheatres onDataChange updated daoTheatre(" + i + "): " + daoTheatre.getMoniker());
+//                        }
+//                        mTheatreReady = true;
                     }
                 }
-                if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+//                if (mCallback != null) mCallback.onPlayProviderRefresh(true);
                 // ...
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // get theatre object failed, log a message
-                Log.e(TAG, "theatreListener:onCancelled", databaseError.toException());
+                Log.e(TAG, "queryTheatres onCancelled: ", databaseError.toException());
                 // ...
             }
         };

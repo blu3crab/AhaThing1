@@ -80,13 +80,13 @@ public class DaoDefs {
     public static final int DAOOBJ_TYPE_ACTION = 4;
     public static final int DAOOBJ_TYPE_RESERVE = 5;
 
-    public static final String DAOOBJ_TYPE_UNKNOWN_TITLE = "Unknown";
-    public static final String DAOOBJ_TYPE_THEATRE_TITLE = "Theatre";
-    public static final String DAOOBJ_TYPE_STORY_TITLE = "Story";
-    public static final String DAOOBJ_TYPE_STAGE_TITLE = "Stage";
-    public static final String DAOOBJ_TYPE_ACTOR_TITLE = "Actor";
-    public static final String DAOOBJ_TYPE_ACTION_TITLE = "Action";
-    public static final String DAOOBJ_TYPE_RESERVE_TITLE = "Reserve";
+    public static final String DAOOBJ_TYPE_UNKNOWN_MONIKER = "Unknown";
+    public static final String DAOOBJ_TYPE_THEATRE_MONIKER = "Theatre";
+    public static final String DAOOBJ_TYPE_STORY_MONIKER = "Story";
+    public static final String DAOOBJ_TYPE_STAGE_MONIKER = "Stage";
+    public static final String DAOOBJ_TYPE_ACTOR_MONIKER = "Actor";
+    public static final String DAOOBJ_TYPE_ACTION_MONIKER = "Action";
+    public static final String DAOOBJ_TYPE_RESERVE_MONIKER = "Reserve";
 
 
     ///////////////////////////////////////////////////////////////////////////

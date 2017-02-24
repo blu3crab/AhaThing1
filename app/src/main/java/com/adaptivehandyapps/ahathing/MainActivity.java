@@ -135,25 +135,27 @@ public class MainActivity extends AppCompatActivity
         setNavMenu();
 
         // TODO: refactor MainActivity onCreate & ContentFragment callback
-        // update the main content with stage
+        // if story ready, update the main content with stage
         if (mStoryProvider.isStoryReady()) {
 
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
             replaceFragment(mContentOp, mContentObjType, mContentMoniker);
         }
         else {
+            // if active theatre, launch edit
             if (mStoryProvider.getActiveTheatre() != null) {
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
                 mContentMoniker = mStoryProvider.getActiveTheatre().getMoniker();
                 replaceFragment(mContentOp, mContentObjType, mContentMoniker);
             }
             else {
+                // no theatre active, launch new
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
-                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoTheatreList().theatres.size();
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreList().dao.size();
                 replaceFragment(mContentOp, mContentObjType, mContentMoniker);
             }
         }
@@ -192,22 +194,22 @@ public class MainActivity extends AppCompatActivity
         int objTypeCount = 3;
         for (int i = 0; i < objTypeCount; i++) {
             if (i == DaoDefs.DAOOBJ_TYPE_THEATRE && mStoryProvider.isTheatreReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
+                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
                 activeName = mStoryProvider.getActiveTheatre().getMoniker();
                 iconId = R.drawable.ic_local_movies_black_48dp;
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY && mStoryProvider.isStoryReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+                prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                 activeName = mStoryProvider.getActiveStory().getMoniker();
                 iconId = R.drawable.ic_menu_slideshow;
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STAGE  && mStoryProvider.isStageReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_TITLE;
+                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
                 activeName = mStoryProvider.getActiveStage().getMoniker();
                 iconId = R.drawable.ic_menu_gallery;
             }
             else {
-                activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_TITLE;
+                activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
             }
             String itemName = prefix.concat(": " + activeName);
 
@@ -230,25 +232,23 @@ public class MainActivity extends AppCompatActivity
     ///////////////////////////////////////////////////////////////////////////////////////////
     private SubMenu addSubMenu(Class objClass, @DaoDefs.DaoObjType int objType) {
         // extract moniker list
-        String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_TITLE;
+        String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
         int iconId = R.drawable.ic_star_black_48dp;
         List<String> monikerList = new ArrayList<>();
         if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
-            title = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE;
-            for (DaoTheatre daoTheatre : mStoryProvider.getDaoTheatreList().theatres) {
-                monikerList.add(daoTheatre.getMoniker());
-                iconId = R.drawable.ic_local_movies_black_48dp;
-            }
+            title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+            iconId = R.drawable.ic_local_movies_black_48dp;
+            monikerList = mStoryProvider.getDaoTheatreList().moniker;
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
-            title = DaoDefs.DAOOBJ_TYPE_STORY_TITLE;
+            title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             for (DaoStory daoStory : mStoryProvider.getDaoStoryList().stories) {
                 monikerList.add(daoStory.getMoniker());
                 iconId = R.drawable.ic_menu_slideshow;
             }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
-            title = DaoDefs.DAOOBJ_TYPE_STAGE_TITLE;
+            title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
             for (DaoStage daoStage : mStoryProvider.getDaoStageList().stages) {
                 monikerList.add(daoStage.getMoniker());
                 iconId = R.drawable.ic_menu_gallery;
@@ -354,44 +354,43 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
         String itemname = item.toString();
-        Log.d(TAG, "onNavigationItemSelected menu item:" + id + ", itemname: " + itemname);
-        if (id == R.id.nav_theatre) {
+        String itemSplit[] = itemname.split(":");
+        Log.d(TAG, "onNavigationItemSelected itemname: " + itemname + ", split:" + itemSplit[0]);
+//        for static menu items, extract id & compare to resource
+//        int id = item.getItemId();
+//        if (id == R.id.nav_theatre)) {
+        // check split for top level object: active theatre, story, stage, etc...
+        if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
             if (mStoryProvider.getActiveTheatre() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE, mStoryProvider.getActiveTheatre().getMoniker());
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, mStoryProvider.getActiveTheatre().getMoniker());
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoTheatreList().theatres.size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE, moniker);
+                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreList().dao.size();
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, moniker);
             }
-            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
-        else if (id == R.id.nav_story) {
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
             if (mStoryProvider.getActiveStory() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_TITLE, mStoryProvider.getActiveStory().getMoniker());
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, mStoryProvider.getActiveStory().getMoniker());
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_TITLE + mStoryProvider.getDaoStoryList().stories.size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_TITLE, moniker);
+                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoStoryList().stories.size();
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, moniker);
             }
-            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
-        else if (id == R.id.nav_stage) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
         }
-        else if (id == R.id.nav_actor) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
         }
-        else if (id == 0) {
-            // submenu selection
+        else {
+            // submenu selection - search object lists
 
-
-            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
-
+        // close drawer
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 //        drawer.closeDrawer(GravityCompat.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 

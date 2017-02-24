@@ -12,9 +12,8 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 
 public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
@@ -51,7 +50,14 @@ public class DaoMakerUiHandler {
         tvThingLabel.setText(op + ": " + moniker);
 
         EditText etThingName = (EditText) mRootView.findViewById(R.id.et_thing_name);
-        etThingName.setText(mStoryProvider.getActiveTheatre().getMoniker());
+        etThingName.setText(moniker);
+        // init object type specific fields
+        if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+        }
+        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+        }
+        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+        }
 
         // show creation date
         TextView tv_last_update = (TextView) mRootView.findViewById(R.id.tv_last_update);
@@ -69,6 +75,17 @@ public class DaoMakerUiHandler {
                 String thingName = et.getText().toString();
 
                 Toast.makeText(mRootView.getContext(), "Creating thing " + thingName, Toast.LENGTH_SHORT).show();
+
+                if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+                    // get theatre object, update name, update repo
+                    DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                    daoTheatre.setMoniker(thingName);
+                    mStoryProvider.updateTheatreRepo(daoTheatre);
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+                }
 
                 // refresh content view
                 Log.d(TAG, "buttonCreate.setOnClickListener callback...");
