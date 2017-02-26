@@ -161,8 +161,6 @@ public class StoryProvider {
             // add moniker & dao to lists
             getDaoTheatreList().moniker.add(daoTheatre.getMoniker());
             getDaoTheatreList().dao.add(daoTheatre);
-            // no active theatre, set added child active
-            if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
             Log.d(TAG, "updateTheatreRepo created daoTheatre: " + daoTheatre.getMoniker());
         }
         else {
@@ -171,10 +169,48 @@ public class StoryProvider {
             getDaoTheatreList().dao.set(i, daoTheatre);
             Log.d(TAG, "updateTheatreRepo updated daoTheatre(" + i + "): " + daoTheatre.getMoniker());
         }
+        // no active theatre, set added child active
+        if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
+
         mTheatreReady = true;
         // add child to db
         mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(daoTheatre);
-        // refresh 
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeTheatreRepo(DaoTheatre daoTheatre) {
+        // create or update theatre list & db
+        Log.d(TAG, "removeTheatreRepo: daoTheatre " + daoTheatre.toString());
+        // if daoTheatre not found
+        if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
+            // dao not present in repo
+            Log.e(TAG, " removeTheatreRepo - Theatre " + daoTheatre.getMoniker() + " not found.");
+            return false;
+        }
+        else {
+            // get index & remove from theatre lists
+            int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
+            getDaoTheatreList().moniker.remove(i);
+            getDaoTheatreList().dao.remove(i);
+            // if active theatre, set active to 1st object
+            if (getActiveTheatre().getMoniker().equals(daoTheatre.getMoniker())) {
+                if (getDaoTheatreList().dao.size() > 0) {
+                    setActiveTheatre(getDaoTheatreList().dao.get(0));
+                }
+                else {
+                    setActiveTheatre(null);
+                }
+            }
+
+            Log.d(TAG, "removeTheatreRepo removed daoTheatre(" + i + "): " + daoTheatre.getMoniker());
+        }
+        mTheatreReady = true;
+        // add child to db
+        mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(daoTheatre);
+        // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
 
         return true;

@@ -64,9 +64,12 @@ public class DaoMakerUiHandler {
         String date = TimeUtils.secsToDate(System.currentTimeMillis());
         tv_last_update.setText(date);
 
-        // init create button
-        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_new_create);
+        // establish create button visibility & click listener
+        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_create);
         buttonCreate.setVisibility(View.VISIBLE);
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            buttonCreate.setText("Update");
+        }
 
         buttonCreate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -78,7 +81,10 @@ public class DaoMakerUiHandler {
 
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                     // get theatre object, update name, update repo
-                    DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                    DaoTheatre daoTheatre = new DaoTheatre();
+                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+                        daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                    }
                     daoTheatre.setMoniker(thingName);
                     mStoryProvider.updateTheatreRepo(daoTheatre);
                 }
@@ -94,14 +100,40 @@ public class DaoMakerUiHandler {
             }
         });
 
-        // init destroy button
-        final Button buttonDestroy = (Button) mRootView.findViewById(R.id.button_new_destroy);
-        buttonCreate.setVisibility(View.VISIBLE);
+        // establish destroy button visibility & click listener
+        final Button buttonDestroy = (Button) mRootView.findViewById(R.id.button_daomaker_destroy);
+        // if editting existing object, present Destroy option
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            buttonDestroy.setVisibility(View.VISIBLE);
+
+            if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+                // get theatre object, update name, update repo
+                DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                mStoryProvider.removeTheatreRepo(daoTheatre);
+            }
+            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+            }
+            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+            }
+
+        }
 
         buttonDestroy.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonDestroy.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "Destroying thing...", Toast.LENGTH_SHORT).show();
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+            }
+        });
+
+        // establish cancel button visibility & click listener
+        final Button buttonCancel = (Button) mRootView.findViewById(R.id.button_daomaker_cancel);
+        buttonCancel.setVisibility(View.VISIBLE);
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v(TAG, "buttonCancel.setOnClickListener: ");
+                Toast.makeText(mRootView.getContext(), "Canceling thing...", Toast.LENGTH_SHORT).show();
                 if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
             }
         });
