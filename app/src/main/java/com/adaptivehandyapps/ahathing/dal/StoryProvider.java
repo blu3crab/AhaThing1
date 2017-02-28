@@ -11,6 +11,7 @@ import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStageList;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatreList;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatreRepo;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -41,7 +42,8 @@ public class StoryProvider {
     private Boolean mStoryReady = false;
     private Boolean mStageReady = false;
 
-    private DaoTheatreList mDaoTheatreList;
+//    private DaoTheatreList mDaoTheatreList;
+    private DaoTheatreRepo mDaoTheatreRepo;
     private DaoStoryList mDaoStoryList;
     private DaoStageList mDaoStageList;
 
@@ -81,7 +83,8 @@ public class StoryProvider {
         Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", UserId " + mUserId);
 
         // create theatre list
-        mDaoTheatreList = new DaoTheatreList();
+//        mDaoTheatreList = new DaoTheatreList();
+        mDaoTheatreRepo = new DaoTheatreRepo();
         // add new theatre
 //        addNewTheatre(mDaoTheatreList);
         queryTheatres();
@@ -103,10 +106,15 @@ public class StoryProvider {
     public Boolean isStoryReady() { return mStoryReady;}
     public Boolean isStageReady() { return mStageReady;}
 
-    public DaoTheatreList getDaoTheatreList() { return mDaoTheatreList; }
-    public void setDaoTheatreList(DaoTheatreList daoTheatreList) {
-        this.mDaoTheatreList = daoTheatreList;
+//    public DaoTheatreList getDaoTheatreList() { return mDaoTheatreList; }
+//    public void setDaoTheatreList(DaoTheatreList daoTheatreList) {
+//        this.mDaoTheatreList = daoTheatreList;
+//    }
+    public DaoTheatreRepo getDaoTheatreRepo() { return mDaoTheatreRepo; }
+    public void setDaoTheatreRepo(DaoTheatreRepo daoTheatreRepo) {
+        this.mDaoTheatreRepo = daoTheatreRepo;
     }
+
     public DaoStoryList getDaoStoryList() { return mDaoStoryList; }
     public void setDaoStoryList(DaoStoryList daoStoryList) {
         this.mDaoStoryList = daoStoryList;
@@ -156,24 +164,14 @@ public class StoryProvider {
     public Boolean updateTheatreRepo(DaoTheatre daoTheatre) {
         // create or update theatre list & db
         Log.d(TAG, "updateTheatreRepo: daoTheatre " + daoTheatre.toString());
-        // if added child not already present
-        if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
-            // add moniker & dao to lists
-            getDaoTheatreList().moniker.add(daoTheatre.getMoniker());
-            getDaoTheatreList().dao.add(daoTheatre);
-            Log.d(TAG, "updateTheatreRepo created daoTheatre: " + daoTheatre.getMoniker());
-        }
-        else {
-            // added child already present, replace dao
-            int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
-            getDaoTheatreList().dao.set(i, daoTheatre);
-            Log.d(TAG, "updateTheatreRepo updated daoTheatre(" + i + "): " + daoTheatre.getMoniker());
-        }
+        // add or update repo with object
+        getDaoTheatreRepo().set(daoTheatre);
+
         // no active theatre, set added child active
+        mTheatreReady = true;
         if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
 
-        mTheatreReady = true;
-        // add child to db
+        // update db
         mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(daoTheatre);
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -184,32 +182,26 @@ public class StoryProvider {
     public Boolean removeTheatreRepo(DaoTheatre daoTheatre) {
         // create or update theatre list & db
         Log.d(TAG, "removeTheatreRepo: daoTheatre " + daoTheatre.toString());
-        // if daoTheatre not found
-        if (getDaoTheatreList().getDao(daoTheatre.getMoniker()) == null) {
-            // dao not present in repo
-            Log.e(TAG, " removeTheatreRepo - Theatre " + daoTheatre.getMoniker() + " not found.");
-            return false;
-        }
-        else {
-            // get index & remove from theatre lists
-            int i = getDaoTheatreList().getIndex(daoTheatre.getMoniker());
-            getDaoTheatreList().moniker.remove(i);
-            getDaoTheatreList().dao.remove(i);
-            // if active theatre, set active to 1st object
-            if (getActiveTheatre().getMoniker().equals(daoTheatre.getMoniker())) {
-                if (getDaoTheatreList().dao.size() > 0) {
-                    setActiveTheatre(getDaoTheatreList().dao.get(0));
-                }
-                else {
-                    setActiveTheatre(null);
-                }
+        // if removing active object
+        if (getActiveTheatre().getMoniker().equals(daoTheatre.getMoniker())) {
+            // if an object is defined
+            if (getDaoTheatreRepo().get(0) != null) {
+                // set active object
+                mTheatreReady = true;
+                setActiveTheatre(getDaoTheatreRepo().get(0));
             }
-
-            Log.d(TAG, "removeTheatreRepo removed daoTheatre(" + i + "): " + daoTheatre.getMoniker());
+            else {
+                // clear active object
+                mTheatreReady = false;
+                setActiveTheatre(null);
+            }
         }
-        mTheatreReady = true;
-        // add child to db
-        mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).setValue(daoTheatre);
+        // add or update repo with object
+        getDaoTheatreRepo().remove(daoTheatre.getMoniker());
+        Log.d(TAG, "removeTheatreRepo removed daoTheatre: " + daoTheatre.getMoniker());
+
+        // remove
+        mDatabaseReference.child(DaoTheatreList.JSON_CONTAINER).child(mUserId).child(daoTheatre.getMoniker()).removeValue();
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
 

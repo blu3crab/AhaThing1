@@ -83,7 +83,7 @@ public class DaoMakerUiHandler {
                     // get theatre object, update name, update repo
                     DaoTheatre daoTheatre = new DaoTheatre();
                     if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-                        daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                        daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
                     }
                     daoTheatre.setMoniker(thingName);
                     mStoryProvider.updateTheatreRepo(daoTheatre);
@@ -108,7 +108,7 @@ public class DaoMakerUiHandler {
 
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                 // get theatre object, update name, update repo
-                DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreList().getDao(moniker);
+                DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
                 mStoryProvider.removeTheatreRepo(daoTheatre);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {

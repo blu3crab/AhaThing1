@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
                 // no theatre active, launch new
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreList().dao.size();
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
                 replaceFragment(mContentOp, mContentObjType, mContentMoniker);
             }
         }
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity
         if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
             title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
             iconId = R.drawable.ic_local_movies_black_48dp;
-            monikerList = mStoryProvider.getDaoTheatreList().moniker;
+            monikerList = mStoryProvider.getDaoTheatreRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
@@ -374,7 +374,7 @@ public class MainActivity extends AppCompatActivity
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, mStoryProvider.getActiveTheatre().getMoniker());
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreList().dao.size();
+                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, moniker);
             }
         }
@@ -404,9 +404,9 @@ public class MainActivity extends AppCompatActivity
                 }
                 // default moniker to list size
                 if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                    Integer next = mStoryProvider.getDaoTheatreList().dao.size();
+                    Integer next = mStoryProvider.getDaoTheatreRepo().size();
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + next;
-                    while (mStoryProvider.getDaoTheatreList().moniker.contains(mContentMoniker) && next < INSANE_LIMIT) {
+                    while (mStoryProvider.getDaoTheatreRepo().contains(mContentMoniker) && next < INSANE_LIMIT) {
                         ++next;
                         mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + next;
                     }
@@ -422,9 +422,9 @@ public class MainActivity extends AppCompatActivity
             }
             else {
                 // existing object - set active based on find object type
-                if (mStoryProvider.getDaoTheatreList().getDao(itemname) != null) {
+                if (mStoryProvider.getDaoTheatreRepo().get(itemname) != null) {
                     // theatre - set active
-                    mStoryProvider.setActiveTheatre(mStoryProvider.getDaoTheatreList().getDao(itemname));
+                    mStoryProvider.setActiveTheatre(mStoryProvider.getDaoTheatreRepo().get(itemname));
                 }
                 else if (mStoryProvider.getDaoStoryList().getDao(itemname) != null) {
                     // story - set active
