@@ -76,8 +76,8 @@ public class DaoTheatreRepo {
 	public Boolean remove(String moniker) {
 		int inx = monikerList.indexOf(moniker);
 		if (inx != -1) {
-			DaoTheatre daoTheatre = daoList.get(inx);
-
+			monikerList.remove(inx);
+			daoList.remove(inx);
 			return true;
 		}
 		return false;

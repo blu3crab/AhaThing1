@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -263,8 +264,13 @@ public class StageViewController extends View implements
     private Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
         if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             int i = mStageViewRing.toggleSelection(touchX, touchY, z, plus);
-            DaoLocus daoLocus = mActiveStage.getLocusList().locii.get(i);
-            Log.v(TAG, "toggleSelection stage type: " + mActiveStage.getStageType() + " toggle at " + daoLocus.getNickname());
+            if (i > DaoDefs.INIT_INTEGER_MARKER) {
+                DaoLocus daoLocus = mActiveStage.getLocusList().locii.get(i);
+                Log.v(TAG, "toggleSelection stage type: " + mActiveStage.getStageType() + " toggle at " + daoLocus.getNickname());
+            }
+            else {
+                Log.e(TAG, "toggleSelection UNKNOWN invalid selection for " + mActiveStage.getStageType());
+            }
         }
         else {
             Log.e(TAG, "toggleSelection UNKNOWN stage type: " + mActiveStage.getStageType());

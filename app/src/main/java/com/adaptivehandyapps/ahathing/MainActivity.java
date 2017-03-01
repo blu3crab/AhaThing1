@@ -31,11 +31,7 @@ import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStageList;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
-import com.adaptivehandyapps.ahathing.dao.DaoStoryList;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatreList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -227,18 +223,18 @@ public class MainActivity extends AppCompatActivity
 
         }
         // add theatres
-        addSubMenu(DaoTheatreList.class, DaoDefs.DAOOBJ_TYPE_THEATRE);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE);
         // add stories
-        addSubMenu(DaoStoryList.class, DaoDefs.DAOOBJ_TYPE_STORY);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY);
         // add stages
-        addSubMenu(DaoStageList.class, DaoDefs.DAOOBJ_TYPE_STAGE);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE);
 //        // add actors
-//        addSubMenu(DaoActorList.class, DaoDefs.DAOOBJ_TYPE_ACTOR);
+//        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR);
 
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
-    private SubMenu addSubMenu(Class objClass, @DaoDefs.DaoObjType int objType) {
+    private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType) {
         // extract moniker list
         String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
         int iconId = R.drawable.ic_star_black_48dp;

@@ -84,9 +84,23 @@ public class DaoMakerUiHandler {
                     DaoTheatre daoTheatre = new DaoTheatre();
                     if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
                         daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
+                        if (daoTheatre != null) {
+                            // if moniker has been edited
+                            if (!moniker.equals(thingName)) {
+                                // remove obsolete entry
+                                mStoryProvider.removeTheatreRepo(daoTheatre, true);
+                            }
+                        }
+                        else {
+                            // error: never should edit NULL object!  create a placeholder & carry on
+                            daoTheatre = new DaoTheatre();
+                            Log.e(TAG, "buttonCreate.setOnClickListener: editing NULL object?");
+                        }
                     }
+                    // update with edited values
                     daoTheatre.setMoniker(thingName);
-                    mStoryProvider.updateTheatreRepo(daoTheatre);
+                    // update repo
+                    mStoryProvider.updateTheatreRepo(daoTheatre, true);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 }
@@ -102,14 +116,11 @@ public class DaoMakerUiHandler {
 
         // establish destroy button visibility & click listener
         final Button buttonDestroy = (Button) mRootView.findViewById(R.id.button_daomaker_destroy);
-        // if editting existing object, present Destroy option
+        // if editing existing object, present Destroy option
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             buttonDestroy.setVisibility(View.VISIBLE);
 
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                // get theatre object, update name, update repo
-                DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
-                mStoryProvider.removeTheatreRepo(daoTheatre);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
             }
@@ -122,6 +133,28 @@ public class DaoMakerUiHandler {
             public void onClick(View v) {
                 Log.v(TAG, "buttonDestroy.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "Destroying thing...", Toast.LENGTH_SHORT).show();
+                if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+                    // get theatre object, update name, update repo
+                    DaoTheatre daoTheatre = new DaoTheatre();
+                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+                        daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
+                        if (daoTheatre != null) {
+                            // remove obsolete entry
+                            mStoryProvider.removeTheatreRepo(daoTheatre, true);
+                        }
+                        else {
+                            // error: never should edit NULL object!  do nothing...
+                            Log.e(TAG, "buttonDestroy.setOnClickListener: editing NULL object?");
+                        }
+                    }
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+                }
+
+                // refresh content view
+                Log.d(TAG, "buttonDestroy.setOnClickListener callback...");
                 if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
             }
         });
