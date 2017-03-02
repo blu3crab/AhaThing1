@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.StageModelRing;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoStoryList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -54,7 +55,7 @@ public class StoryProvider {
     private StageModelRing mStageModelRing;
 
     // firebase
-    private String mUserId;
+    private String mUserId = DaoDefs.INIT_STRING_MARKER;
     private Boolean mIsFirebaseReady = false;
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mTheatresReference;
@@ -78,8 +79,15 @@ public class StoryProvider {
         if (!isFirebaseReady()) {
             Log.e(TAG, "Firebase NOT ready.");
         }
-        // get user id
-        mUserId = getUid();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            // get user id
+            mUserId = getUid();
+            setFirebaseListener();
+            queryTheatres();
+        }
+        else {
+            mIsFirebaseReady = false;
+        }
         Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", UserId " + mUserId);
 
         // create theatre list
@@ -87,7 +95,6 @@ public class StoryProvider {
         mDaoTheatreRepo = new DaoTheatreRepo();
         // add new theatre
 //        addNewTheatre(mDaoTheatreList);
-        queryTheatres();
         // create play list
         mDaoStoryList = new DaoStoryList();
         // add new play
@@ -261,7 +268,7 @@ public class StoryProvider {
         if (mDatabaseReference != null) {
             mIsFirebaseReady = true;
             mTheatresReference = FirebaseDatabase.getInstance().getReference().child(DaoTheatreRepo.JSON_CONTAINER);
-            setFirebaseListener();
+//            setFirebaseListener();
         }
         return mIsFirebaseReady;
     }
@@ -274,7 +281,11 @@ public class StoryProvider {
     private DatabaseReference getTheatresReference() {
         return mTheatresReference;
     }
-    private Boolean setFirebaseListener() {
+    public Boolean removeFirebaseListener() {
+        // TODO: remove listeners
+        return true;
+    }
+    public Boolean setFirebaseListener() {
         ValueEventListener theatreListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -396,7 +407,7 @@ public class StoryProvider {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean queryTheatres() {
+    public Boolean queryTheatres() {
         ValueEventListener theatreListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

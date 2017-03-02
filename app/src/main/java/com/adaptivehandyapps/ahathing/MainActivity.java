@@ -38,6 +38,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static final Integer REQUEST_CODE_GALLERY = 1;
-    private static final Boolean FORCE_PHOTO_SELECTION = false;
+    private static final Boolean FORCE_PHOTO_SELECTION = true;
 
     private static final Integer INSANE_LIMIT = 1024;
 
@@ -97,12 +98,49 @@ public class MainActivity extends AppCompatActivity
                      Log.d(TAG, "Opening drawer...");
                      FirebaseUser user = mAuth.getCurrentUser();
                      if (user != null) {
-                         // if photo exists, u
+                         // if nav photo holder exists
                          ImageView iv_photo = (ImageView) findViewById(R.id.iv_navphoto);
                          if (iv_photo != null) {
+                             // default nav photo
                              iv_photo.setImageResource(R.drawable.bluecrab48);
+                             // if user photo exists
                              Uri photoUri = user.getPhotoUrl();
-                             if (photoUri != null) iv_photo.setImageURI(photoUri);
+                             if (photoUri != null) {
+                                 try {
+                                     // set nav photo to user photo
+                                     String realPath = getRealPathFromURI(photoUri);
+                                     Log.d(TAG, "user photo uri " + photoUri.toString());
+                                     iv_photo.setImageURI(photoUri);
+                                 }
+                                 catch (Exception ex) {
+                                     Log.e(TAG, "onDrawerStateChanged invalid photo URI exception: " + ex.getMessage());
+
+                                     // TODO: prompt for photo
+                                     Uri uri = Uri.parse("@drawable/bluecrab48");
+
+                                     // TODO: extract profile update
+                                     // update profile with display name
+                                     UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                             .setPhotoUri(uri)
+//                .setDisplayName(name)
+//                    .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                                             .build();
+
+                                     user.updateProfile(profileUpdates)
+                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                 @Override
+                                                 public void onComplete(@NonNull Task<Void> task) {
+                                                     if (task.isSuccessful()) {
+                                                         Log.d(TAG, "User profile updated with photoUri @drawable/bluecrab48");
+                                                     }
+                                                     else {
+                                                         Log.e(TAG, "User profile NOT updated with photoUri @drawable/bluecrab48");
+                                                     }
+                                                 }
+                                             });
+
+                                 }
+                             }
                          }
                          TextView tv_name = (TextView) findViewById(R.id.tv_navname);
                          if (tv_name != null) {
@@ -167,10 +205,13 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    mStoryProvider.setFirebaseListener();
+                    mStoryProvider.queryTheatres();
                 }
                 else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
+                    mStoryProvider.removeFirebaseListener();
                 }
                 // ...TODO?
             }
@@ -313,7 +354,8 @@ public class MainActivity extends AppCompatActivity
                     name = updateFirebaseDisplayNameFromEmail(user, email);
                 }
 
-                if (FORCE_PHOTO_SELECTION || photoUrl == null) {
+                if (FORCE_PHOTO_SELECTION) {
+//                    if (FORCE_PHOTO_SELECTION || photoUrl == null) {
                     // update firebase user profile with photo uri selected from gallery
                     updateFirebasePhotoUrlFromGallery();
                 }
@@ -605,7 +647,7 @@ public class MainActivity extends AppCompatActivity
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
-
+                    // TODO: extract profile update
                     // update profile with display name
                     UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                             .setPhotoUri(currImageURI)

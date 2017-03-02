@@ -230,6 +230,8 @@ public class GoogleSignInActivity extends BaseActivity implements
         } else {
             mStatusTextView.setText(R.string.signed_out);
             mDetailTextView.setText(null);
+//            mStatusTextView.setText("signed out");
+//            mDetailTextView.setText("nunca");
 
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
