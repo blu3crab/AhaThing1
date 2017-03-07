@@ -5,21 +5,30 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
 
     private View mRootView;
     private StoryProvider mStoryProvider;
+
+    private TagListAdapter mTagListAdapter = null;
+
 
     ///////////////////////////////////////////////////////////////////////////
     // define an interface for a callback invoked when a result occurs e.g. ok/cancal
@@ -46,13 +55,21 @@ public class DaoMakerUiHandler {
         TextView tvTitle = (TextView) mRootView.findViewById(R.id.tv_title);
         tvTitle.setText(op + ": " + moniker);
 
-        TextView tvThingLabel = (TextView) mRootView.findViewById(R.id.tv_thing_label);
-        tvThingLabel.setText(op + ": " + moniker);
+        TextView tvMonikerLabel = (TextView) mRootView.findViewById(R.id.tv_moniker_label);
+        tvMonikerLabel.setText("Moniker: ");
 
-        EditText etThingName = (EditText) mRootView.findViewById(R.id.et_thing_name);
-        etThingName.setText(moniker);
+        EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
+        etMoniker.setText(moniker);
+
+        TextView tvHeadlineLabel = (TextView) mRootView.findViewById(R.id.tv_headline_label);
+        tvHeadlineLabel.setText("Headline: ");
+
         // init object type specific fields
         if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+            if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+                EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
+                etHeadline.setText(mStoryProvider.getDaoTheatreRepo().get(moniker).getHeadline());
+            }
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
         }
@@ -64,20 +81,78 @@ public class DaoMakerUiHandler {
         String date = TimeUtils.secsToDate(System.currentTimeMillis());
         tv_last_update.setText(date);
 
+        // establish tag list
+        handleTagList();
+
+        // establish button handlers
+        handleCreateButton(op, objType, moniker);
+        handleDestroyButton(op, objType, moniker);
+        handleCancelButton(op, objType, moniker);
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleTagList() {
+
+        // list handler
+        int resId = R.layout.tag_list_item;
+        List<String> tagNameList = new ArrayList<>();
+        List<String> tagLabelList = new ArrayList<>();
+        List<Integer> tagImageResIdList = new ArrayList<>();
+
+        for (DaoStory story : mStoryProvider.getDaoStoryList().stories) {
+            tagNameList.add(story.getMoniker());
+            tagLabelList.add("...");
+            int imageResId = R.drawable.ic_local_movies_black_48dp;
+            tagImageResIdList.add(imageResId);
+        }
+        // instantiate list adapter
+        mTagListAdapter =
+                new TagListAdapter(mRootView.getContext(),
+                        resId,
+                        tagNameList,
+                        tagLabelList,
+                        tagImageResIdList);
+
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_alert);
+        if (mTagListAdapter != null && lv != null) {
+            lv.setAdapter(mTagListAdapter);
+        } else {
+            // pipe_list_item_site panel ahs no alert list
+            Log.e(TAG, "NULL mTagListAdapter? " + mTagListAdapter + ", R.id.listview? " + lv);
+            return false;
+        }
+        // establish listener
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3)
+            {
+                String value = (String)adapter.getItemAtPosition(position);
+                Log.d(TAG,"handleTagList item " + value + " at position " + position);
+            }
+        });
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleCreateButton(final String op, final String objType, final String moniker) {
         // establish create button visibility & click listener
         final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_create);
         buttonCreate.setVisibility(View.VISIBLE);
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             buttonCreate.setText("Update");
         }
-
+        // button handlers
         buttonCreate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonCreate.setOnClickListener: ");
-                EditText et = (EditText) mRootView.findViewById(R.id.et_thing_name);
-                String thingName = et.getText().toString();
+                EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
+                String thingMoniker = etMoniker.getText().toString();
+                EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
+                String thingHeadline = etHeadline.getText().toString();
 
-                Toast.makeText(mRootView.getContext(), "Creating thing " + thingName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mRootView.getContext(), "Creating thing " + thingMoniker, Toast.LENGTH_SHORT).show();
 
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                     // get theatre object, update name, update repo
@@ -86,7 +161,7 @@ public class DaoMakerUiHandler {
                         daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
                         if (daoTheatre != null) {
                             // if moniker has been edited
-                            if (!moniker.equals(thingName)) {
+                            if (!moniker.equals(thingMoniker)) {
                                 // remove obsolete entry
                                 mStoryProvider.removeTheatreRepo(daoTheatre, true);
                             }
@@ -98,7 +173,8 @@ public class DaoMakerUiHandler {
                         }
                     }
                     // update with edited values
-                    daoTheatre.setMoniker(thingName);
+                    daoTheatre.setMoniker(thingMoniker);
+                    daoTheatre.setHeadline(thingHeadline);
                     // update repo
                     mStoryProvider.updateTheatreRepo(daoTheatre, true);
                 }
@@ -114,6 +190,10 @@ public class DaoMakerUiHandler {
             }
         });
 
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleDestroyButton(final String op, final String objType, final String moniker) {
         // establish destroy button visibility & click listener
         final Button buttonDestroy = (Button) mRootView.findViewById(R.id.button_daomaker_destroy);
         // if editing existing object, present Destroy option
@@ -159,6 +239,10 @@ public class DaoMakerUiHandler {
             }
         });
 
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleCancelButton(final String op, final String objType, final String moniker) {
         // establish cancel button visibility & click listener
         final Button buttonCancel = (Button) mRootView.findViewById(R.id.button_daomaker_cancel);
         buttonCancel.setVisibility(View.VISIBLE);
@@ -171,19 +255,7 @@ public class DaoMakerUiHandler {
             }
         });
 
+        return true;
     }
-//    ///////////////////////////////////////////////////////////////////////////
-//    public static String secsToDate(long timeMs) {
-//        Date date = new Date(timeMs);
-////        String pattern = "dd-MM-yyyy";
-////        String pattern = "dd-MM-yyyy HH:mm:ss";
-//        String pattern = "ddMMMyy HH:mm:ss z";
-////        String pattern = PrefsUtils.getPrefsDateFormat(context);
-//
-//        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-//        String dateText = sdf.format(date);
-////        Log.v(TAG, "secsToDate date:" + dateText);
-//        return dateText;
-//    }
     ///////////////////////////////////////////////////////////////////////////
 }

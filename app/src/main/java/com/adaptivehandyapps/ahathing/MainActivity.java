@@ -243,6 +243,11 @@ public class MainActivity extends AppCompatActivity
                 if (mStoryProvider.getActiveTheatre() != null) activeName = mStoryProvider.getActiveTheatre().getMoniker();
                 iconId = R.drawable.ic_local_movies_black_48dp;
             }
+            else if (i == DaoDefs.DAOOBJ_TYPE_EPIC && mStoryProvider.isEpicReady()) {
+                prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                if (mStoryProvider.getActiveEpic() != null) activeName = mStoryProvider.getActiveEpic().getMoniker();
+                iconId = R.drawable.ic_burst_mode_black_48dp;
+            }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY && mStoryProvider.isStoryReady()) {
                 prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                 if (mStoryProvider.getActiveStory() != null) activeName = mStoryProvider.getActiveStory().getMoniker();
@@ -265,6 +270,8 @@ public class MainActivity extends AppCompatActivity
         }
         // add theatres
         addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE);
+        // add epics
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_EPIC);
         // add stories
         addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY);
         // add stages
@@ -284,6 +291,11 @@ public class MainActivity extends AppCompatActivity
             title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
             iconId = R.drawable.ic_local_movies_black_48dp;
             monikerList = mStoryProvider.getDaoTheatreRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
+            title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+            iconId = R.drawable.ic_burst_mode_black_48dp;
+            monikerList = mStoryProvider.getDaoEpicRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
@@ -416,6 +428,15 @@ public class MainActivity extends AppCompatActivity
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, moniker);
             }
         }
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+            if (mStoryProvider.getActiveEpic() != null) {
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, mStoryProvider.getActiveEpic().getMoniker());
+            }
+            else {
+                String moniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + mStoryProvider.getDaoEpicRepo().size();
+                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, moniker);
+            }
+        }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
             if (mStoryProvider.getActiveStory() != null) {
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, mStoryProvider.getActiveStory().getMoniker());
@@ -463,6 +484,10 @@ public class MainActivity extends AppCompatActivity
                 if (mStoryProvider.getDaoTheatreRepo().get(itemname) != null) {
                     // theatre - set active
                     mStoryProvider.setActiveTheatre(mStoryProvider.getDaoTheatreRepo().get(itemname));
+                }
+                else if (mStoryProvider.getDaoEpicRepo().get(itemname) != null) {
+                    // Epic - set active
+                    mStoryProvider.setActiveEpic(mStoryProvider.getDaoEpicRepo().get(itemname));
                 }
                 else if (mStoryProvider.getDaoStoryList().getDao(itemname) != null) {
                     // story - set active

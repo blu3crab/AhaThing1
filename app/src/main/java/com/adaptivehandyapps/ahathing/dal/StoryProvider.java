@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.StageModelRing;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoStoryList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -30,6 +32,7 @@ public class StoryProvider {
     private static final String TAG = "StoryProvider";
 
     private static final String DEFAULT_THEATRE_NICKNAME = "TheatreThing";
+    private static final String DEFAULT_EPIC_NICKNAME = "EpicThing";
     private static final String DEFAULT_STORY_NICKNAME = "StoryThing";
     private static final String DEFAULT_STAGE_NICKNAME = "StageThing";
 
@@ -39,16 +42,19 @@ public class StoryProvider {
     private StoryProvider mStoryProvider;
 
     private Boolean mTheatreReady = false;
+    private Boolean mEpicReady = false;
     private Boolean mStoryReady = false;
     private Boolean mStageReady = false;
     private Boolean mLocalUpdate = false;
 
 //    private DaoTheatreList mDaoTheatreList;
     private DaoTheatreRepo mDaoTheatreRepo;
+    private DaoEpicRepo mDaoEpicRepo;
     private DaoStoryList mDaoStoryList;
     private DaoStageList mDaoStageList;
 
     private DaoTheatre mActiveTheatre;
+    private DaoEpic mActiveEpic;
     private DaoStory mActiveStory;
     private DaoStage mActiveStage;
 
@@ -59,6 +65,7 @@ public class StoryProvider {
     private Boolean mIsFirebaseReady = false;
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mTheatresReference;
+    private DatabaseReference mEpicsReference;
 
     ///////////////////////////////////////////////////////////////////////////
     // callback interface when model changes should trigger refresh
@@ -90,11 +97,13 @@ public class StoryProvider {
         }
         Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", UserId " + mUserId);
 
-        // create theatre list
-//        mDaoTheatreList = new DaoTheatreList();
+        // create theatre repo
         mDaoTheatreRepo = new DaoTheatreRepo();
+//        mDaoTheatreList = new DaoTheatreList();
         // add new theatre
 //        addNewTheatre(mDaoTheatreList);
+        // create epic repo
+        mDaoEpicRepo = new DaoEpicRepo();
         // create play list
         mDaoStoryList = new DaoStoryList();
         // add new play
@@ -110,6 +119,7 @@ public class StoryProvider {
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters/helpers
     public Boolean isTheatreReady() { return mTheatreReady;}
+    public Boolean isEpicReady() { return mEpicReady;}
     public Boolean isStoryReady() { return mStoryReady;}
     public Boolean isStageReady() { return mStageReady;}
 
@@ -127,6 +137,11 @@ public class StoryProvider {
         this.mDaoTheatreRepo = daoTheatreRepo;
     }
 
+    public DaoEpicRepo getDaoEpicRepo() { return mDaoEpicRepo; }
+    public void setDaoEpicRepo(DaoEpicRepo daoEpicRepo) {
+        this.mDaoEpicRepo = daoEpicRepo;
+    }
+
     public DaoStoryList getDaoStoryList() { return mDaoStoryList; }
     public void setDaoStoryList(DaoStoryList daoStoryList) {
         this.mDaoStoryList = daoStoryList;
@@ -140,6 +155,11 @@ public class StoryProvider {
     public void setActiveTheatre(DaoTheatre activeTheatre) {
         this.mActiveTheatre = activeTheatre;
     }
+    public DaoEpic getActiveEpic() { return mActiveEpic; }
+    public void setActiveEpic(DaoEpic activeEpic) {
+        this.mActiveEpic = activeEpic;
+    }
+
     public DaoStory getActiveStory() { return mActiveStory; }
     public void setActiveStory(DaoStory activeStory) {
         this.mActiveStory = activeStory;
@@ -234,6 +254,66 @@ public class StoryProvider {
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateEpicRepo(DaoEpic daoEpic, Boolean remoteTrigger) {
+        // create or update Epic list & db
+        Log.d(TAG, "updateEpicRepo(remoteTrigger = " + remoteTrigger + "): daoEpic " + daoEpic.toString());
+        // add or update repo with object
+        getDaoEpicRepo().set(daoEpic);
+
+        if (remoteTrigger) {
+            // set localUpdate in progress
+            setLocalUpdate(true);
+            // update db
+            mEpicsReference.child(daoEpic.getMoniker()).setValue(daoEpic);
+        }
+//        // no active theatre, set added child active
+//        if (getActiveTheatre() == null) setActiveTheatre(daoTheatre);
+
+        // set active to updated object
+        setActiveEpic(daoEpic);
+
+        mTheatreReady = true;
+
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeEpicRepo(DaoEpic daoEpic, Boolean remoteTrigger) {
+        // remove from epic repo & db
+        Log.d(TAG, "removeEpicRepo(remoteTrigger = " + remoteTrigger + "): daoEpic " + daoEpic.toString());
+        // if removing active object
+        if (getActiveEpic().getMoniker().equals(daoEpic.getMoniker())) {
+            // if an object is defined
+            if (getDaoEpicRepo().get(0) != null) {
+                // set active object
+                mEpicReady = true;
+                setActiveEpic(getDaoEpicRepo().get(0));
+            }
+            else {
+                // clear active object
+                mEpicReady = false;
+                setActiveEpic(null);
+            }
+        }
+        // add or update repo with object
+        getDaoEpicRepo().remove(daoEpic.getMoniker());
+        Log.d(TAG, "removeEpicRepo removed daoEpic: " + daoEpic.getMoniker());
+
+        if (remoteTrigger) {
+            // set localUpdate in progress
+            setLocalUpdate(true);
+            // remove object from remote db
+            mEpicsReference.child(daoEpic.getMoniker()).removeValue();
+        }
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     public Boolean addNewStory(DaoStoryList daoStoryList) {
 
         // create new play & set active
@@ -268,6 +348,7 @@ public class StoryProvider {
         if (mDatabaseReference != null) {
             mIsFirebaseReady = true;
             mTheatresReference = FirebaseDatabase.getInstance().getReference().child(DaoTheatreRepo.JSON_CONTAINER);
+            mEpicsReference = FirebaseDatabase.getInstance().getReference().child(DaoEpicRepo.JSON_CONTAINER);
 //            setFirebaseListener();
         }
         return mIsFirebaseReady;
@@ -280,6 +361,9 @@ public class StoryProvider {
     }
     private DatabaseReference getTheatresReference() {
         return mTheatresReference;
+    }
+    private DatabaseReference getEpicsReference() {
+        return mEpicsReference;
     }
     public Boolean removeFirebaseListener() {
         // TODO: remove listeners

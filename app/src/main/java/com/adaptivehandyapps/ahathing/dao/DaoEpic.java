@@ -18,6 +18,7 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoTheatre implements Serializable {
+public class DaoEpic implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,36 +36,29 @@ public class DaoTheatre implements Serializable {
 	@SerializedName("headline")		// headline
 	private String headline;
 
-	@SerializedName("tagList")		// tag list - epics
+	@SerializedName("tagList")		// tag list - stories
 	private List<String> tagList;
-
-//	// DAO locale info
-//	@SerializedName("daoLocale")		// theatre location info
-//	private DaoLocale daoLocale;
 
 	@SerializedName("reserve1")
 	private String reserve1;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoTheatre() {
+	public DaoEpic() {
 		this.moniker = DaoDefs.INIT_STRING_MARKER;
 		this.headline = DaoDefs.INIT_STRING_MARKER;
 		this.tagList = new ArrayList<>();
-//		this.daoLocale = new DaoLocale();
 		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoTheatre(
+	public DaoEpic(
 			String moniker,
 			String headline,
 			List<String> tagList,
-//			DaoLocale daoLocale,
             String reserve1
     ) {
 		this.moniker = moniker;
 		this.headline = headline;
 		this.tagList = tagList;
-//		this.daoLocale = daoLocale;
 		this.reserve1 = reserve1;
 	}
 
@@ -72,7 +66,6 @@ public class DaoTheatre implements Serializable {
 	public String toString() {
 		return moniker + ", " + headline + ", " +
 				tagList + ", " +
-//				daoLocale.toString() +
                 reserve1;
 	}
 
@@ -103,14 +96,6 @@ public class DaoTheatre implements Serializable {
 	public void setTagList(List<String> tagList) {
 		this.tagList = tagList;
 	}
-
-//	public DaoLocale getDaoLocale() {
-//		return daoLocale;
-//	}
-//
-//	public void setDaoLocale(DaoLocale daoLocale) {
-//		this.daoLocale = daoLocale;
-//	}
 
 	public String getReserve1() {
 		return reserve1;

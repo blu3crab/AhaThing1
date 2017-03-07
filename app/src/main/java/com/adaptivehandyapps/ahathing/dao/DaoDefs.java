@@ -64,6 +64,7 @@ public class DaoDefs {
     // dao object types
     @IntDef({DAOOBJ_TYPE_UNKNOWN,
             DAOOBJ_TYPE_THEATRE,
+            DAOOBJ_TYPE_EPIC,
             DAOOBJ_TYPE_STORY,
             DAOOBJ_TYPE_STAGE,
             DAOOBJ_TYPE_ACTOR,
@@ -74,14 +75,16 @@ public class DaoDefs {
 
     public static final int DAOOBJ_TYPE_UNKNOWN = -1;
     public static final int DAOOBJ_TYPE_THEATRE = 0;
-    public static final int DAOOBJ_TYPE_STORY = 1;
-    public static final int DAOOBJ_TYPE_STAGE = 2;
-    public static final int DAOOBJ_TYPE_ACTOR = 3;
-    public static final int DAOOBJ_TYPE_ACTION = 4;
-    public static final int DAOOBJ_TYPE_RESERVE = 5;
+    public static final int DAOOBJ_TYPE_EPIC = 1;
+    public static final int DAOOBJ_TYPE_STORY = 2;
+    public static final int DAOOBJ_TYPE_STAGE = 3;
+    public static final int DAOOBJ_TYPE_ACTOR = 4;
+    public static final int DAOOBJ_TYPE_ACTION = 5;
+    public static final int DAOOBJ_TYPE_RESERVE = 6;
 
     public static final String DAOOBJ_TYPE_UNKNOWN_MONIKER = "Unknown";
     public static final String DAOOBJ_TYPE_THEATRE_MONIKER = "Theatre";
+    public static final String DAOOBJ_TYPE_EPIC_MONIKER = "Epic";
     public static final String DAOOBJ_TYPE_STORY_MONIKER = "Story";
     public static final String DAOOBJ_TYPE_STAGE_MONIKER = "Stage";
     public static final String DAOOBJ_TYPE_ACTOR_MONIKER = "Actor";
@@ -105,6 +108,9 @@ public class DaoDefs {
                 break;
             case DAOOBJ_TYPE_THEATRE:
                 daoPipeObjType = DAOOBJ_TYPE_THEATRE;
+                break;
+            case DAOOBJ_TYPE_EPIC:
+                daoPipeObjType = DAOOBJ_TYPE_EPIC;
                 break;
             case DAOOBJ_TYPE_STORY:
                 daoPipeObjType = DAOOBJ_TYPE_STORY;
