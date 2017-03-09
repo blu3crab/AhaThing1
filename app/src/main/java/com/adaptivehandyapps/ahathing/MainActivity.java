@@ -38,7 +38,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -206,7 +205,7 @@ public class MainActivity extends AppCompatActivity
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     mStoryProvider.setFirebaseListener();
-                    mStoryProvider.queryTheatres();
+//                    mStoryProvider.queryThings();
                 }
                 else {
                     // User is signed out
@@ -231,34 +230,44 @@ public class MainActivity extends AppCompatActivity
 //            return false;
 //        }
         // append active object to menu title
-        String activeName = DaoDefs.INIT_STRING_MARKER;
         String prefix = DaoDefs.INIT_STRING_MARKER;
         int iconId = R.drawable.ic_star_black_48dp;
         Menu menu = mNavigationView.getMenu();
         menu.clear();
-        int objTypeCount = 3;
+        int objTypeCount = 4;
         for (int i = 0; i < objTypeCount; i++) {
-            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE && mStoryProvider.isTheatreReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                if (mStoryProvider.getActiveTheatre() != null) activeName = mStoryProvider.getActiveTheatre().getMoniker();
+            String activeName = DaoDefs.INIT_STRING_MARKER;
+            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = R.drawable.ic_local_movies_black_48dp;
+                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                if (mStoryProvider.isTheatreReady() && mStoryProvider.getActiveTheatre() != null) {
+                    activeName = mStoryProvider.getActiveTheatre().getMoniker();
+                }
             }
-            else if (i == DaoDefs.DAOOBJ_TYPE_EPIC && mStoryProvider.isEpicReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                if (mStoryProvider.getActiveEpic() != null) activeName = mStoryProvider.getActiveEpic().getMoniker();
+            else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
                 iconId = R.drawable.ic_burst_mode_black_48dp;
+                prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                if (mStoryProvider.isEpicReady() && mStoryProvider.getActiveEpic() != null) {
+                    activeName = mStoryProvider.getActiveEpic().getMoniker();
+                }
             }
-            else if (i == DaoDefs.DAOOBJ_TYPE_STORY && mStoryProvider.isStoryReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                if (mStoryProvider.getActiveStory() != null) activeName = mStoryProvider.getActiveStory().getMoniker();
+            else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
                 iconId = R.drawable.ic_menu_slideshow;
+                prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                if (mStoryProvider.isStoryReady() && mStoryProvider.getActiveStory() != null) {
+                    activeName = mStoryProvider.getActiveStory().getMoniker();
+                }
             }
-            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE  && mStoryProvider.isStageReady()) {
-                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                if (mStoryProvider.getActiveStage() != null) activeName = mStoryProvider.getActiveStage().getMoniker();
+            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
                 iconId = R.drawable.ic_menu_gallery;
+                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+                if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
+                    activeName = mStoryProvider.getActiveStage().getMoniker();
+                }
             }
             else {
+                iconId = R.drawable.ic_format_clear_black_48dp;
+                prefix = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
                 activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
             }
             String itemName = prefix.concat(": " + activeName);

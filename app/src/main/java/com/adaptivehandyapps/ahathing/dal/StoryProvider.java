@@ -45,9 +45,10 @@ public class StoryProvider {
     private Boolean mEpicReady = false;
     private Boolean mStoryReady = false;
     private Boolean mStageReady = false;
-    private Boolean mLocalUpdate = false;
 
-//    private DaoTheatreList mDaoTheatreList;
+    private Boolean mLocalUpdate = false;
+    private Boolean mChildAdded = false;
+
     private DaoTheatreRepo mDaoTheatreRepo;
     private DaoEpicRepo mDaoEpicRepo;
     private DaoStoryList mDaoStoryList;
@@ -90,7 +91,7 @@ public class StoryProvider {
             // get user id
             mUserId = getUid();
             setFirebaseListener();
-            queryTheatres();
+//            queryThings();
         }
         else {
             mIsFirebaseReady = false;
@@ -129,6 +130,15 @@ public class StoryProvider {
     public Boolean setLocalUpdate(Boolean localUpdate) {
         Log.d(TAG, "setLocalUpdate from " + mLocalUpdate + " to " + localUpdate);
         mLocalUpdate = localUpdate;
+        return (mLocalUpdate);
+    }
+
+    public Boolean isChildAdded() {
+        return mChildAdded;
+    }
+    public Boolean setChildAdded(Boolean childAdded) {
+        Log.d(TAG, "setChildAdded from " + mChildAdded + " to " + childAdded);
+        mChildAdded = childAdded;
         return (mLocalUpdate);
     }
 
@@ -195,7 +205,6 @@ public class StoryProvider {
 //    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean updateTheatreRepo(DaoTheatre daoTheatre, Boolean remoteTrigger) {
-        // create or update theatre list & db
         Log.d(TAG, "updateTheatreRepo(remoteTrigger = " + remoteTrigger + "): daoTheatre " + daoTheatre.toString());
         // add or update repo with object
         getDaoTheatreRepo().set(daoTheatre);
@@ -221,8 +230,18 @@ public class StoryProvider {
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean removeTheatreRepo(DaoTheatre daoTheatre, Boolean remoteTrigger) {
-        // create or update theatre list & db
         Log.d(TAG, "removeTheatreRepo(remoteTrigger = " + remoteTrigger + "): daoTheatre " + daoTheatre.toString());
+        // remove object from repo
+        getDaoTheatreRepo().remove(daoTheatre.getMoniker());
+        Log.d(TAG, "removeTheatreRepo removed daoTheatre: " + daoTheatre.getMoniker());
+
+        if (remoteTrigger) {
+            // set localUpdate in progress
+            setLocalUpdate(true);
+            // remove object from remote db
+            mTheatresReference.child(daoTheatre.getMoniker()).removeValue();
+        }
+
         // if removing active object
         if (getActiveTheatre().getMoniker().equals(daoTheatre.getMoniker())) {
             // if an object is defined
@@ -236,16 +255,6 @@ public class StoryProvider {
                 mTheatreReady = false;
                 setActiveTheatre(null);
             }
-        }
-        // add or update repo with object
-        getDaoTheatreRepo().remove(daoTheatre.getMoniker());
-        Log.d(TAG, "removeTheatreRepo removed daoTheatre: " + daoTheatre.getMoniker());
-
-        if (remoteTrigger) {
-            // set localUpdate in progress
-            setLocalUpdate(true);
-            // remove object from remote db
-            mTheatresReference.child(daoTheatre.getMoniker()).removeValue();
         }
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -370,7 +379,7 @@ public class StoryProvider {
         return true;
     }
     public Boolean setFirebaseListener() {
-        ValueEventListener theatreListener = new ValueEventListener() {
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // get theatre object and use the values to update the UI
@@ -380,26 +389,35 @@ public class StoryProvider {
 //                }
                 Boolean refresh = false;
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
-                    if (!isLocalUpdate()) {
-                        if (daoTheatre != null) {
-                            Log.d(TAG, "onDataChange daoTheatre: " + daoTheatre.toString());
-                            refresh = true;
-                            // update db
-                            mDatabaseReference.child(DaoTheatreRepo.JSON_CONTAINER).child(daoTheatre.getMoniker()).setValue(daoTheatre);
+                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
+                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
+                        if (!isLocalUpdate() && !isChildAdded()) {
+                            if (daoTheatre != null) {
+                                Log.d(TAG, "onDataChange daoTheatre: " + daoTheatre.toString());
+                                refresh = true;
+                                // update db
+                                updateTheatreRepo(daoTheatre, true);
+//                                mDatabaseReference.child(DaoTheatreRepo.JSON_CONTAINER).child(daoTheatre.getMoniker()).setValue(daoTheatre);
+                            } else {
+                                Log.e(TAG, "onDataChange: NULL daoTheatre?");
+                            }
                         } else {
-                            Log.e(TAG, "onChildAdded: NULL daoTheatre?");
+                            if (isLocalUpdate()) {
+                                setLocalUpdate(false);
+                            }
+                            if (isChildAdded()) {
+                                setChildAdded(false);
+                            }
                         }
-                    }
-                    else if (isLocalUpdate()) {
-                        setLocalUpdate(false);
+                    } else {
+                        Log.e(TAG, "valueEventListener onDataChange unknown key: " + dataSnapshot.getKey());
                     }
                 }
-                // if data changed, post refresh
-                if (refresh) {
-                    // refresh
-                    if (mCallback != null) mCallback.onPlayProviderRefresh(true);
-                }
+//                // if data changed, post refresh
+//                if (refresh) {
+//                    // refresh
+//                    if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+//                }
             }
 
             @Override
@@ -409,25 +427,32 @@ public class StoryProvider {
                 // ...
             }
         };
-        mTheatresReference.addValueEventListener(theatreListener);
+        mTheatresReference.addValueEventListener(valueEventListener);
+//        mEpicsReference.addValueEventListener(valueEventListener);
+//        mDatabaseReference.addValueEventListener(valueEventListener);
 
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-                DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-                // if no local update in progress
-                if (!isLocalUpdate()) {
-                    if (daoTheatre != null) {
-                        Log.d(TAG, "onChildAdded: daoTheatre " + daoTheatre.toString());
-                        updateTheatreRepo(daoTheatre, false);
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
+                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
+                        // if no local update in progress
+                        if (!isLocalUpdate()) {
+                            if (daoTheatre != null) {
+                                Log.d(TAG, "onChildAdded: daoTheatre " + daoTheatre.toString());
+                                updateTheatreRepo(daoTheatre, false);
+                                setChildAdded(true);
+                            } else {
+                                Log.e(TAG, "onChildAdded: NULL daoTheatre?");
+                            }
+                        } else if (isLocalUpdate()) {
+                            setLocalUpdate(false);
+                        }
+                    } else {
+                        Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
                     }
-                    else {
-                        Log.e(TAG, "onChildAdded: NULL daoTheatre?");
-                    }
-                }
-                else if (isLocalUpdate()) {
-                    setLocalUpdate(false);
                 }
             }
 
@@ -435,49 +460,58 @@ public class StoryProvider {
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
                 String snapshotKey = dataSnapshot.getKey();
-                DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-                // if no local update in progress
-                if (!isLocalUpdate()) {
-                    if (daoTheatre != null) {
-                        Log.d(TAG, "onChildChanged daoTheatre: " + daoTheatre.toString());
-                        updateTheatreRepo(daoTheatre, false);
-                    }
-                    else {
-                        Log.e(TAG, "onChildChanged: NULL daoTheatre?");
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
+                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
+                        // if no local update in progress
+                        if (!isLocalUpdate() && !isChildAdded()) {
+                            if (daoTheatre != null) {
+                                Log.d(TAG, "onChildChanged daoTheatre: " + daoTheatre.toString());
+                                updateTheatreRepo(daoTheatre, false);
+                            } else {
+                                Log.e(TAG, "onChildChanged: NULL daoTheatre?");
+                            }
+                        }
+                        else {
+                            if (isLocalUpdate()) {
+                                setLocalUpdate(false);
+                            }
+                            if (isChildAdded()) {
+                                setChildAdded(false);
+                            }
+                        }
+                    } else {
+                        Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
                     }
                 }
-                else if (isLocalUpdate()) {
-                    setLocalUpdate(false);
-                }
-             }
+            }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
                 String snapshotKey = dataSnapshot.getKey();
-                DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-                if (!isLocalUpdate()) {
-                    if (daoTheatre != null) {
-                    Log.d(TAG, "onChildRemoved daoTheatre: " + daoTheatre.toString());
-                    removeTheatreRepo(daoTheatre, false);
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
+                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
+                        if (!isLocalUpdate()) {
+                            if (daoTheatre != null) {
+                                Log.d(TAG, "onChildRemoved daoTheatre: " + daoTheatre.toString());
+                                removeTheatreRepo(daoTheatre, false);
+                            } else {
+                                Log.e(TAG, "onChildRemoved: NULL daoTheatre?");
+                            }
+                        } else if (isLocalUpdate()) {
+                            setLocalUpdate(false);
+                        }
+                    } else {
+                        Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
                     }
-                    else {
-                        Log.e(TAG, "onChildRemoved: NULL daoTheatre?");
-                    }
-                }
-                else if (isLocalUpdate()) {
-                    setLocalUpdate(false);
                 }
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
-
-                DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-                String commentKey = dataSnapshot.getKey();
-
-                // ...
             }
 
             @Override
@@ -487,20 +521,26 @@ public class StoryProvider {
                         Toast.LENGTH_SHORT).show();
             }
         };
-        mTheatresReference.addChildEventListener(childEventListener);
+//        mTheatresReference.addChildEventListener(childEventListener);
+        mDatabaseReference.addChildEventListener(childEventListener);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean queryTheatres() {
-        ValueEventListener theatreListener = new ValueEventListener() {
+    public Boolean queryThings() {
+        ValueEventListener thingsListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // get theatre objects
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
-                    if (daoTheatre != null) {
-                        Log.d(TAG, "queryTheatres onDataChange daoTheatre: " + daoTheatre.toString());
-                        updateTheatreRepo(daoTheatre, false);
+                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
+                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
+                        if (daoTheatre != null) {
+                            Log.d(TAG, "queryThings onDataChange daoTheatre: " + daoTheatre.toString());
+                            updateTheatreRepo(daoTheatre, false);
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "queryThings onDataChange unknown key: " + snapshot.getKey());
                     }
                 }
             }
@@ -508,13 +548,13 @@ public class StoryProvider {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // get theatre object failed, log a message
-                Log.e(TAG, "queryTheatres onCancelled: ", databaseError.toException());
+                Log.e(TAG, "queryThings onCancelled: ", databaseError.toException());
                 // ...
             }
         };
 
         Query mTheatreQuery = mTheatresReference.child(DaoTheatreRepo.JSON_CONTAINER).orderByChild("moniker");
-        mTheatreQuery.addValueEventListener(theatreListener);
+        mTheatreQuery.addValueEventListener(thingsListener);
 
         return true;
     }
