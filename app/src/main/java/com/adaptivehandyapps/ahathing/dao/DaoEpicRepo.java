@@ -26,6 +26,8 @@ import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
 public class DaoEpicRepo {
+	private static final String TAG = "DaoEpicRepo";
+
 	public static final String JSON_CONTAINER = "epics";
 
 	@SerializedName("monikerList")
