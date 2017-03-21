@@ -25,85 +25,76 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoTheatre implements Serializable {
+public class DaoTheatre extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	@SerializedName("moniker")		// name
-	private String moniker;
-
-	@SerializedName("headline")		// headline
-	private String headline;
-
-	@SerializedName("tagList")		// tag list - epics
-	private List<String> tagList;
-
-//	// DAO locale info
-//	@SerializedName("daoLocale")		// theatre location info
-//	private DaoLocale daoLocale;
-
-	@SerializedName("reserve1")
-	private String reserve1;
+	@SerializedName("reserve2")
+	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoTheatre() {
-		this.moniker = DaoDefs.INIT_STRING_MARKER;
-		this.headline = DaoDefs.INIT_STRING_MARKER;
-		this.tagList = new ArrayList<>();
-//		this.daoLocale = new DaoLocale();
-		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
+		super();
+//		this.moniker = DaoDefs.INIT_STRING_MARKER;
+//		this.headline = DaoDefs.INIT_STRING_MARKER;
+//		this.tagList = new ArrayList<>();
+////		this.daoLocale = new DaoLocale();
+//		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
+		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
 	public DaoTheatre(
 			String moniker,
 			String headline,
+			Long timestamp,
 			List<String> tagList,
 //			DaoLocale daoLocale,
             String reserve1
     ) {
-		this.moniker = moniker;
-		this.headline = headline;
-		this.tagList = tagList;
-//		this.daoLocale = daoLocale;
-		this.reserve1 = reserve1;
+		super(moniker, headline, timestamp, tagList, reserve1);
+//		this.moniker = moniker;
+//		this.headline = headline;
+//		this.tagList = tagList;
+////		this.daoLocale = daoLocale;
+//		this.reserve1 = reserve1;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
-	public String toString() {
-		return moniker + ", " + headline + ", " +
-				tagList + ", " +
-//				daoLocale.toString() +
-                reserve1;
-	}
-
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
-
-	public String getMoniker() {
-		return moniker;
-	}
-
-	public void setMoniker(String moniker) {
-		this.moniker = moniker;
-	}
-
-	public String getHeadline() {
-		return headline;
-	}
-
-	public void setHeadline(String headline) {
-		this.headline = headline;
-	}
-
-	public List<String> getTagList() {
-		return tagList;
-	}
-
-	public void setTagList(List<String> tagList) {
-		this.tagList = tagList;
-	}
-
+//	public String toString() {
+//		return moniker + ", " + headline + ", " +
+//				tagList + ", " +
+////				daoLocale.toString() +
+//                reserve1;
+//	}
+//
+//	public static long getSerialVersionUID() {
+//		return serialVersionUID;
+//	}
+//
+//	public String getMoniker() {
+//		return moniker;
+//	}
+//
+//	public void setMoniker(String moniker) {
+//		this.moniker = moniker;
+//	}
+//
+//	public String getHeadline() {
+//		return headline;
+//	}
+//
+//	public void setHeadline(String headline) {
+//		this.headline = headline;
+//	}
+//
+//	public List<String> getTagList() {
+//		return tagList;
+//	}
+//
+//	public void setTagList(List<String> tagList) {
+//		this.tagList = tagList;
+//	}
+//
 //	public DaoLocale getDaoLocale() {
 //		return daoLocale;
 //	}
@@ -112,12 +103,12 @@ public class DaoTheatre implements Serializable {
 //		this.daoLocale = daoLocale;
 //	}
 
-	public String getReserve1() {
-		return reserve1;
+	public String getReserve2() {
+		return reserve2;
 	}
 
-	public void setReserve1(String reserve1) {
-		this.reserve1 = reserve1;
+	public void setReserve2(String reserve1) {
+		this.reserve2 = reserve2;
 	}
 	///////////////////////////////////////////////////////////////////////////
 }

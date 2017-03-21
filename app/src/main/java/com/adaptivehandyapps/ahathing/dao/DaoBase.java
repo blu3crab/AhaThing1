@@ -18,7 +18,6 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
-import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -26,66 +25,81 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoAudit implements Serializable {
+public class DaoBase implements Serializable {
 
-	private static final Long RECENT_TIMESTAMP = 8000L;
 	private static final long serialVersionUID = 1L;
+
+	@SerializedName("moniker")		// name
+	private String moniker;
+
+	@SerializedName("headline")		// headline
+	private String headline;
 
 	@SerializedName("timestamp")	// timestamp
 	private Long timestamp;
 
-	@SerializedName("actor")		// actor
-	private String actor;
+	@SerializedName("tagList")		// tag list - epics
+	private List<String> tagList;
 
-	@SerializedName("action")		// action
-	private String action;
-
-	@SerializedName("outcome")		// outcome
-	private String outcome;
-
+//	// DAO locale info
+//	@SerializedName("daoLocale")		// theatre location info
+//	private DaoLocale daoLocale;
 
 	@SerializedName("reserve1")
 	private String reserve1;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoAudit() {
+	public DaoBase() {
+		this.moniker = DaoDefs.INIT_STRING_MARKER;
+		this.headline = DaoDefs.INIT_STRING_MARKER;
 		this.timestamp = DaoDefs.INIT_LONG_MARKER;
-		this.actor = DaoDefs.INIT_STRING_MARKER;
-		this.action = DaoDefs.INIT_STRING_MARKER;
-		this.actor = DaoDefs.INIT_STRING_MARKER;
+		this.tagList = new ArrayList<>();
+//		this.daoLocale = new DaoLocale();
 		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoAudit(
+	public DaoBase(
+			String moniker,
+			String headline,
 			Long timestamp,
-			String actor,
-			String action,
-			String outcome,
+			List<String> tagList,
+//			DaoLocale daoLocale,
             String reserve1
     ) {
+		this.moniker = moniker;
+		this.headline = headline;
 		this.timestamp = timestamp;
-		this.actor = actor;
-		this.actor = action;
-		this.outcome = outcome;
+		this.tagList = tagList;
+//		this.daoLocale = daoLocale;
 		this.reserve1 = reserve1;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
-		return timestamp + ", " + actor + ", " + action + ", " + outcome +
-				", " + reserve1;
-	}
-	public String toFormattedString() {
-		String date = TimeUtils.secsToDate(timestamp);
-		return date + " " + actor + " " + action + " " + outcome;
-	}
-	public Boolean isRecent(Long timestamp) {
-		if (timestamp - this.timestamp > RECENT_TIMESTAMP) return false;
-		return true;
+		return moniker + ", " + headline + ", " +
+				tagList + ", " +
+//				daoLocale.toString() +
+                reserve1;
 	}
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
+	}
+
+	public String getMoniker() {
+		return moniker;
+	}
+
+	public void setMoniker(String moniker) {
+		this.moniker = moniker;
+	}
+
+	public String getHeadline() {
+		return headline;
+	}
+
+	public void setHeadline(String headline) {
+		this.headline = headline;
 	}
 
 	public Long getTimestamp() {
@@ -96,29 +110,21 @@ public class DaoAudit implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public String getActor() {
-		return actor;
+	public List<String> getTagList() {
+		return tagList;
 	}
 
-	public void setActor(String actor) {
-		this.actor = actor;
+	public void setTagList(List<String> tagList) {
+		this.tagList = tagList;
 	}
 
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public String getOutcome() {
-		return outcome;
-	}
-
-	public void setOutcome(String outcome) {
-		this.outcome = outcome;
-	}
+	//	public DaoLocale getDaoLocale() {
+//		return daoLocale;
+//	}
+//
+//	public void setDaoLocale(DaoLocale daoLocale) {
+//		this.daoLocale = daoLocale;
+//	}
 
 	public String getReserve1() {
 		return reserve1;

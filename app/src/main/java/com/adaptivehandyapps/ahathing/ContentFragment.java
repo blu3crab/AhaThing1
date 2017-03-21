@@ -27,6 +27,7 @@ public class ContentFragment extends Fragment {
     public static final String ARG_CONTENT_VALUE_OP_NEW = "new";
     public static final String ARG_CONTENT_VALUE_OP_EDIT = "edit";
     public static final String ARG_CONTENT_VALUE_OP_PLAY = "play";
+    public static final String ARG_CONTENT_VALUE_OP_SHOWLIST = "showlist";
 
     private LayoutInflater mInflater;
     private ViewGroup mContainer;

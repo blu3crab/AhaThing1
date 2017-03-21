@@ -40,5 +40,6 @@
         android:textStyle="italic"
         android:textColor="@color/colorMediumGrey"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+    <!--android:visibility="gone"-->
 
 </RelativeLayout>

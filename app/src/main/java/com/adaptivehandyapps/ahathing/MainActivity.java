@@ -30,8 +30,10 @@ import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity
                          ImageView iv_photo = (ImageView) findViewById(R.id.iv_navphoto);
                          if (iv_photo != null) {
                              // default nav photo
-                             iv_photo.setImageResource(R.drawable.bluecrab48);
+                             iv_photo.setImageResource(DaoDefs.LOGO_IMAGE_RESID);
                              // if user photo exists
                              Uri photoUri = user.getPhotoUrl();
                              if (photoUri != null) {
@@ -204,7 +206,7 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    mStoryProvider.setFirebaseListener();
+                    mStoryProvider.getProviderListener().setTheatreListener();
 //                    mStoryProvider.queryThings();
                 }
                 else {
@@ -234,39 +236,59 @@ public class MainActivity extends AppCompatActivity
         int iconId = R.drawable.ic_star_black_48dp;
         Menu menu = mNavigationView.getMenu();
         menu.clear();
-        int objTypeCount = 4;
+        int objTypeCount = DaoDefs.DAOOBJ_TYPE_RESERVE;
         for (int i = 0; i < objTypeCount; i++) {
             String activeName = DaoDefs.INIT_STRING_MARKER;
             if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
-                iconId = R.drawable.ic_local_movies_black_48dp;
+                iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
                 if (mStoryProvider.isTheatreReady() && mStoryProvider.getActiveTheatre() != null) {
                     activeName = mStoryProvider.getActiveTheatre().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
-                iconId = R.drawable.ic_burst_mode_black_48dp;
+                iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
                 if (mStoryProvider.isEpicReady() && mStoryProvider.getActiveEpic() != null) {
                     activeName = mStoryProvider.getActiveEpic().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
-                iconId = R.drawable.ic_menu_slideshow;
+                iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                 if (mStoryProvider.isStoryReady() && mStoryProvider.getActiveStory() != null) {
                     activeName = mStoryProvider.getActiveStory().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
-                iconId = R.drawable.ic_menu_gallery;
+                iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
                 if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
                     activeName = mStoryProvider.getActiveStage().getMoniker();
                 }
             }
+            else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
+                iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+                activeName = "actor...";
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
+                iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+                activeName = "action...";
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
+                iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+                activeName = "outcome...";
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {
+                iconId = DaoDefs.DAOOBJ_TYPE_AUDIT_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER;
+                activeName = "recent...";
+            }
             else {
-                iconId = R.drawable.ic_format_clear_black_48dp;
+                iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
                 activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
             }
@@ -285,8 +307,12 @@ public class MainActivity extends AppCompatActivity
         addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY);
         // add stages
         addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE);
-//        // add actors
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR);
+        // add actors
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR);
+        // add actors
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION);
+        // add actors
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME);
 
         return true;
     }
@@ -294,31 +320,43 @@ public class MainActivity extends AppCompatActivity
     private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType) {
         // extract moniker list
         String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
-        int iconId = R.drawable.ic_star_black_48dp;
+        int iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
         List<String> monikerList = new ArrayList<>();
         if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
             title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-            iconId = R.drawable.ic_local_movies_black_48dp;
+            iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
             monikerList = mStoryProvider.getDaoTheatreRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
             title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-            iconId = R.drawable.ic_burst_mode_black_48dp;
+            iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
             monikerList = mStoryProvider.getDaoEpicRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
             for (DaoStory daoStory : mStoryProvider.getDaoStoryList().stories) {
                 monikerList.add(daoStory.getMoniker());
-                iconId = R.drawable.ic_menu_slideshow;
             }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
             title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
             for (DaoStage daoStage : mStoryProvider.getDaoStageList().stages) {
                 monikerList.add(daoStage.getMoniker());
-                iconId = R.drawable.ic_menu_gallery;
             }
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
+            title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
+            title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
+            title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
         }
         // add submenu from moniker list plus a "new" item
         Menu menu = mNavigationView.getMenu();
@@ -459,6 +497,9 @@ public class MainActivity extends AppCompatActivity
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
         }
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
+            replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST, DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER, "audit trial");
+        }
         else {
             // submenu selection - test for existing selection or new object
             if (itemname.toLowerCase().contains("new")) {
@@ -479,6 +520,14 @@ public class MainActivity extends AppCompatActivity
                         mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + next;
                     }
                 }
+                else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+                    Integer next = mStoryProvider.getDaoEpicRepo().size();
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + next;
+                    while (mStoryProvider.getDaoEpicRepo().contains(mContentMoniker) && next < INSANE_LIMIT) {
+                        ++next;
+                        mContentMoniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + next;
+                    }
+                }
                 else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryList().stories.size();
                 }
@@ -492,11 +541,11 @@ public class MainActivity extends AppCompatActivity
                 // existing object - set active based on find object type
                 if (mStoryProvider.getDaoTheatreRepo().get(itemname) != null) {
                     // theatre - set active
-                    mStoryProvider.setActiveTheatre(mStoryProvider.getDaoTheatreRepo().get(itemname));
+                    mStoryProvider.setActiveTheatre((DaoTheatre) mStoryProvider.getDaoTheatreRepo().get(itemname));
                 }
                 else if (mStoryProvider.getDaoEpicRepo().get(itemname) != null) {
                     // Epic - set active
-                    mStoryProvider.setActiveEpic(mStoryProvider.getDaoEpicRepo().get(itemname));
+                    mStoryProvider.setActiveEpic((DaoEpic) mStoryProvider.getDaoEpicRepo().get(itemname));
                 }
                 else if (mStoryProvider.getDaoStoryList().getDao(itemname) != null) {
                     // story - set active

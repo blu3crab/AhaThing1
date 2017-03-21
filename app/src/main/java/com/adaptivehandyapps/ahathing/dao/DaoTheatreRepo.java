@@ -24,75 +24,79 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoTheatreRepo {
+public class DaoTheatreRepo extends DaoBaseRepo {
 	public static final String JSON_CONTAINER = "theatres";
 
-	@SerializedName("monikerList")
-	private List<String> monikerList;
-	@SerializedName("daoList")
-	private List<DaoTheatre> daoList;
+//	@SerializedName("monikerList")
+//	private List<String> monikerList;
+//	@SerializedName("daoList")
+//	private List<DaoTheatre> daoList;
 
 	public DaoTheatreRepo(){
-		monikerList = new ArrayList<>();
-		daoList = new ArrayList<>();
+		super();
+//		monikerList = new ArrayList<>();
+//		daoList = new ArrayList<>();
 	}
 
-	///////////////////////////////////////////////////////////////////////////
-	public Boolean set(DaoTheatre daoTheatre) {
-		// if repo contains object
-		if (contains(daoTheatre.getMoniker())) {
-			// update object
-			daoList.set(indexOf(daoTheatre.getMoniker()), daoTheatre);
-		}
-		else {
-			// new object
-			monikerList.add(daoTheatre.getMoniker());
-			daoList.add(daoTheatre);
-		}
-		return true;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public DaoTheatre get(String monikerTest) {
-		DaoTheatre daoTheatre = null;
-		int inx = monikerList.indexOf(monikerTest);
-		if (inx != -1) {
-			daoTheatre = daoList.get(inx);
-		}
-		return daoTheatre;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public DaoTheatre get(int inx) {
-		DaoTheatre daoTheatre = null;
-		if (inx > -1 && inx < daoList.size()) {
-			daoTheatre = daoList.get(inx);
-		}
-		return daoTheatre;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public List<String> getMonikerList() {
-		return monikerList;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public Boolean remove(String moniker) {
-		int inx = monikerList.indexOf(moniker);
-		if (inx != -1) {
-			monikerList.remove(inx);
-			daoList.remove(inx);
-			return true;
-		}
-		return false;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public Boolean contains(String moniker) {
-		return monikerList.contains(moniker);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public int indexOf(String moniker) {
-		return monikerList.indexOf(moniker);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public int size() {
-		return monikerList.size();
-	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public Boolean set(DaoTheatre daoTheatre) {
+//		// if repo contains object
+//		if (contains(daoTheatre.getMoniker())) {
+//			// update object
+//			daoList.set(indexOf(daoTheatre.getMoniker()), daoTheatre);
+//		}
+//		else {
+//			// new object
+//			monikerList.add(daoTheatre.getMoniker());
+//			daoList.add(daoTheatre);
+//		}
+//		return true;
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public DaoTheatre get(String monikerTest) {
+//		DaoTheatre daoTheatre = null;
+//		int inx = monikerList.indexOf(monikerTest);
+//		if (inx != -1) {
+//			daoTheatre = daoList.get(inx);
+//		}
+//		return daoTheatre;
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public DaoTheatre get(int inx) {
+//		DaoTheatre daoTheatre = null;
+//		if (inx > -1 && inx < daoList.size()) {
+//			daoTheatre = daoList.get(inx);
+//		}
+//		return daoTheatre;
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public List<String> getMonikerList() {
+//		return monikerList;
+//	}
+//	public List<DaoTheatre> getDaoList() {
+//		return daoList;
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public Boolean remove(String moniker) {
+//		int inx = monikerList.indexOf(moniker);
+//		if (inx != -1) {
+//			monikerList.remove(inx);
+//			daoList.remove(inx);
+//			return true;
+//		}
+//		return false;
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public Boolean contains(String moniker) {
+//		return monikerList.contains(moniker);
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public int indexOf(String moniker) {
+//		return monikerList.indexOf(moniker);
+//	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public int size() {
+//		return monikerList.size();
+//	}
 }
 ///////////////////////////////////////////////////////////////////////////

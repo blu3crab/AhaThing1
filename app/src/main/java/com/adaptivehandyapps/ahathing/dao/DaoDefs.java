@@ -20,6 +20,8 @@ package com.adaptivehandyapps.ahathing.dao;
 
 import android.support.annotation.IntDef;
 
+import com.adaptivehandyapps.ahathing.R;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -58,6 +60,7 @@ public class DaoDefs {
     public static final Long INIT_LONG_MARKER = -1l;
     public static final Double INIT_DOUBLE_MARKER = -1.0;
 
+    public static final int LOGO_IMAGE_RESID = R.drawable.bluecrab48;
     //
     // @DaoDefs.ObjType int type = DaoDefs.getObjType(some object);
     @Retention(RetentionPolicy.SOURCE)
@@ -67,8 +70,10 @@ public class DaoDefs {
             DAOOBJ_TYPE_EPIC,
             DAOOBJ_TYPE_STORY,
             DAOOBJ_TYPE_STAGE,
+            DAOOBJ_TYPE_AUDIT,
             DAOOBJ_TYPE_ACTOR,
             DAOOBJ_TYPE_ACTION,
+            DAOOBJ_TYPE_OUTCOME,
             DAOOBJ_TYPE_RESERVE
     })
     public @interface DaoObjType {}
@@ -80,7 +85,9 @@ public class DaoDefs {
     public static final int DAOOBJ_TYPE_STAGE = 3;
     public static final int DAOOBJ_TYPE_ACTOR = 4;
     public static final int DAOOBJ_TYPE_ACTION = 5;
-    public static final int DAOOBJ_TYPE_RESERVE = 6;
+    public static final int DAOOBJ_TYPE_OUTCOME = 6;
+    public static final int DAOOBJ_TYPE_AUDIT = 7;
+    public static final int DAOOBJ_TYPE_RESERVE = 8;
 
     public static final String DAOOBJ_TYPE_UNKNOWN_MONIKER = "Unknown";
     public static final String DAOOBJ_TYPE_THEATRE_MONIKER = "Theatre";
@@ -89,7 +96,20 @@ public class DaoDefs {
     public static final String DAOOBJ_TYPE_STAGE_MONIKER = "Stage";
     public static final String DAOOBJ_TYPE_ACTOR_MONIKER = "Actor";
     public static final String DAOOBJ_TYPE_ACTION_MONIKER = "Action";
+    public static final String DAOOBJ_TYPE_OUTCOME_MONIKER = "Outcome";
+    public static final String DAOOBJ_TYPE_AUDIT_MONIKER = "Audit Trail";
     public static final String DAOOBJ_TYPE_RESERVE_MONIKER = "Reserve";
+
+    public static final int DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID = R.drawable.ic_format_clear_black_48dp;
+    public static final int DAOOBJ_TYPE_THEATRE_IMAGE_RESID = R.drawable.ic_local_movies_black_48dp;
+    public static final int DAOOBJ_TYPE_EPIC_IMAGE_RESID = R.drawable.ic_burst_mode_black_48dp;
+    public static final int DAOOBJ_TYPE_STORY_IMAGE_RESID = R.drawable.ic_play_circle_filled_black_48dp;
+    public static final int DAOOBJ_TYPE_STAGE_IMAGE_RESID = R.drawable.ic_crop_original_black_48dp;
+    public static final int DAOOBJ_TYPE_ACTOR_IMAGE_RESID = R.drawable.ic_star_black_48dp;
+    public static final int DAOOBJ_TYPE_ACTION_IMAGE_RESID = R.drawable.ic_directions_run_black_48dp;
+    public static final int DAOOBJ_TYPE_OUTCOME_IMAGE_RESID = R.drawable.ic_satellite_black_48dp;
+    public static final int DAOOBJ_TYPE_AUDIT_IMAGE_RESID = R.drawable.ic_bubble_chart_black_48dp;
+    public static final int DAOOBJ_TYPE_RESERVE_IMAGE_RESID = R.drawable.ic_map_black_48dp;
 
 
     ///////////////////////////////////////////////////////////////////////////

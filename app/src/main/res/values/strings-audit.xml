@@ -1,0 +1,22 @@
+<resources>
+    <string name="actor_StoryProvider">StoryProvider</string>
+    <string name="actor_updateTheatre">updateTheatre</string>
+    <string name="actor_removeTheatre">removeTheatre</string>
+    <string name="actor_updateEpic">updateEpic</string>
+    <string name="actor_removeEpic">removeEpic</string>
+    <string name="actor_onDataChange">onDataChange</string>
+    <string name="actor_onChildListener">onChildListener</string>
+    <string name="actor_onChildAdded">onChildAdded</string>
+    <string name="actor_onChildChanged">onChildChanged</string>
+    <string name="actor_onChildRemoved">onChildRemoved</string>
+
+    <string name="action_set">set</string>
+    <string name="action_child.setValue">child.setValue</string>
+
+    <string name="action_remove">remove</string>
+    <string name="action_child.removeValue">child.removeValue</string>
+
+    <string name="action_listen">listen</string>
+    <string name="action_cancelled">canceled</string>
+
+</resources>

@@ -14,9 +14,12 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
 import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoAudit;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatreRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,55 +67,106 @@ public class DaoMakerUiHandler {
         TextView tvHeadlineLabel = (TextView) mRootView.findViewById(R.id.tv_headline_label);
         tvHeadlineLabel.setText("Headline: ");
 
+        EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
+
+        String date = TimeUtils.secsToDate(System.currentTimeMillis());
         // init object type specific fields
-        if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-            if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-                EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
-                etHeadline.setText(mStoryProvider.getDaoTheatreRepo().get(moniker).getHeadline());
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+                DaoTheatre daoTheatre = (DaoTheatre)mStoryProvider.getDaoTheatreRepo().get(moniker);
+                etHeadline.setText(daoTheatre.getHeadline());
+                date = TimeUtils.secsToDate(daoTheatre.getTimestamp()) + "(" + daoTheatre.getTimestamp().toString() + ")";
             }
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+                DaoEpic daoEpic = (DaoEpic)mStoryProvider.getDaoEpicRepo().get(moniker);
+                etHeadline.setText(daoEpic.getHeadline());
+                date = TimeUtils.secsToDate(daoEpic.getTimestamp()) + "(" + daoEpic.getTimestamp().toString() + ")";
+            }
+            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+            }
+            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+            }
         }
 
         // show creation date
         TextView tv_last_update = (TextView) mRootView.findViewById(R.id.tv_last_update);
-        String date = TimeUtils.secsToDate(System.currentTimeMillis());
+//        String date = TimeUtils.secsToDate(System.currentTimeMillis());
         tv_last_update.setText(date);
 
         // establish tag list
-        handleTagList();
+        handleTagList(objType);
 
-        // establish button handlers
-        handleCreateButton(op, objType, moniker);
-        handleDestroyButton(op, objType, moniker);
-        handleCancelButton(op, objType, moniker);
+        if (!op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST)) {
+            // establish button handlers
+            handleCreateButton(op, objType, moniker);
+            handleDestroyButton(op, objType, moniker);
+            handleCancelButton(op, objType, moniker);
+        }
 
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean handleTagList() {
+    private Boolean handleTagList(String objType) {
 
         // list handler
         int resId = R.layout.tag_list_item;
         List<String> tagNameList = new ArrayList<>();
         List<String> tagLabelList = new ArrayList<>();
         List<Integer> tagImageResIdList = new ArrayList<>();
+        List<Integer> tagBgColorList = new ArrayList<>();
 
-        for (DaoStory story : mStoryProvider.getDaoStoryList().stories) {
-            tagNameList.add(story.getMoniker());
-            tagLabelList.add("...");
-            int imageResId = R.drawable.ic_local_movies_black_48dp;
-            tagImageResIdList.add(imageResId);
+        if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+            // build list of epic names, labels & images
+            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mStoryProvider.getDaoEpicRepo().getDaoList();
+            for (DaoEpic epic : daoEpicList) {
+                tagNameList.add(epic.getMoniker());
+                tagLabelList.add(epic.getHeadline());
+                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+                tagImageResIdList.add(imageResId);
+                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+                if (mStoryProvider.getActiveTheatre() != null && mStoryProvider.getActiveTheatre().getTagList().contains(epic.getMoniker())) {
+                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+                }
+                tagBgColorList.add(bgColor);
+            }
         }
-        // instantiate list adapter
+        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+            // build list of story names, labels & images
+//            for (DaoStory story : mStoryProvider.getDaoEpicRepo().getDaoList()) {
+//                tagNameList.add(story.getMoniker());
+//                tagLabelList.add(story.getHeadline());
+//                int imageResId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
+//                tagImageResIdList.add(imageResId);
+//            }
+        }
+        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+            // build list of story names, labels & images
+//            for (DaoStory story : mStoryProvider.getDaoStoryList().stories) {
+//                tagNameList.add(story.getMoniker());
+//                tagLabelList.add("...");
+//                int imageResId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
+//                tagImageResIdList.add(imageResId);
+//            }
+        }
+        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
+            // build list of audit trail entries
+            for (int i = mStoryProvider.getDaoAuditRepo().size()-1; i > -1 ; i--) {
+                DaoAudit audit = mStoryProvider.getDaoAuditRepo().get(i);
+                tagNameList.add(audit.toFormattedString());
+                tagLabelList.add("");
+                int imageResId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
+                tagImageResIdList.add(imageResId);
+            }
+        }
+
+            // instantiate list adapter
         mTagListAdapter =
                 new TagListAdapter(mRootView.getContext(),
                         resId,
                         tagNameList,
                         tagLabelList,
-                        tagImageResIdList);
+                        tagImageResIdList,
+                        tagBgColorList);
 
         ListView lv = (ListView) mRootView.findViewById(R.id.listview_alert);
         if (mTagListAdapter != null && lv != null) {
@@ -131,6 +185,15 @@ public class DaoMakerUiHandler {
             {
                 String value = (String)adapter.getItemAtPosition(position);
                 Log.d(TAG,"handleTagList item " + value + " at position " + position);
+                if (mStoryProvider.getActiveTheatre() != null) {
+                    DaoTheatre daoTheatre = mStoryProvider.getActiveTheatre();
+                    DaoEpic daoEpic = (DaoEpic)mStoryProvider.getDaoEpicRepo().get(position);
+                    if (daoTheatre.getTagList().contains(daoEpic.getMoniker())) {
+                        v.setBackgroundColor(mRootView.getResources().getColor(R.color.brightgreen));
+                    }
+                }
+
+                v.setBackgroundColor(mRootView.getResources().getColor(R.color.brightgreen));
             }
         });
         return true;
@@ -148,35 +211,39 @@ public class DaoMakerUiHandler {
             public void onClick(View v) {
                 Log.v(TAG, "buttonCreate.setOnClickListener: ");
                 EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
-                String thingMoniker = etMoniker.getText().toString();
+                String editedMoniker = etMoniker.getText().toString();
                 EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
-                String thingHeadline = etHeadline.getText().toString();
+                String headline = etHeadline.getText().toString();
 
-                Toast.makeText(mRootView.getContext(), "Creating thing " + thingMoniker, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mRootView.getContext(), "Creating thing " + editedMoniker, Toast.LENGTH_SHORT).show();
 
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                    // get theatre object, update name, update repo
-                    DaoTheatre daoTheatre = new DaoTheatre();
-                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-                        daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
-                        if (daoTheatre != null) {
-                            // if moniker has been edited
-                            if (!moniker.equals(thingMoniker)) {
-                                // remove obsolete entry
-                                mStoryProvider.removeTheatreRepo(daoTheatre, true);
-                            }
-                        }
-                        else {
-                            // error: never should edit NULL object!  create a placeholder & carry on
-                            daoTheatre = new DaoTheatre();
-                            Log.e(TAG, "buttonCreate.setOnClickListener: editing NULL object?");
-                        }
-                    }
-                    // update with edited values
-                    daoTheatre.setMoniker(thingMoniker);
-                    daoTheatre.setHeadline(thingHeadline);
-                    // update repo
-                    mStoryProvider.updateTheatreRepo(daoTheatre, true);
+                    makeTheatre(op, moniker, editedMoniker, headline);
+//                    // get theatre object, update name, update repo
+//                    DaoTheatre daoTheatre = new DaoTheatre();
+//                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+//                        daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
+//                        if (daoTheatre != null) {
+//                            // if moniker has been edited
+//                            if (!moniker.equals(thingMoniker)) {
+//                                // remove obsolete entry
+//                                mStoryProvider.removeTheatre(daoTheatre, true);
+//                            }
+//                        }
+//                        else {
+//                            // error: never should edit NULL object!  create a placeholder & carry on
+//                            daoTheatre = new DaoTheatre();
+//                            Log.e(TAG, "buttonCreate.setOnClickListener: editing NULL object?");
+//                        }
+//                    }
+//                    // update with edited values
+//                    daoTheatre.setMoniker(thingMoniker);
+//                    daoTheatre.setHeadline(thingHeadline);
+//                    // update repo
+//                    mStoryProvider.updateTheatre(daoTheatre, true);
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+                    makeEpic(op, moniker, editedMoniker, headline);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 }
@@ -193,20 +260,64 @@ public class DaoMakerUiHandler {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
+    private Boolean makeTheatre(String op, String moniker, String editedMoniker, String headline) {
+        // make theatre object, update name, update repo
+        DaoTheatre daoTheatre = new DaoTheatre();
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            daoTheatre = (DaoTheatre) mStoryProvider.getDaoTheatreRepo().get(moniker);
+            if (daoTheatre != null) {
+                // if moniker has been edited
+                if (!moniker.equals(editedMoniker)) {
+                    // remove obsolete entry
+                    mStoryProvider.removeTheatre(daoTheatre, true);
+                }
+            }
+            else {
+                // error: never should edit NULL object!  create a placeholder & carry on
+                daoTheatre = new DaoTheatre();
+                Log.e(TAG, "makeTheatre: editing NULL object?");
+            }
+        }
+        // update with edited values
+        daoTheatre.setMoniker(editedMoniker);
+        daoTheatre.setHeadline(headline);
+        // update repo
+        mStoryProvider.updateTheatre(daoTheatre, true);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean makeEpic(String op, String moniker, String editedMoniker, String headline) {
+        // make Epic object, update name, update repo
+        DaoEpic daoEpic = new DaoEpic();
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            daoEpic = (DaoEpic)mStoryProvider.getDaoEpicRepo().get(moniker);
+            if (daoEpic != null) {
+                // if moniker has been edited
+                if (!moniker.equals(editedMoniker)) {
+                    // remove obsolete entry
+                    mStoryProvider.removeEpic(daoEpic, true);
+                }
+            }
+            else {
+                // error: never should edit NULL object!  create a placeholder & carry on
+                daoEpic = new DaoEpic();
+                Log.e(TAG, "makeEpic: editing NULL object?");
+            }
+        }
+        // update with edited values
+        daoEpic.setMoniker(editedMoniker);
+        daoEpic.setHeadline(headline);
+        // update repo
+        mStoryProvider.updateEpic(daoEpic, true);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     private Boolean handleDestroyButton(final String op, final String objType, final String moniker) {
         // establish destroy button visibility & click listener
         final Button buttonDestroy = (Button) mRootView.findViewById(R.id.button_daomaker_destroy);
         // if editing existing object, present Destroy option
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             buttonDestroy.setVisibility(View.VISIBLE);
-
-            if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-            }
-            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-            }
-            else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-            }
-
         }
 
         buttonDestroy.setOnClickListener(new View.OnClickListener() {
@@ -214,19 +325,22 @@ public class DaoMakerUiHandler {
                 Log.v(TAG, "buttonDestroy.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "Destroying thing...", Toast.LENGTH_SHORT).show();
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                    // get theatre object, update name, update repo
-                    DaoTheatre daoTheatre = new DaoTheatre();
-                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-                        daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
-                        if (daoTheatre != null) {
-                            // remove obsolete entry
-                            mStoryProvider.removeTheatreRepo(daoTheatre, true);
-                        }
-                        else {
-                            // error: never should edit NULL object!  do nothing...
-                            Log.e(TAG, "buttonDestroy.setOnClickListener: editing NULL object?");
-                        }
-                    }
+                    destroyTheatre(moniker);
+//                    // get theatre object, update name, update repo
+//                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+//                        DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
+//                        if (daoTheatre != null) {
+//                            // remove obsolete entry
+//                            mStoryProvider.removeTheatre(daoTheatre, true);
+//                        }
+//                        else {
+//                            // error: never should edit NULL object!  do nothing...
+//                            Log.e(TAG, "buttonDestroy.setOnClickListener: editing NULL object?");
+//                        }
+//                    }
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+                    destroyEpic(moniker);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 }
@@ -239,6 +353,32 @@ public class DaoMakerUiHandler {
             }
         });
 
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean destroyTheatre(String moniker) {
+        DaoTheatre daoTheatre = (DaoTheatre) mStoryProvider.getDaoTheatreRepo().get(moniker);
+        if (daoTheatre != null) {
+            // remove obsolete entry
+            mStoryProvider.removeTheatre(daoTheatre, true);
+        }
+        else {
+            // error: never should edit NULL object!  do nothing...
+            Log.e(TAG, "destroyTheatre: editing NULL object?");
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean destroyEpic(String moniker) {
+        DaoEpic daoEpic = (DaoEpic) mStoryProvider.getDaoEpicRepo().get(moniker);
+        if (daoEpic != null) {
+            // remove obsolete entry
+            mStoryProvider.removeEpic(daoEpic, true);
+        }
+        else {
+            // error: never should edit NULL object!  do nothing...
+            Log.e(TAG, "destroyEpic: editing NULL object?");
+        }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

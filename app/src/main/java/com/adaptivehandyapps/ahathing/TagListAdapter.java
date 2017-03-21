@@ -40,9 +40,10 @@ public class TagListAdapter extends ArrayAdapter<String> {
     private final List<String> mItemName;
     private final List<String> mItemLabel;
     private final List<Integer> mImageResId;
+    private final List<Integer> mBgColor;
 
     ///////////////////////////////////////////////////////////////////////////
-    public TagListAdapter(Context context, int resId, List<String> itemname, List<String> itemlabel, List<Integer> imgid) {
+    public TagListAdapter(Context context, int resId, List<String> itemname, List<String> itemlabel, List<Integer> imgid, List<Integer> bgColor) {
 //        super(context, R.layout.pipe_list_item, itemname);
         super(context, resId, itemname);
         this.mTagListItemResId = resId;
@@ -50,6 +51,7 @@ public class TagListAdapter extends ArrayAdapter<String> {
         this.mItemName = itemname;
         this.mItemLabel = itemlabel;
         this.mImageResId = imgid;
+        this.mBgColor = bgColor;
     }
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -60,11 +62,20 @@ public class TagListAdapter extends ArrayAdapter<String> {
         int layoutId = mTagListItemResId;
         final View rowView=inflater.inflate(layoutId, null, true);
 
+//        rowView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLightGrey));
+        rowView.setBackgroundColor(mBgColor.get(position));
+
         TextView txtTitle = (TextView) rowView.findViewById(R.id.tv_tag_name);
         txtTitle.setText(mItemName.get(position));
 
         TextView txtDesc = (TextView) rowView.findViewById(R.id.tv_tag_label);
-        txtDesc.setText(mItemLabel.get(position));
+//        if (mItemLabel.get(position).length() > 0) {
+            txtDesc.setText(mItemLabel.get(position));
+//            txtDesc.setVisibility(View.VISIBLE);
+//        }
+//        else {
+//            txtDesc.setVisibility(View.GONE);
+//        }
 
         ImageView imageView = (ImageView) rowView.findViewById(R.id.iv_tag_image);
         imageView.setImageResource(mImageResId.get(position));

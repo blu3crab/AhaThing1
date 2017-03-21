@@ -18,91 +18,45 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
-import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoEpic implements Serializable {
+public class DaoEpic extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	@SerializedName("moniker")		// name
-	private String moniker;
-
-	@SerializedName("headline")		// headline
-	private String headline;
-
-	@SerializedName("tagList")		// tag list - stories
-	private List<String> tagList;
-
-	@SerializedName("reserve1")
-	private String reserve1;
+	@SerializedName("reserve2")
+	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoEpic() {
-		this.moniker = DaoDefs.INIT_STRING_MARKER;
-		this.headline = DaoDefs.INIT_STRING_MARKER;
-		this.tagList = new ArrayList<>();
-		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
+		super();
+		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
 	public DaoEpic(
 			String moniker,
 			String headline,
+			Long timestamp,
 			List<String> tagList,
             String reserve1
     ) {
-		this.moniker = moniker;
-		this.headline = headline;
-		this.tagList = tagList;
-		this.reserve1 = reserve1;
+		super(moniker, headline, timestamp, tagList, reserve1);
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
-	public String toString() {
-		return moniker + ", " + headline + ", " +
-				tagList + ", " +
-                reserve1;
-	}
-
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
 
-	public String getMoniker() {
-		return moniker;
+	public String getReserve2() {
+		return reserve2;
 	}
 
-	public void setMoniker(String moniker) {
-		this.moniker = moniker;
-	}
-
-	public String getHeadline() {
-		return headline;
-	}
-
-	public void setHeadline(String headline) {
-		this.headline = headline;
-	}
-
-	public List<String> getTagList() {
-		return tagList;
-	}
-
-	public void setTagList(List<String> tagList) {
-		this.tagList = tagList;
-	}
-
-	public String getReserve1() {
-		return reserve1;
-	}
-
-	public void setReserve1(String reserve1) {
-		this.reserve1 = reserve1;
+	public void setReserve2(String reserve1) {
+		this.reserve2 = reserve2;
 	}
 	///////////////////////////////////////////////////////////////////////////
 }

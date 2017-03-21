@@ -18,6 +18,7 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
@@ -33,17 +34,35 @@ public class DaoAuditRepo {
 
 	public static final String JSON_CONTAINER = "auditTrail";
 
+	private Context mContext;
+
 	@SerializedName("daoList")
 	private List<DaoAudit> daoList;
 
-	public DaoAuditRepo(){
+	public DaoAuditRepo(Context context){
+		mContext = context;
 		daoList = new ArrayList<>();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	public List<DaoAudit> getDaoList() {
+		return daoList;
+	}
+	///////////////////////////////////////////////////////////////////////////
+	public DaoAudit postAudit(int actorResId, int actionResId, String outcome) {
+		// post audit trail
+		DaoAudit daoAudit = new DaoAudit();
+		daoAudit.setTimestamp(System.currentTimeMillis());
+		daoAudit.setActor(mContext.getString(actorResId));
+		daoAudit.setAction(mContext.getString(actionResId));
+		daoAudit.setOutcome(outcome);
+		set(daoAudit);
+		return daoAudit;
+	}
+	///////////////////////////////////////////////////////////////////////////
 	public Boolean set(DaoAudit daoAudit) {
 		daoList.add(daoAudit);
-		Log.d(TAG, "set->" + daoAudit.toString());
+		Log.d(TAG, "audit-> " + daoAudit.toFormattedString());
 		return true;
 	}
 	///////////////////////////////////////////////////////////////////////////
