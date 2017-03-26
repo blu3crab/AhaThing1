@@ -39,16 +39,17 @@ public class DaoBaseRepo {
 
 	///////////////////////////////////////////////////////////////////////////
 	public Boolean set(Object object) {
-		DaoBase daoBase = (DaoBase) object;
+		// copying results in object not updating in consumer after set
+//		DaoBase daoBase = (DaoBase) object;
 		// if repo contains object
-		if (contains(daoBase.getMoniker())) {
+		if (contains(((DaoBase) object).getMoniker())) {
 			// update object
-			daoList.set(indexOf(daoBase.getMoniker()), daoBase);
+			daoList.set(indexOf(((DaoBase) object).getMoniker()), object);
 		}
 		else {
 			// new object
-			monikerList.add(daoBase.getMoniker());
-			daoList.add(daoBase);
+			monikerList.add(((DaoBase) object).getMoniker());
+			daoList.add(object);
 		}
 		return true;
 	}

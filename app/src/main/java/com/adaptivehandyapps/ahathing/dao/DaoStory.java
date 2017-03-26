@@ -25,112 +25,126 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoStory implements Serializable {
+public class DaoStory extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	@SerializedName("moniker")		// name
-	private String moniker;
+	@SerializedName("stage")
+	private String stage;
 
-	@SerializedName("stageList")		// stage list
-	private DaoStageList stageList;
+	@SerializedName("prereq")
+	private String prereq;
 
-	@SerializedName("actorList")	// actor list
-	private List<String> actorList;
+	@SerializedName("actor")
+	private String actor;
 
-	@SerializedName("ruleList")	// rule list
-	private List<String> ruleList;
+	@SerializedName("action")
+	private String action;
 
-	@SerializedName("tagList")		// tag list
-	private List<String> tagList;
+	@SerializedName("outcome")
+	private String outcome;
 
-	@SerializedName("reserve1")
-	private String reserve1;
+	@SerializedName("trigger")
+	private String trigger;
+
+	@SerializedName("reserve2")
+	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoStory() {
-		this.moniker = DaoDefs.INIT_STRING_MARKER;
-		this.stageList = new DaoStageList();
-		this.actorList = new ArrayList<>();
-		this.ruleList = new ArrayList<>();
-
-		this.tagList = new ArrayList<>();
-		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
+		super();
+		this.stage = DaoDefs.INIT_STRING_MARKER;
+		this.prereq = DaoDefs.INIT_STRING_MARKER;
+		this.actor = DaoDefs.INIT_STRING_MARKER;
+		this.action = DaoDefs.INIT_STRING_MARKER;
+		this.outcome = DaoDefs.INIT_STRING_MARKER;
+		this.trigger = DaoDefs.INIT_STRING_MARKER;
+		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
 	public DaoStory(
 			String moniker,
-			DaoStageList stageList,
-			List<String> actorList,
-			List<String> ruleList,
-            List<String> tagList,
-            String reserve1
-    ) {
-		this.moniker = moniker;
-		this.stageList = stageList;
-		this.actorList = actorList;
-		this.ruleList = ruleList;
-
-		this.tagList = tagList;
-		this.reserve1 = reserve1;
+			String headline,
+			Long timestamp,
+			List<String> tagList,
+			String reserve1,
+			String stage,
+			String prereq,
+			String actor,
+			String action,
+			String outcome,
+			String trigger,
+			String reserve2
+	) {
+		super(moniker, headline, timestamp, tagList, reserve1);
+		this.stage = stage;
+		this.prereq = prereq;
+		this.actor = actor;
+		this.action = action;
+		this.outcome = outcome;
+		this.trigger = trigger;
+		this.reserve2 = reserve2;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
-	public String toString() {
-		return moniker + ", " + stageList + ", " + actorList + ", " + ruleList + ", " +
-                tagList + ", " + reserve1;
-	}
-
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
 
-	public String getMoniker() {
-		return moniker;
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public String getPrereq() {
+		return prereq;
 	}
 
-	public void setMoniker(String moniker) {
-		this.moniker = moniker;
+	public void setPrereq(String prereq) {
+		this.prereq = prereq;
 	}
 
-	public DaoStageList getStageList() {
-		return stageList;
+	public String getActor() {
+		return actor;
 	}
 
-	public void setStageList(DaoStageList stageList) {
-		this.stageList = stageList;
+	public void setActor(String actor) {
+		this.actor = actor;
 	}
 
-	public List<String> getActorList() {
-		return actorList;
+	public String getAction() {
+		return action;
 	}
 
-	public void setActorList(List<String> actorList) {
-		this.actorList = actorList;
+	public void setAction(String action) {
+		this.action = action;
 	}
 
-	public List<String> getRuleList() {
-		return ruleList;
+	public String getOutcome() {
+		return outcome;
 	}
 
-	public void setRuleList(List<String> ruleList) {
-		this.ruleList = ruleList;
+	public void setOutcome(String outcome) {
+		this.outcome = outcome;
 	}
 
-	public List<String> getTagList() {
-		return tagList;
+	public String getTrigger() {
+		return trigger;
 	}
 
-	public void setTagList(List<String> tagList) {
-		this.tagList = tagList;
+	public void setTrigger(String trigger) {
+		this.trigger = trigger;
 	}
 
-	public String getReserve1() {
-		return reserve1;
+	public String getReserve2() {
+		return reserve2;
 	}
 
-	public void setReserve1(String reserve1) {
-		this.reserve1 = reserve1;
+	public void setReserve2(String reserve1) {
+		this.reserve2 = reserve2;
 	}
 	///////////////////////////////////////////////////////////////////////////
 }

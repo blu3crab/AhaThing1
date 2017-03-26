@@ -30,13 +30,10 @@ public class DaoEpicRepo extends DaoBaseRepo {
 
 //	@SerializedName("monikerList")
 //	private List<String> monikerList;
-//	@SerializedName("daoList")
-//	private List<DaoEpic> daoList;
 
 	public DaoEpicRepo(){
 		super();
 //		monikerList = new ArrayList<>();
-//		daoList = new ArrayList<>();
 	}
 }
 ///////////////////////////////////////////////////////////////////////////

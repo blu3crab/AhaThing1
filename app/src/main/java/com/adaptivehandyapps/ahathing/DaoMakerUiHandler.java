@@ -6,8 +6,10 @@ package com.adaptivehandyapps.ahathing;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,6 +86,11 @@ public class DaoMakerUiHandler {
                 headline = mActiveEpic.getHeadline();
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                mActiveStory = (DaoStory)mStoryProvider.getDaoStoryRepo().get(moniker);
+                date = TimeUtils.secsToDate(mActiveStory.getTimestamp()) + "(" + mActiveStory.getTimestamp().toString() + ")";
+                headline = mActiveStory.getHeadline();
+                // xfer story to view
+                fromStory(mActiveStory);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
             }
@@ -135,6 +142,8 @@ public class DaoMakerUiHandler {
         List<Integer> tagBgColorList = new ArrayList<>();
 
         if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
+            ll.setVisibility(View.VISIBLE);
             // default list item color to not selected
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // dereference epic repo dao list
@@ -159,15 +168,24 @@ public class DaoMakerUiHandler {
             // build list of story names, labels & images
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-            // build list of story names, labels & images
+            // no tag list
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+            // no tag list
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
+            // no tag list
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
+            // no tag list
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
+            // no tag list
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
             // build list of audit trail entries
@@ -189,7 +207,7 @@ public class DaoMakerUiHandler {
                         tagImageResIdList,
                         tagBgColorList);
 
-        ListView lv = (ListView) mRootView.findViewById(R.id.listview_alert);
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_tags);
         if (mTagListAdapter != null && lv != null) {
             lv.setAdapter(mTagListAdapter);
         } else {
@@ -251,41 +269,28 @@ public class DaoMakerUiHandler {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean handleCreateButton(final String op, final String objType, final String moniker) {
-        // establish create button visibility & click listener
-        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_create);
-        buttonCreate.setVisibility(View.VISIBLE);
-        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            buttonCreate.setText("Update");
+    private Boolean fromStory(DaoStory daoStory) {
+        ArrayList<String> listItems=new ArrayList<String>();
+
+        // set story views visible
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_story);
+        ll.setVisibility(View.VISIBLE);
+
+        listItems.add("stage nada");
+        listItems.add("stage1");
+        listItems.add("stage2");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                listItems);
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stages);
+        if (adapter != null && lv != null) {
+            lv.setAdapter(adapter);
+        } else {
+            // no list?
+            Log.e(TAG, "fromStory NULL adapter? " + adapter + ", R.id.listview? " + lv);
+            return false;
         }
-        // button handlers
-        buttonCreate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.v(TAG, "buttonCreate.setOnClickListener: ");
-                EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
-                String editedMoniker = etMoniker.getText().toString();
-                EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
-                String headline = etHeadline.getText().toString();
-
-                Toast.makeText(mRootView.getContext(), "Creating thing " + editedMoniker, Toast.LENGTH_SHORT).show();
-
-                if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                    toTheatre(op, moniker, editedMoniker, headline);
-                }
-                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-                    toEpic(op, moniker, editedMoniker, headline);
-                }
-                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-                }
-                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-                }
-
-                // refresh content view
-                Log.d(TAG, "buttonCreate.setOnClickListener callback...");
-                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
-
-            }
-        });
 
         return true;
     }
@@ -337,6 +342,45 @@ public class DaoMakerUiHandler {
         mActiveEpic.setHeadline(headline);
         // update repo
         mStoryProvider.updateEpic(mActiveEpic, true);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleCreateButton(final String op, final String objType, final String moniker) {
+        // establish create button visibility & click listener
+        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_create);
+        buttonCreate.setVisibility(View.VISIBLE);
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            buttonCreate.setText("Update");
+        }
+        // button handlers
+        buttonCreate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v(TAG, "buttonCreate.setOnClickListener: ");
+                EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
+                String editedMoniker = etMoniker.getText().toString();
+                EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
+                String headline = etHeadline.getText().toString();
+
+                Toast.makeText(mRootView.getContext(), "Creating thing " + editedMoniker, Toast.LENGTH_SHORT).show();
+
+                if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+                    toTheatre(op, moniker, editedMoniker, headline);
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
+                    toEpic(op, moniker, editedMoniker, headline);
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                }
+                else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
+                }
+
+                // refresh content view
+                Log.d(TAG, "buttonCreate.setOnClickListener callback...");
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+
+            }
+        });
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

@@ -24,13 +24,10 @@ public class DaoStoryRepo extends DaoBaseRepo {
 
 //	@SerializedName("monikerList")
 //	private List<String> monikerList;
-//	@SerializedName("daoList")
-//	private List<DaoEpic> daoList;
 
 	public DaoStoryRepo(){
 		super();
 //		monikerList = new ArrayList<>();
-//		daoList = new ArrayList<>();
 	}
 }
 ///////////////////////////////////////////////////////////////////////////

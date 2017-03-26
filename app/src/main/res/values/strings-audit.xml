@@ -4,6 +4,8 @@
     <string name="actor_removeTheatre">removeTheatre</string>
     <string name="actor_updateEpic">updateEpic</string>
     <string name="actor_removeEpic">removeEpic</string>
+    <string name="actor_updateStory">updateStory</string>
+    <string name="actor_removeStory">removeStory</string>
     <string name="actor_onDataChange">onDataChange</string>
     <string name="actor_onChildListener">onChildListener</string>
     <string name="actor_onChildAdded">onChildAdded</string>

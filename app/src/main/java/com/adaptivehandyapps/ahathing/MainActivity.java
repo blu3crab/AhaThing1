@@ -335,9 +335,7 @@ public class MainActivity extends AppCompatActivity
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
-            for (DaoStory daoStory : mStoryProvider.getDaoStoryList().stories) {
-                monikerList.add(daoStory.getMoniker());
-            }
+            monikerList = mStoryProvider.getDaoStoryRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
             title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
@@ -489,7 +487,7 @@ public class MainActivity extends AppCompatActivity
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, mStoryProvider.getActiveStory().getMoniker());
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoStoryList().stories.size();
+                String moniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
                 replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, moniker);
             }
         }
@@ -529,7 +527,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryList().stories.size();
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
                 }
                 else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageList().stages.size();
@@ -547,9 +545,9 @@ public class MainActivity extends AppCompatActivity
                     // Epic - set active
                     mStoryProvider.setActiveEpic((DaoEpic) mStoryProvider.getDaoEpicRepo().get(itemname));
                 }
-                else if (mStoryProvider.getDaoStoryList().getDao(itemname) != null) {
+                else if (mStoryProvider.getDaoStoryRepo().get(itemname) != null) {
                     // story - set active
-                    mStoryProvider.setActiveStory(mStoryProvider.getDaoStoryList().getDao(itemname));
+                    mStoryProvider.setActiveStory((DaoStory) mStoryProvider.getDaoStoryRepo().get(itemname));
                 }
                 else if (mStoryProvider.getDaoStageList().getDao(itemname) != null) {
                     // stage - set active
