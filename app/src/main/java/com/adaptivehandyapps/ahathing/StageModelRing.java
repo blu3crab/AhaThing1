@@ -6,7 +6,6 @@ import com.adaptivehandyapps.ahathing.dal.StoryProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStageList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,9 +61,8 @@ public class StageModelRing {
     public Boolean buildModel(Integer ringMax) {
         mRingMax = ringMax;
 
-        DaoStageList daoStageList = mStoryProvider.getDaoStageList();
         DaoStage activeStage = mStoryProvider.getActiveStage();
-        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + daoStageList.stages.size());
+        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
         // create stage locus list

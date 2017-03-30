@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,10 @@ public class DaoMakerUiHandler {
     private StoryProvider mStoryProvider;
 
     private TagListAdapter mTagListAdapter = null;
+    private ArrayAdapter<String> mPrereqListAdapter = null;
+    private Spinner mSpinnerPrereqs;
+    private ArrayAdapter<String> mStageListAdapter = null;
+    private Spinner mSpinnerStages;
 
     private DaoTheatre mActiveTheatre;
     private DaoEpic mActiveEpic;
@@ -103,6 +108,8 @@ public class DaoMakerUiHandler {
                 mActiveEpic = new DaoEpic();
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                mActiveStory = new DaoStory();
+                fromStory(mActiveStory);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
             }
@@ -152,7 +159,8 @@ public class DaoMakerUiHandler {
             for (DaoEpic epic : daoEpicList) {
                 // build list of epic names, labels & images
                 tagNameList.add(epic.getMoniker());
-                tagLabelList.add(epic.getHeadline());
+//                tagLabelList.add(epic.getHeadline());
+                tagLabelList.add("headline activity here...");
                 int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
                 tagImageResIdList.add(imageResId);
                 // if active theatre defined & epic selected
@@ -192,13 +200,13 @@ public class DaoMakerUiHandler {
             for (int i = mStoryProvider.getDaoAuditRepo().size()-1; i > -1 ; i--) {
                 DaoAudit audit = mStoryProvider.getDaoAuditRepo().get(i);
                 tagNameList.add(audit.toFormattedString());
-                tagLabelList.add("");
+//                tagLabelList.add("");
                 int imageResId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
                 tagImageResIdList.add(imageResId);
             }
         }
 
-            // instantiate list adapter
+        // instantiate list adapter
         mTagListAdapter =
                 new TagListAdapter(mRootView.getContext(),
                         resId,
@@ -270,27 +278,55 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean fromStory(DaoStory daoStory) {
-        ArrayList<String> listItems=new ArrayList<String>();
 
         // set story views visible
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_story);
         ll.setVisibility(View.VISIBLE);
 
-        listItems.add("stage nada");
-        listItems.add("stage1");
-        listItems.add("stage2");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mRootView.getContext(),
+        // dereference stage repo dao list
+        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mStoryProvider.getDaoStageRepo().getDaoList();
+        List<String> stageNameList = new ArrayList<>();
+        // for each stage in repo
+        for (DaoStage stage : daoStageList) {
+            // build list of stage names, labels & images
+            stageNameList.add(stage.getMoniker());
+        }
+        mStageListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
                 android.R.layout.simple_list_item_1,
-                listItems);
-        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stages);
-        if (adapter != null && lv != null) {
-            lv.setAdapter(adapter);
+                stageNameList);
+
+        mSpinnerStages = (Spinner) mRootView.findViewById(R.id.spinner_stages);
+        if (mStageListAdapter != null && mSpinnerStages != null) {
+            mSpinnerStages.setAdapter(mStageListAdapter);
         } else {
-            // no list?
-            Log.e(TAG, "fromStory NULL adapter? " + adapter + ", R.id.listview? " + lv);
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
             return false;
         }
+        // dereference prereq repo dao list
+//        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mStoryProvider.getDaoStageRepo().getDaoList();
+//        List<String> tagNameList = new ArrayList<>();
+//        // for each stage in repo
+//        for (DaoStage stage : daoStageList) {
+//            // build list of stage names, labels & images
+//            tagNameList.add(stage.getMoniker());
+//        }
+        List<String> prereqNameList = new ArrayList<>();
+        prereqNameList.clear();
+        prereqNameList.add("prereq1");
+        mPrereqListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                prereqNameList);
+
+        mSpinnerPrereqs = (Spinner) mRootView.findViewById(R.id.spinner_prereqs);
+        if (mPrereqListAdapter != null && mSpinnerPrereqs != null) {
+            mSpinnerPrereqs.setAdapter(mPrereqListAdapter);
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mPrereqListAdapter? " + mPrereqListAdapter + ", R.id.spinner_Prereqs? " + mSpinnerPrereqs);
+            return false;
+        }
+
 
         return true;
     }
@@ -321,7 +357,7 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean toEpic(String op, String moniker, String editedMoniker, String headline) {
-        // xfer view to epic object
+        // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             mActiveEpic = (DaoEpic)mStoryProvider.getDaoEpicRepo().get(moniker);
             if (mActiveEpic != null) {
@@ -342,6 +378,33 @@ public class DaoMakerUiHandler {
         mActiveEpic.setHeadline(headline);
         // update repo
         mStoryProvider.updateEpic(mActiveEpic, true);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean toStory(String op, String moniker, String editedMoniker, String headline) {
+        // xfer view to object
+        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
+            mActiveStory = (DaoStory)mStoryProvider.getDaoStoryRepo().get(moniker);
+            if (mActiveStory != null) {
+                // if moniker has been edited
+                if (!moniker.equals(editedMoniker)) {
+                    // remove obsolete entry
+                    mStoryProvider.removeStory(mActiveStory, true);
+                }
+            }
+            else {
+                // error: never should edit NULL object!  create a placeholder & carry on
+                mActiveStory = new DaoStory();
+                Log.e(TAG, "toStory: editing NULL object?");
+            }
+        }
+        // update with edited values
+        mActiveStory.setMoniker(editedMoniker);
+        mActiveStory.setHeadline(headline);
+
+        mActiveStory.setStage(mSpinnerStages.getSelectedItem().toString());
+        // update repo
+        mStoryProvider.updateStory(mActiveStory, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -370,6 +433,7 @@ public class DaoMakerUiHandler {
                     toEpic(op, moniker, editedMoniker, headline);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                    toStory (op, moniker, editedMoniker, headline);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
                 }
@@ -398,23 +462,12 @@ public class DaoMakerUiHandler {
                 Toast.makeText(mRootView.getContext(), "Destroying thing...", Toast.LENGTH_SHORT).show();
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                     destroyTheatre(moniker);
-//                    // get theatre object, update name, update repo
-//                    if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-//                        DaoTheatre daoTheatre = mStoryProvider.getDaoTheatreRepo().get(moniker);
-//                        if (daoTheatre != null) {
-//                            // remove obsolete entry
-//                            mStoryProvider.removeTheatre(daoTheatre, true);
-//                        }
-//                        else {
-//                            // error: never should edit NULL object!  do nothing...
-//                            Log.e(TAG, "buttonDestroy.setOnClickListener: editing NULL object?");
-//                        }
-//                    }
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
                     destroyEpic(moniker);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                    destroyStory(moniker);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
                 }
@@ -450,6 +503,19 @@ public class DaoMakerUiHandler {
         else {
             // error: never should edit NULL object!  do nothing...
             Log.e(TAG, "destroyEpic: editing NULL object?");
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean destroyStory(String moniker) {
+        DaoStory daoStory = (DaoStory) mStoryProvider.getDaoStoryRepo().get(moniker);
+        if (daoStory != null) {
+            // remove obsolete entry
+            mStoryProvider.removeStory(daoStory, true);
+        }
+        else {
+            // error: never should edit NULL object!  do nothing...
+            Log.e(TAG, "destroyStory: editing NULL object?");
         }
         return true;
     }

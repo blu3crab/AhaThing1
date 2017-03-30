@@ -9,10 +9,10 @@ import com.adaptivehandyapps.ahathing.dao.DaoAuditRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicRepo;
+import com.adaptivehandyapps.ahathing.dao.DaoStageRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoStoryRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStageList;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatreRepo;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,7 +46,7 @@ public class StoryProvider {
     private DaoTheatreRepo mDaoTheatreRepo;
     private DaoEpicRepo mDaoEpicRepo;
     private DaoStoryRepo mDaoStoryRepo;
-    private DaoStageList mDaoStageList;
+    private DaoStageRepo mDaoStageRepo;
 
     private DaoTheatre mActiveTheatre;
     private DaoEpic mActiveEpic;
@@ -91,6 +91,7 @@ public class StoryProvider {
             mProviderListener = new ProviderListener(mContext, this);
             mProviderListener.setTheatreListener();
             mProviderListener.setEpicListener();
+            mProviderListener.setStoryListener();
         }
         else {
             mIsFirebaseReady = false;
@@ -103,10 +104,12 @@ public class StoryProvider {
         mDaoTheatreRepo = new DaoTheatreRepo();
         // create epic repo
         mDaoEpicRepo = new DaoEpicRepo();
-        // create play list
+        // create story repo
         mDaoStoryRepo = new DaoStoryRepo();
-        // add new play
-        addNewStory(mDaoStoryRepo);
+        // create stage repo
+        mDaoStageRepo = new DaoStageRepo();
+//        // add new play
+//        addNewStage(mDaoStoryRepo, mDaoStageRepo);
 
         if (mActiveStory != null) {
             Log.d(TAG, mActiveStory.toString());
@@ -140,9 +143,9 @@ public class StoryProvider {
         this.mDaoStoryRepo = daoStoryRepo;
     }
 
-    public DaoStageList getDaoStageList() { return mDaoStageList; }
-    private void setDaoStageList(DaoStageList daoStageList) {
-        this.mDaoStageList = daoStageList;
+    public DaoStageRepo getDaoStageRepo() { return mDaoStageRepo; }
+    private void setDaoStageRepo(DaoStageRepo daoStageRepo) {
+        this.mDaoStageRepo = daoStageRepo;
     }
 
     public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
@@ -160,10 +163,14 @@ public class StoryProvider {
 
     public DaoStory getActiveStory() { return mActiveStory; }
     public void setActiveStory(DaoStory activeStory) {
+        mStoryReady = false;
+        if (activeStory != null) mStoryReady = true;
         this.mActiveStory = activeStory;
     }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeStage) {
+        mStageReady = false;
+        if (activeStage != null) mStageReady = true;
         this.mActiveStage = activeStage;
     }
 
@@ -174,17 +181,6 @@ public class StoryProvider {
         this.mStageModelRing = stageModelRing;
     }
 
-//    ///////////////////////////////////////////////////////////////////////////
-//    public DaoAudit postAudit(int actorResId, int actionResId, String outcome) {
-//        // post audit trail
-//        DaoAudit daoAudit = new DaoAudit();
-//        daoAudit.setTimestamp(System.currentTimeMillis());
-//        daoAudit.setActor(mContext.getString(actorResId));
-//        daoAudit.setAction(mContext.getString(actionResId));
-//        daoAudit.setOutcome(outcome);
-//        mDaoAuditRepo.set(daoAudit);
-//        return daoAudit;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean updateTheatre(DaoTheatre daoTheatre, Boolean updateDatabase) {
         Log.d(TAG, "updateTheatre(updateDatabase = " + updateDatabase + "): daoTheatre " + daoTheatre.toString());
@@ -368,26 +364,33 @@ public class StoryProvider {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean addNewStory(DaoStoryRepo daoStoryRepo) {
+    public Boolean addNewStage(DaoStoryRepo daoStoryRepo, DaoStageRepo daoStageRepo) {
 
-        // create new play & set active
-        DaoStory activeStory = new DaoStory();
-        // moniker must be finalized prior to set (moniker list is not updated on object set
-        activeStory.setMoniker(DEFAULT_STORY_NICKNAME + daoStoryRepo.size());
-        daoStoryRepo.set(activeStory);
-        setActiveStory(activeStory);
+//        // create new play & set active
+//        DaoStory activeStory = new DaoStory();
+//        // moniker must be finalized prior to set (moniker list is not updated on object set
+//        activeStory.setMoniker(DEFAULT_STORY_NICKNAME + daoStoryRepo.size());
+//        updateStory(activeStory, true);
 
-        // create stage list, new stage & set active
-        DaoStageList daoStageList = new DaoStageList();
-        setDaoStageList(daoStageList);
+
+        // create new stage & set active
         DaoStage activeStage = new DaoStage();
-        daoStageList.stages.add(activeStage);
+        daoStageRepo.set(activeStage);
         setActiveStage(activeStage);
-        mStoryReady = true;
 
         // create model
         setStageModelRing(new StageModelRing(this));
         Integer ringMax = 4;
+        mStageReady = getStageModelRing().buildModel(ringMax);
+
+        // TEST: create new stage & set active
+        activeStage = new DaoStage();
+        daoStageRepo.set(activeStage);
+        setActiveStage(activeStage);
+
+        // create model
+        setStageModelRing(new StageModelRing(this));
+        ringMax = 4;
         mStageReady = getStageModelRing().buildModel(ringMax);
 
         return true;

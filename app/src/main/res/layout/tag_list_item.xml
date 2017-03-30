@@ -11,6 +11,7 @@
         android:id="@+id/iv_tag_image"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -25,6 +26,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@+id/iv_tag_image"
+        android:layout_centerVertical="true"
         android:text=""
         android:textColor="@color/black"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -33,13 +35,14 @@
         android:id="@+id/tv_tag_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_toRightOf="@+id/iv_tag_image"
         android:layout_below="@+id/tv_tag_name"
+        android:visibility="gone"
         android:text=""
         android:textStyle="italic"
         android:textColor="@color/colorMediumGrey"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-    <!--android:visibility="gone"-->
+    <!---->
 
 </RelativeLayout>

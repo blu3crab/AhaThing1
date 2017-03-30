@@ -18,30 +18,16 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-import java.util.List;
-
 ///////////////////////////////////////////////////////////////////////////
-public class DaoStageList {
+public class DaoStageRepo extends DaoBaseRepo {
 	public static final String JSON_CONTAINER = "stages";
 
-	@SerializedName("stages")
-	public List<DaoStage> stages;
+//	@SerializedName("monikerList")
+//	private List<String> monikerList;
 
-	public DaoStageList(){stages = new ArrayList<>();}
-
-	///////////////////////////////////////////////////////////////////////////
-	// returns DAO if found in list or null if not found
-	// TODO: use hashmap rather than serial scan
-	public DaoStage getDao(String ahaId) {
-		for (DaoStage daoStage : stages) {
-			if (daoStage.getDaoInfo().getAhaId().equals(ahaId)) {
-				return daoStage;
-			}
-		}
-		return null;
+	public DaoStageRepo(){
+		super();
+//		monikerList = new ArrayList<>();
 	}
 }
 ///////////////////////////////////////////////////////////////////////////

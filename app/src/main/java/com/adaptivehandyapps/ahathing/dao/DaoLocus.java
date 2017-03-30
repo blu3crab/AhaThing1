@@ -29,10 +29,6 @@ public class DaoLocus implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-//	// DAO info
-//	@SerializedName("daoInfo")		// object info
-//	private DaoInfo daoInfo;
-//
 	@SerializedName("nickname")	// nickname
 	private String nickname;
 
@@ -59,7 +55,6 @@ public class DaoLocus implements Serializable {
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoLocus() {
-//		this.daoInfo = new DaoInfo();
 		this.nickname = DaoDefs.INIT_STRING_MARKER;
 		this.vertX = DaoDefs.INIT_LONG_MARKER;
 		this.vertY = DaoDefs.INIT_LONG_MARKER;
@@ -72,7 +67,6 @@ public class DaoLocus implements Serializable {
 	}
 
 	public DaoLocus(
-//            DaoInfo daoInfo,
 			String nickname,
 			Long vertX,
 			Long vertY,
@@ -82,7 +76,6 @@ public class DaoLocus implements Serializable {
 			Double elev,
             String reserve1
     ) {
-//		this.daoInfo = daoInfo;
 		this.nickname = nickname;
 		this.vertX = vertX;
 		this.vertY = vertY;
@@ -95,22 +88,14 @@ public class DaoLocus implements Serializable {
 
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
-//		return daoInfo.toString() + ", " +
-//				vertX + ", " + vertY + ", " + vertZ + ", " + reserve1;
-		return nickname + ", " + vertX + ", " + vertY + ", " + vertZ + ", " + reserve1;
+		return nickname + ", " + vertX + ", " + vertY + ", " + vertZ + ", " +
+				lat + ", " + lon + ", " + elev + ", " +
+				reserve1;
 	}
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
-
-//    public DaoInfo getDaoInfo() {
-//        return daoInfo;
-//    }
-//
-//    public void setDaoInfo(DaoInfo daoInfo) {
-//        this.daoInfo = daoInfo;
-//    }
 
 	public String getNickname() {
 		return nickname;

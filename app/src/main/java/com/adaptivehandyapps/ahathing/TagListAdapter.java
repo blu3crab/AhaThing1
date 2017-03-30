@@ -68,13 +68,13 @@ public class TagListAdapter extends ArrayAdapter<String> {
         TextView txtTitle = (TextView) rowView.findViewById(R.id.tv_tag_name);
         txtTitle.setText(mItemName.get(position));
 
-        TextView txtDesc = (TextView) rowView.findViewById(R.id.tv_tag_label);
-//        if (mItemLabel.get(position).length() > 0) {
-            txtDesc.setText(mItemLabel.get(position));
-//            txtDesc.setVisibility(View.VISIBLE);
-//        }
+        TextView txtLabel = (TextView) rowView.findViewById(R.id.tv_tag_label);
+        if (mItemLabel != null && mItemLabel.size() > position) {
+            txtLabel.setText(mItemLabel.get(position));
+            txtLabel.setVisibility(View.VISIBLE);
+        }
 //        else {
-//            txtDesc.setVisibility(View.GONE);
+//            txtLabel.setVisibility(View.GONE);
 //        }
 
         ImageView imageView = (ImageView) rowView.findViewById(R.id.iv_tag_image);

@@ -168,6 +168,9 @@ public class MainActivity extends AppCompatActivity
         // create story provider
         setStoryProvider(new StoryProvider(this, getStoryProviderCallback()));
 
+        // add new play
+        mStoryProvider.addNewStage(mStoryProvider.getDaoStoryRepo(), mStoryProvider.getDaoStageRepo());
+
         // set navigation menu
         setNavMenu();
 
@@ -340,9 +343,7 @@ public class MainActivity extends AppCompatActivity
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
             title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
-            for (DaoStage daoStage : mStoryProvider.getDaoStageList().stages) {
-                monikerList.add(daoStage.getMoniker());
-            }
+            monikerList = mStoryProvider.getDaoStageRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
             title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
@@ -530,7 +531,7 @@ public class MainActivity extends AppCompatActivity
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
                 }
                 else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageList().stages.size();
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageRepo().size();
                 }
                 // launch DaoMaker
                 replaceFragment(mContentOp, mContentObjType, mContentMoniker);
@@ -549,9 +550,9 @@ public class MainActivity extends AppCompatActivity
                     // story - set active
                     mStoryProvider.setActiveStory((DaoStory) mStoryProvider.getDaoStoryRepo().get(itemname));
                 }
-                else if (mStoryProvider.getDaoStageList().getDao(itemname) != null) {
+                else if (mStoryProvider.getDaoStageRepo().get(itemname) != null) {
                     // stage - set active
-                    mStoryProvider.setActiveStage(mStoryProvider.getDaoStageList().getDao(itemname));
+                    mStoryProvider.setActiveStage((DaoStage)mStoryProvider.getDaoStageRepo().get(itemname));
                 }
                 // update nav menu
                 setNavMenu();
