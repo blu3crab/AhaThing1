@@ -20,17 +20,18 @@ package com.adaptivehandyapps.ahathing.dao;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoStory extends DaoBase {
+public class DaoAction extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
 	@SerializedName("stage")
 	private String stage;
+
+	@SerializedName("prereq")
+	private String prereq;
 
 	@SerializedName("actor")
 	private String actor;
@@ -41,36 +42,45 @@ public class DaoStory extends DaoBase {
 	@SerializedName("outcome")
 	private String outcome;
 
+	@SerializedName("trigger")
+	private String trigger;
+
 	@SerializedName("reserve2")
 	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoStory() {
+	public DaoAction() {
 		super();
 		this.stage = DaoDefs.INIT_STRING_MARKER;
+		this.prereq = DaoDefs.INIT_STRING_MARKER;
 		this.actor = DaoDefs.INIT_STRING_MARKER;
 		this.action = DaoDefs.INIT_STRING_MARKER;
 		this.outcome = DaoDefs.INIT_STRING_MARKER;
+		this.trigger = DaoDefs.INIT_STRING_MARKER;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoStory(
+	public DaoAction(
 			String moniker,
 			String headline,
 			Long timestamp,
 			List<String> tagList,
 			String reserve1,
 			String stage,
+			String prereq,
 			String actor,
 			String action,
 			String outcome,
+			String trigger,
 			String reserve2
 	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
 		this.stage = stage;
+		this.prereq = prereq;
 		this.actor = actor;
 		this.action = action;
 		this.outcome = outcome;
+		this.trigger = trigger;
 		this.reserve2 = reserve2;
 	}
 
@@ -86,6 +96,14 @@ public class DaoStory extends DaoBase {
     public void setStage(String stage) {
         this.stage = stage;
     }
+
+    public String getPrereq() {
+		return prereq;
+	}
+
+	public void setPrereq(String prereq) {
+		this.prereq = prereq;
+	}
 
 	public String getActor() {
 		return actor;
@@ -109,6 +127,14 @@ public class DaoStory extends DaoBase {
 
 	public void setOutcome(String outcome) {
 		this.outcome = outcome;
+	}
+
+	public String getTrigger() {
+		return trigger;
+	}
+
+	public void setTrigger(String trigger) {
+		this.trigger = trigger;
 	}
 
 	public String getReserve2() {

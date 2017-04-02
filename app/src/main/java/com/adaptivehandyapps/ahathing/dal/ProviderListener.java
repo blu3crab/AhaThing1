@@ -8,8 +8,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.R;
+import com.adaptivehandyapps.ahathing.dao.DaoAction;
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
+import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatreRepo;
@@ -213,6 +217,7 @@ public class ProviderListener {
 //        mDatabaseReference.addChildEventListener(childEventListener);
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
     public Boolean setEpicListener() {
 
         ChildEventListener childEventListener = new ChildEventListener() {
@@ -315,6 +320,7 @@ public class ProviderListener {
         mStoryProvider.getEpicsReference().addChildEventListener(childEventListener);
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
     public Boolean setStoryListener() {
 
         ChildEventListener childEventListener = new ChildEventListener() {
@@ -415,6 +421,418 @@ public class ProviderListener {
         };
         // Story level child event listener: dataSnapshot.getKey() = "epicXX"
         mStoryProvider.getStorysReference().addChildEventListener(childEventListener);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setStageListener() {
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null) {
+                    DaoStage daoStage = dataSnapshot.getValue(DaoStage.class);
+                    if (daoStage != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoStage.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildAdded daoStage (remote trigger): " + daoStage.toString());
+                            // update repo but not db
+                            mStoryProvider.updateStage(daoStage, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildAdded: daoStage (ignore local|multiple trigger): " + daoStage.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildAdded: NULL daoStage?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
+                String snapshotKey = dataSnapshot.getKey();
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoStageRepo().contains(dataSnapshot.getKey())) {
+                    DaoStage daoStage = dataSnapshot.getValue(DaoStage.class);
+                    if (daoStage != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoStage.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildChanged daoStage (remote trigger): " + daoStage.toString());
+                            // update repo but not db
+                            mStoryProvider.updateStage(daoStage, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildChanged: daoStage (ignore|multiple local trigger): " + daoStage.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildChanged: NULL daoEpic?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoEpicRepo().contains(dataSnapshot.getKey())) {
+                    DaoStage daoStage = dataSnapshot.getValue(DaoStage.class);
+                    if (daoStage != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoStage.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildRemoved daoStage (remote trigger): " + daoStage.toString());
+                            // remove from repo leaving db unchanged
+                            mStoryProvider.removeStage(daoStage, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildRemoved: daoStage (ignore local|multiple trigger): " + daoStage.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildRemoved: NULL daoStory?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
+                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+            }
+        };
+        // Stage level child event listener: dataSnapshot.getKey() = "epicXX"
+        mStoryProvider.getStagesReference().addChildEventListener(childEventListener);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setActorListener() {
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null) {
+                    DaoActor daoActor = dataSnapshot.getValue(DaoActor.class);
+                    if (daoActor != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoActor.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildAdded daoActor (remote trigger): " + daoActor.toString());
+                            // update repo but not db
+                            mStoryProvider.updateActor(daoActor, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildAdded: daoActor (ignore local|multiple trigger): " + daoActor.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildAdded: NULL daoActor?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
+                String snapshotKey = dataSnapshot.getKey();
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoActorRepo().contains(dataSnapshot.getKey())) {
+                    DaoActor daoActor = dataSnapshot.getValue(DaoActor.class);
+                    if (daoActor != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoActor.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildChanged daoActor (remote trigger): " + daoActor.toString());
+                            // update repo but not db
+                            mStoryProvider.updateActor(daoActor, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildChanged: daoActor (ignore|multiple local trigger): " + daoActor.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildChanged: NULL daoEpic?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoEpicRepo().contains(dataSnapshot.getKey())) {
+                    DaoActor daoActor = dataSnapshot.getValue(DaoActor.class);
+                    if (daoActor != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoActor.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildRemoved daoActor (remote trigger): " + daoActor.toString());
+                            // remove from repo leaving db unchanged
+                            mStoryProvider.removeActor(daoActor, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildRemoved: daoActor (ignore local|multiple trigger): " + daoActor.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildRemoved: NULL daoStory?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
+                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+            }
+        };
+        // Actor level child event listener: dataSnapshot.getKey() = "epicXX"
+        mStoryProvider.getActorsReference().addChildEventListener(childEventListener);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setActionListener() {
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null) {
+                    DaoAction daoAction = dataSnapshot.getValue(DaoAction.class);
+                    if (daoAction != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoAction.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildAdded daoAction (remote trigger): " + daoAction.toString());
+                            // update repo but not db
+                            mStoryProvider.updateAction(daoAction, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildAdded: daoAction (ignore local|multiple trigger): " + daoAction.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildAdded: NULL daoStory?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
+                String snapshotKey = dataSnapshot.getKey();
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoActionRepo().contains(dataSnapshot.getKey())) {
+                    DaoAction daoAction = dataSnapshot.getValue(DaoAction.class);
+                    if (daoAction != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoAction.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildChanged daoAction (remote trigger): " + daoAction.toString());
+                            // update repo but not db
+                            mStoryProvider.updateAction(daoAction, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildChanged: daoAction (ignore|multiple local trigger): " + daoAction.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildChanged: NULL daoEpic?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoEpicRepo().contains(dataSnapshot.getKey())) {
+                    DaoAction daoAction = dataSnapshot.getValue(DaoAction.class);
+                    if (daoAction != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoAction.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildRemoved daoAction (remote trigger): " + daoAction.toString());
+                            // remove from repo leaving db unchanged
+                            mStoryProvider.removeAction(daoAction, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildRemoved: daoAction (ignore local|multiple trigger): " + daoAction.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildRemoved: NULL daoAction?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
+                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+            }
+        };
+        // Action level child event listener: dataSnapshot.getKey() = "epicXX"
+        mStoryProvider.getActionsReference().addChildEventListener(childEventListener);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setOutcomeListener() {
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null) {
+                    DaoOutcome daoOutcome = dataSnapshot.getValue(DaoOutcome.class);
+                    if (daoOutcome != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoOutcome.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildAdded daoOutcome (remote trigger): " + daoOutcome.toString());
+                            // update repo but not db
+                            mStoryProvider.updateOutcome(daoOutcome, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildAdded: daoOutcome (ignore local|multiple trigger): " + daoOutcome.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildAdded: NULL daoStory?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
+                String snapshotKey = dataSnapshot.getKey();
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoOutcomeRepo().contains(dataSnapshot.getKey())) {
+                    DaoOutcome daoOutcome = dataSnapshot.getValue(DaoOutcome.class);
+                    if (daoOutcome != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoOutcome.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildChanged daoOutcome (remote trigger): " + daoOutcome.toString());
+                            // update repo but not db
+                            mStoryProvider.updateOutcome(daoOutcome, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildChanged: daoOutcome (ignore|multiple local trigger): " + daoOutcome.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildChanged: NULL daoEpic?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
+                if (dataSnapshot.getKey() != null && mStoryProvider.getDaoEpicRepo().contains(dataSnapshot.getKey())) {
+                    DaoOutcome daoOutcome = dataSnapshot.getValue(DaoOutcome.class);
+                    if (daoOutcome != null) {
+                        // if no recent local activity
+                        DaoAudit daoAudit = mStoryProvider.getDaoAuditRepo().get(daoOutcome.getMoniker());
+                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+                            Log.d(TAG, "onChildRemoved daoOutcome (remote trigger): " + daoOutcome.toString());
+                            // remove from repo leaving db unchanged
+                            mStoryProvider.removeOutcome(daoOutcome, false);
+                        }
+                        else {
+                            Log.d(TAG, "onChildRemoved: daoOutcome (ignore local|multiple trigger): " + daoOutcome.toString());
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "onChildRemoved: NULL daoOutcome?");
+                    }
+                } else {
+                    Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
+                }
+                // post audit trail
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
+                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                mStoryProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+            }
+        };
+        // Outcome level child event listener: dataSnapshot.getKey() = "epicXX"
+        mStoryProvider.getOutcomesReference().addChildEventListener(childEventListener);
         return true;
     }
 

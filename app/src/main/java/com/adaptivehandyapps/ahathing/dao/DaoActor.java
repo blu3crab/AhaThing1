@@ -20,95 +20,35 @@ package com.adaptivehandyapps.ahathing.dao;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoStory extends DaoBase {
+public class DaoActor extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
-
-	@SerializedName("stage")
-	private String stage;
-
-	@SerializedName("actor")
-	private String actor;
-
-	@SerializedName("action")
-	private String action;
-
-	@SerializedName("outcome")
-	private String outcome;
 
 	@SerializedName("reserve2")
 	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoStory() {
+	public DaoActor() {
 		super();
-		this.stage = DaoDefs.INIT_STRING_MARKER;
-		this.actor = DaoDefs.INIT_STRING_MARKER;
-		this.action = DaoDefs.INIT_STRING_MARKER;
-		this.outcome = DaoDefs.INIT_STRING_MARKER;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoStory(
+	public DaoActor(
 			String moniker,
 			String headline,
 			Long timestamp,
 			List<String> tagList,
-			String reserve1,
-			String stage,
-			String actor,
-			String action,
-			String outcome,
-			String reserve2
-	) {
+            String reserve1
+    ) {
 		super(moniker, headline, timestamp, tagList, reserve1);
-		this.stage = stage;
-		this.actor = actor;
-		this.action = action;
-		this.outcome = outcome;
-		this.reserve2 = reserve2;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
-	}
-
-    public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
-    }
-
-	public String getActor() {
-		return actor;
-	}
-
-	public void setActor(String actor) {
-		this.actor = actor;
-	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public String getOutcome() {
-		return outcome;
-	}
-
-	public void setOutcome(String outcome) {
-		this.outcome = outcome;
 	}
 
 	public String getReserve2() {

@@ -6,6 +6,15 @@
     <string name="actor_removeEpic">removeEpic</string>
     <string name="actor_updateStory">updateStory</string>
     <string name="actor_removeStory">removeStory</string>
+    <string name="actor_updateStage">updateStage</string>
+    <string name="actor_removeStage">removeStage</string>
+    <string name="actor_updateActor">updateActor</string>
+    <string name="actor_removeActor">removeActor</string>
+    <string name="actor_updateAction">updateAction</string>
+    <string name="actor_removeAction">removeAction</string>
+    <string name="actor_updateOutcome">updateOutcome</string>
+    <string name="actor_removeOutcome">removeOutcome</string>
+
     <string name="actor_onDataChange">onDataChange</string>
     <string name="actor_onChildListener">onChildListener</string>
     <string name="actor_onChildAdded">onChildAdded</string>

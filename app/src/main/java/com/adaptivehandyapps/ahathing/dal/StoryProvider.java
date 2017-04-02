@@ -5,10 +5,16 @@ import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.StageModelRing;
+import com.adaptivehandyapps.ahathing.dao.DaoAction;
+import com.adaptivehandyapps.ahathing.dao.DaoActionRepo;
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
+import com.adaptivehandyapps.ahathing.dao.DaoActorRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoAuditRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicRepo;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcomeRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoStageRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoStoryRepo;
@@ -41,17 +47,26 @@ public class StoryProvider {
     private Boolean mEpicReady = false;
     private Boolean mStoryReady = false;
     private Boolean mStageReady = false;
+    private Boolean mActorReady = false;
+    private Boolean mActionReady = false;
+    private Boolean mOutcomeReady = false;
 
     private DaoAuditRepo mDaoAuditRepo;
     private DaoTheatreRepo mDaoTheatreRepo;
     private DaoEpicRepo mDaoEpicRepo;
     private DaoStoryRepo mDaoStoryRepo;
     private DaoStageRepo mDaoStageRepo;
+    private DaoActorRepo mDaoActorRepo;
+    private DaoActionRepo mDaoActionRepo;
+    private DaoOutcomeRepo mDaoOutcomeRepo;
 
     private DaoTheatre mActiveTheatre;
     private DaoEpic mActiveEpic;
     private DaoStory mActiveStory;
     private DaoStage mActiveStage;
+    private DaoActor mActiveActor;
+    private DaoAction mActiveAction;
+    private DaoOutcome mActiveOutcome;
 
     private StageModelRing mStageModelRing;
 
@@ -62,6 +77,10 @@ public class StoryProvider {
     private DatabaseReference mTheatresReference;
     private DatabaseReference mEpicsReference;
     private DatabaseReference mStorysReference;
+    private DatabaseReference mStagesReference;
+    private DatabaseReference mActorsReference;
+    private DatabaseReference mActionsReference;
+    private DatabaseReference mOutcomesReference;
 
     private ProviderListener mProviderListener;
 
@@ -92,6 +111,10 @@ public class StoryProvider {
             mProviderListener.setTheatreListener();
             mProviderListener.setEpicListener();
             mProviderListener.setStoryListener();
+            mProviderListener.setStageListener();
+            mProviderListener.setActorListener();
+            mProviderListener.setActionListener();
+            mProviderListener.setOutcomeListener();
         }
         else {
             mIsFirebaseReady = false;
@@ -110,6 +133,13 @@ public class StoryProvider {
         mDaoStageRepo = new DaoStageRepo();
 //        // add new play
 //        addNewStage(mDaoStoryRepo, mDaoStageRepo);
+        // create actor repo
+        mDaoActorRepo = new DaoActorRepo();
+        // create Action repo
+        mDaoActionRepo = new DaoActionRepo();
+        // create stage repo
+        mDaoOutcomeRepo = new DaoOutcomeRepo();
+
 
         if (mActiveStory != null) {
             Log.d(TAG, mActiveStory.toString());
@@ -124,6 +154,9 @@ public class StoryProvider {
     public Boolean isEpicReady() { return mEpicReady;}
     public Boolean isStoryReady() { return mStoryReady;}
     public Boolean isStageReady() { return mStageReady;}
+    public Boolean isActorReady() { return mActorReady;}
+    public Boolean isActionReady() { return mActionReady;}
+    public Boolean isOutcomeReady() { return mOutcomeReady;}
 
     public ProviderListener getProviderListener() { return mProviderListener; }
     public DaoAuditRepo getDaoAuditRepo() { return mDaoAuditRepo; }
@@ -146,6 +179,21 @@ public class StoryProvider {
     public DaoStageRepo getDaoStageRepo() { return mDaoStageRepo; }
     private void setDaoStageRepo(DaoStageRepo daoStageRepo) {
         this.mDaoStageRepo = daoStageRepo;
+    }
+
+    public DaoActorRepo getDaoActorRepo() { return mDaoActorRepo; }
+    private void setDaoActorRepo(DaoActorRepo daoActorRepo) {
+        this.mDaoActorRepo = daoActorRepo;
+    }
+
+    public DaoActionRepo getDaoActionRepo() { return mDaoActionRepo; }
+    private void setDaoActionRepo(DaoActionRepo daoActionRepo) {
+        this.mDaoActionRepo = daoActionRepo;
+    }
+
+    public DaoOutcomeRepo getDaoOutcomeRepo() { return mDaoOutcomeRepo; }
+    private void setDaoOutcomeRepo(DaoOutcomeRepo daoOutcomeRepo) {
+        this.mDaoOutcomeRepo = daoOutcomeRepo;
     }
 
     public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
@@ -172,6 +220,24 @@ public class StoryProvider {
         mStageReady = false;
         if (activeStage != null) mStageReady = true;
         this.mActiveStage = activeStage;
+    }
+    public DaoActor getActiveActor() { return mActiveActor; }
+    public void setActiveActor(DaoActor activeActor) {
+        mActorReady = false;
+        if (activeActor != null) mActorReady = true;
+        this.mActiveActor = activeActor;
+    }
+    public DaoAction getActiveAction() { return mActiveAction; }
+    public void setActiveAction(DaoAction activeAction) {
+        mActionReady = false;
+        if (activeAction != null) mActionReady = true;
+        this.mActiveAction = activeAction;
+    }
+    public DaoOutcome getActiveOutcome() { return mActiveOutcome; }
+    public void setActiveOutcome(DaoOutcome activeOutcome) {
+        mOutcomeReady = false;
+        if (activeOutcome != null) mOutcomeReady = true;
+        this.mActiveOutcome = activeOutcome;
     }
 
     public StageModelRing getStageModelRing() {
@@ -359,6 +425,242 @@ public class StoryProvider {
 
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateStage(DaoStage daoStage, Boolean updateDatabase) {
+        Log.d(TAG, "updateStage(updateDatabase = " + updateDatabase + "): daoStage " + daoStage.toString());
+        // add or update repo with object
+        getDaoStageRepo().set(daoStage);
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_updateStage, R.string.action_set, daoStage.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_updateStage, R.string.action_child_setValue, daoStage.getMoniker());
+            // update timestamp
+            daoStage.setTimestamp((System.currentTimeMillis()));
+            // update db
+            mStagesReference.child(daoStage.getMoniker()).setValue(daoStage);
+        }
+        // set active to updated object
+        setActiveStage(daoStage);
+
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeStage(DaoStage daoStage, Boolean updateDatabase) {
+        Log.d(TAG, "removeStage(updateDatabase = " + updateDatabase + "): daoStage " + daoStage.toString());
+        // remove object from repo
+        getDaoStageRepo().remove(daoStage.getMoniker());
+        Log.d(TAG, "removeStage removed daoStage: " + daoStage.getMoniker());
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_removeStage, R.string.action_remove, daoStage.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_removeStage, R.string.action_child_removeValue, daoStage.getMoniker());
+            // remove object from remote db
+            mStagesReference.child(daoStage.getMoniker()).removeValue();
+        }
+
+        // if removing active object
+        if (getActiveStage().getMoniker().equals(daoStage.getMoniker())) {
+            // if an object is defined
+            if (getDaoStageRepo().get(0) != null) {
+                // set active object
+                setActiveStage((DaoStage)getDaoStageRepo().get(0));
+            }
+            else {
+                // clear active object
+                setActiveStory(null);
+            }
+        }
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateActor(DaoActor daoActor, Boolean updateDatabase) {
+        Log.d(TAG, "updateActor(updateDatabase = " + updateDatabase + "): daoActor " + daoActor.toString());
+        // add or update repo with object
+        getDaoActorRepo().set(daoActor);
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_updateActor, R.string.action_set, daoActor.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_updateActor, R.string.action_child_setValue, daoActor.getMoniker());
+            // update timestamp
+            daoActor.setTimestamp((System.currentTimeMillis()));
+            // update db
+            mActorsReference.child(daoActor.getMoniker()).setValue(daoActor);
+        }
+        // set active to updated object
+        setActiveActor(daoActor);
+
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeActor(DaoActor daoActor, Boolean updateDatabase) {
+        Log.d(TAG, "removeActor(updateDatabase = " + updateDatabase + "): daoActor " + daoActor.toString());
+        // remove object from repo
+        getDaoActorRepo().remove(daoActor.getMoniker());
+        Log.d(TAG, "removeActor removed daoActor: " + daoActor.getMoniker());
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_removeActor, R.string.action_remove, daoActor.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_removeActor, R.string.action_child_removeValue, daoActor.getMoniker());
+            // remove object from remote db
+            mActorsReference.child(daoActor.getMoniker()).removeValue();
+        }
+
+        // if removing active object
+        if (getActiveActor().getMoniker().equals(daoActor.getMoniker())) {
+            // if an object is defined
+            if (getDaoActorRepo().get(0) != null) {
+                // set active object
+                setActiveActor((DaoActor)getDaoActorRepo().get(0));
+            }
+            else {
+                // clear active object
+                setActiveActor(null);
+            }
+        }
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateAction(DaoAction daoAction, Boolean updateDatabase) {
+        Log.d(TAG, "updateAction(updateDatabase = " + updateDatabase + "): daoAction " + daoAction.toString());
+        // add or update repo with object
+        getDaoActionRepo().set(daoAction);
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_updateAction, R.string.action_set, daoAction.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_updateAction, R.string.action_child_setValue, daoAction.getMoniker());
+            // update timestamp
+            daoAction.setTimestamp((System.currentTimeMillis()));
+            // update db
+            mActionsReference.child(daoAction.getMoniker()).setValue(daoAction);
+        }
+        // set active to updated object
+        setActiveAction(daoAction);
+
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeAction(DaoAction daoAction, Boolean updateDatabase) {
+        Log.d(TAG, "removeAction(updateDatabase = " + updateDatabase + "): daoAction " + daoAction.toString());
+        // remove object from repo
+        getDaoActionRepo().remove(daoAction.getMoniker());
+        Log.d(TAG, "removeAction removed daoAction: " + daoAction.getMoniker());
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_removeAction, R.string.action_remove, daoAction.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_removeAction, R.string.action_child_removeValue, daoAction.getMoniker());
+            // remove object from remote db
+            mActionsReference.child(daoAction.getMoniker()).removeValue();
+        }
+
+        // if removing active object
+        if (getActiveAction().getMoniker().equals(daoAction.getMoniker())) {
+            // if an object is defined
+            if (getDaoActionRepo().get(0) != null) {
+                // set active object
+                setActiveAction((DaoAction)getDaoActionRepo().get(0));
+            }
+            else {
+                // clear active object
+                setActiveAction(null);
+            }
+        }
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updateOutcome(DaoOutcome daoOutcome, Boolean updateDatabase) {
+        Log.d(TAG, "updateOutcome(updateDatabase = " + updateDatabase + "): daoOutcome " + daoOutcome.toString());
+        // add or update repo with object
+        getDaoOutcomeRepo().set(daoOutcome);
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_updateOutcome, R.string.action_set, daoOutcome.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_updateOutcome, R.string.action_child_setValue, daoOutcome.getMoniker());
+            // update timestamp
+            daoOutcome.setTimestamp((System.currentTimeMillis()));
+            // update db
+            mOutcomesReference.child(daoOutcome.getMoniker()).setValue(daoOutcome);
+        }
+        // set active to updated object
+        setActiveOutcome(daoOutcome);
+
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean removeOutcome(DaoOutcome daoOutcome, Boolean updateDatabase) {
+        Log.d(TAG, "removeOutcome(updateDatabase = " + updateDatabase + "): daoOutcome " + daoOutcome.toString());
+        // remove object from repo
+        getDaoOutcomeRepo().remove(daoOutcome.getMoniker());
+        Log.d(TAG, "removeOutcome removed daoOutcome: " + daoOutcome.getMoniker());
+
+        // post audit trail
+        getDaoAuditRepo().postAudit(R.string.actor_removeOutcome, R.string.action_remove, daoOutcome.getMoniker());
+
+        if (updateDatabase) {
+            // post audit trail
+            getDaoAuditRepo().postAudit(R.string.actor_removeOutcome, R.string.action_child_removeValue, daoOutcome.getMoniker());
+            // remove object from remote db
+            mOutcomesReference.child(daoOutcome.getMoniker()).removeValue();
+        }
+
+        // if removing active object
+        if (getActiveOutcome().getMoniker().equals(daoOutcome.getMoniker())) {
+            // if an object is defined
+            if (getDaoOutcomeRepo().get(0) != null) {
+                // set active object
+                setActiveOutcome((DaoOutcome)getDaoOutcomeRepo().get(0));
+            }
+            else {
+                // clear active object
+                setActiveOutcome(null);
+            }
+        }
+        // refresh
+        if (mCallback != null) mCallback.onPlayProviderRefresh(true);
+
+        return true;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -396,7 +698,7 @@ public class StoryProvider {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    // firebase
+    // firebase helpers
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -408,7 +710,10 @@ public class StoryProvider {
             mTheatresReference = FirebaseDatabase.getInstance().getReference().child(DaoTheatreRepo.JSON_CONTAINER);
             mEpicsReference = FirebaseDatabase.getInstance().getReference().child(DaoEpicRepo.JSON_CONTAINER);
             mStorysReference = FirebaseDatabase.getInstance().getReference().child(DaoStoryRepo.JSON_CONTAINER);
-//            setTheatreListener();
+            mStagesReference = FirebaseDatabase.getInstance().getReference().child(DaoStageRepo.JSON_CONTAINER);
+            mActorsReference = FirebaseDatabase.getInstance().getReference().child(DaoActorRepo.JSON_CONTAINER);
+            mActionsReference = FirebaseDatabase.getInstance().getReference().child(DaoActionRepo.JSON_CONTAINER);
+            mOutcomesReference = FirebaseDatabase.getInstance().getReference().child(DaoOutcomeRepo.JSON_CONTAINER);
         }
         return mIsFirebaseReady;
     }
@@ -427,191 +732,21 @@ public class StoryProvider {
     public DatabaseReference getStorysReference() {
         return mStorysReference;
     }
+    public DatabaseReference getStagesReference() {
+        return mStagesReference;
+    }
+    public DatabaseReference getActorsReference() {
+        return mActorsReference;
+    }
+    public DatabaseReference getActionsReference() {
+        return mActionsReference;
+    }
+    public DatabaseReference getOutcomesReference() {
+        return mOutcomesReference;
+    }
     public Boolean removeFirebaseListener() {
         // TODO: remove listeners
         return true;
     }
-//    public Boolean setTheatreListener() {
-//        ValueEventListener valueEventListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                Log.d(TAG, "onDataChange:" + dataSnapshot.getKey());
-//                // get theatre object and use the values to update the UI
-//                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-//                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
-//                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
-//                        if (daoTheatre != null) {
-//                            // if no recent local activity
-//                            DaoAudit daoAudit = mDaoAuditRepo.get(daoTheatre.getMoniker());
-//                            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-//                                Log.d(TAG, "onDataChange daoTheatre (remote trigger): " + daoTheatre.toString());
-//                                // update repo but not db
-//                                updateTheatre(daoTheatre, false);
-//                            }
-//                            else {
-//                                Log.d(TAG, "onDataChange: daoTheatre (ignore local|multiple trigger): " + daoTheatre.toString());
-//                            }
-//                        }
-//                        else {
-//                            Log.e(TAG, "onDataChange: NULL daoTheatre?");
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "valueEventListener onDataChange unknown key: " + dataSnapshot.getKey());
-//                    }
-//                }
-//                // post audit trail
-//                getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_listen, dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // get theatre object failed, log a message
-////                Log.e(TAG, "theatreListener:onCancelled", databaseError.toException());
-//                Log.e(TAG, "theatreListener:onCancelled: " + databaseError.getMessage());
-//                getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_cancelled, databaseError.getMessage());
-//            }
-//        };
-//        // theatre level value event listener: dataSnapshot.getKey() "theatres"
-//        mTheatresReference.addValueEventListener(valueEventListener);
-////        mEpicsReference.addValueEventListener(valueEventListener);
-////        mDatabaseReference.addValueEventListener(valueEventListener);
-//
-//        ChildEventListener childEventListener = new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-//                if (dataSnapshot.getKey() != null) {
-//                    DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-//                    if (daoTheatre != null) {
-//                        // if no recent local activity
-//                        DaoAudit daoAudit = mDaoAuditRepo.get(daoTheatre.getMoniker());
-//                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-//                            Log.d(TAG, "onChildAdded daoTheatre (remote trigger): " + daoTheatre.toString());
-//                            // update repo but not db
-//                            updateTheatre(daoTheatre, false);
-//                        }
-//                        else {
-//                            Log.d(TAG, "onChildAdded: daoTheatre (ignore local|multiple trigger): " + daoTheatre.toString());
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "onChildAdded: NULL daoTheatre?");
-//                    }
-//                } else {
-//                    Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
-//                }
-//                // post audit trail
-//                getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
-//                String snapshotKey = dataSnapshot.getKey();
-//                if (dataSnapshot.getKey() != null && getDaoTheatreRepo().contains(dataSnapshot.getKey())) {
-//                    DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-//                    if (daoTheatre != null) {
-//                        // if no recent local activity
-//                        DaoAudit daoAudit = mDaoAuditRepo.get(daoTheatre.getMoniker());
-//                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-//                            Log.d(TAG, "onChildChanged daoTheatre (remote trigger): " + daoTheatre.toString());
-//                            // update repo but not db
-//                            updateTheatre(daoTheatre, false);
-//                        }
-//                        else {
-//                            Log.d(TAG, "onChildChanged: daoTheatre (ignore|multiple local trigger): " + daoTheatre.toString());
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "onChildChanged: NULL daoTheatre?");
-//                    }
-//                } else {
-//                    Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
-//                }
-//                // post audit trail
-//                getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                Log.d(TAG, "childEventListener onChildRemoved:" + dataSnapshot.getKey());
-//                if (dataSnapshot.getKey() != null && getDaoTheatreRepo().contains(dataSnapshot.getKey())) {
-//                    DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
-//                    if (daoTheatre != null) {
-//                        // if no recent local activity
-//                        DaoAudit daoAudit = mDaoAuditRepo.get(daoTheatre.getMoniker());
-//                        if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-//                            Log.d(TAG, "onChildRemoved daoTheatre (remote trigger): " + daoTheatre.toString());
-//                            // remove from repo leaving db unchanged
-//                            removeTheatre(daoTheatre, false);
-//                        }
-//                        else {
-//                            Log.d(TAG, "onChildRemoved: daoTheatre (ignore local|multiple trigger): " + daoTheatre.toString());
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "onChildRemoved: NULL daoTheatre?");
-//                    }
-//                } else {
-//                    Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
-//                }
-//                // post audit trail
-//                getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-//                Log.d(TAG, "childEventListener onChildMoved:" + dataSnapshot.getKey());
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
-//                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
-//                        Toast.LENGTH_LONG).show();
-//                getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
-//           }
-//        };
-//        // theatre level child event listener: dataSnapshot.getKey() = "theatreXX"
-//        mTheatresReference.addChildEventListener(childEventListener);
-//        // database level child event listener: dataSnapshot.getKey() = "theatres"
-//        // missing remote RemoveChild notifications!
-////        mDatabaseReference.addChildEventListener(childEventListener);
-//        return true;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    public Boolean queryThings() {
-//        ValueEventListener thingsListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // get theatre objects
-//                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-//                    if (dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(DaoTheatreRepo.JSON_CONTAINER)) {
-//                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
-//                        if (daoTheatre != null) {
-//                            Log.d(TAG, "queryThings onDataChange daoTheatre: " + daoTheatre.toString());
-//                            updateTheatre(daoTheatre, false);
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "queryThings onDataChange unknown key: " + snapshot.getKey());
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // get theatre object failed, log a message
-//                Log.e(TAG, "queryThings onCancelled: ", databaseError.toException());
-//                // ...
-//            }
-//        };
-//
-//        Query mTheatreQuery = mTheatresReference.child(DaoTheatreRepo.JSON_CONTAINER).orderByChild("moniker");
-//        mTheatreQuery.addValueEventListener(thingsListener);
-//
-//        return true;
-//    }
 ///////////////////////////////////////////////////////////////////////////
 }
