@@ -140,6 +140,7 @@ public class DaoMakerUiHandler {
             }
         }
         else if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NEW)) {
+            // if new
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                 mActiveTheatre = new DaoTheatre();
             }
@@ -147,23 +148,28 @@ public class DaoMakerUiHandler {
                 mActiveEpic = new DaoEpic();
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
+                // create object & xfer the contents to the view
                 mActiveStory = new DaoStory();
                 fromStory(mActiveStory);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-                // xfer object to view
+                // create object & xfer the contents to the view
+                mActiveStage = new DaoStage();
                 fromStage(mActiveStage);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-                // xfer object to view
+                // create object & xfer the contents to the view
+                mActiveActor = new DaoActor();
                 fromActor(mActiveActor);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-                // xfer object to view
+                // create object & xfer the contents to the view
+                mActiveAction = new DaoAction();
                 fromAction(mActiveAction);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-                // xfer object to view
+                // create object & xfer the contents to the view
+                mActiveOutcome = new DaoOutcome();
                 fromOutcome(mActiveOutcome);
             }
         }
@@ -402,7 +408,7 @@ public class DaoMakerUiHandler {
         List<String> stageNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoStage stage : daoStageList) {
-            // build list of stage names, labels & images
+            // build list of names
             stageNameList.add(stage.getMoniker());
         }
         mStageListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
@@ -412,6 +418,10 @@ public class DaoMakerUiHandler {
         mSpinnerStages = (Spinner) mRootView.findViewById(R.id.spinner_stages);
         if (mStageListAdapter != null && mSpinnerStages != null) {
             mSpinnerStages.setAdapter(mStageListAdapter);
+            if (stageNameList.contains(daoStory.getStage())) {
+                int i = stageNameList.indexOf(daoStory.getStage());
+                mSpinnerStages.setSelection(i);
+            }
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
@@ -423,7 +433,7 @@ public class DaoMakerUiHandler {
         List<String> actorNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoActor actor : daoActorList) {
-            // build list of stage names, labels & images
+            // build list of names
             actorNameList.add(actor.getMoniker());
         }
         if (actorNameList.isEmpty()) {
@@ -447,7 +457,7 @@ public class DaoMakerUiHandler {
         List<String> actionNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoAction action : daoActionList) {
-            // build list of stage names, labels & images
+            // build list of names
             actionNameList.add(action.getMoniker());
         }
         if (actionNameList.isEmpty()) {
@@ -471,8 +481,8 @@ public class DaoMakerUiHandler {
         List<String> outcomeNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoOutcome outcome : daoOutcomeList) {
-            // build list of stage names, labels & images
-            actorNameList.add(outcome.getMoniker());
+            // build list of names
+            outcomeNameList.add(outcome.getMoniker());
         }
         if (outcomeNameList.isEmpty()) {
             outcomeNameList.add("outcomes!  where are the outcomes?");
@@ -595,7 +605,8 @@ public class DaoMakerUiHandler {
         // update with edited values
         mActiveStory.setMoniker(editedMoniker);
         mActiveStory.setHeadline(headline);
-
+        String stagename = mSpinnerStages.getSelectedItem().toString();
+        Log.d(TAG, "toStory selected stage " + stagename);
         mActiveStory.setStage(mSpinnerStages.getSelectedItem().toString());
         // update repo
         mStoryProvider.updateStory(mActiveStory, true);

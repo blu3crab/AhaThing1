@@ -67,7 +67,7 @@ public class StageViewRing {
         mDensity = mParentViewController.getDensity();
 
         // ensure StoryProvider ready
-        mStoryProvider = parentViewController.getPlayProvider();
+        mStoryProvider = parentViewController.getStoryProvider();
         if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
             Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
             DaoStage daoStage = mStoryProvider.getActiveStage();

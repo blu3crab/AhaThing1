@@ -58,12 +58,14 @@ public class StageModelRing {
 
     ///////////////////////////////////////////////////////////////////////////
     // builder
-    public Boolean buildModel(Integer ringMax) {
+    // create a collection of locus & assign to active stage
+//    public Boolean buildModel(Integer ringMax) {
+    public Boolean buildModel(DaoStage activeStage, Integer ringMax) {
         mRingMax = ringMax;
 
-        DaoStage activeStage = mStoryProvider.getActiveStage();
-        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
-        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
+//        DaoStage activeStage = mStoryProvider.getActiveStage();
+//        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
+//        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
         // create stage locus list
         DaoLocusList daoLocusList = new DaoLocusList();

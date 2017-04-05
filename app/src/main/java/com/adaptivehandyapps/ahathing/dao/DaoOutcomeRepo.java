@@ -20,7 +20,7 @@ package com.adaptivehandyapps.ahathing.dao;
 
 ///////////////////////////////////////////////////////////////////////////
 public class DaoOutcomeRepo extends DaoBaseRepo {
-	public static final String JSON_CONTAINER = "epics";
+	public static final String JSON_CONTAINER = "outcomes";
 
 //	@SerializedName("monikerList")
 //	private List<String> monikerList;

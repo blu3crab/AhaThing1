@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, PrefsUtils.toString(this));
         // set content to main
         setContentView(R.layout.activity_main);
         // setup toolbar
@@ -172,36 +173,10 @@ public class MainActivity extends AppCompatActivity
         setStoryProvider(new StoryProvider(this, getStoryProviderCallback()));
 
         // add new play
-        mStoryProvider.addNewStage(mStoryProvider.getDaoStoryRepo(), mStoryProvider.getDaoStageRepo());
+//        mStoryProvider.addNewStage(mStoryProvider.getDaoStoryRepo(), mStoryProvider.getDaoStageRepo());
 
         // set navigation menu
         setNavMenu();
-
-        // TODO: refactor MainActivity onCreate & ContentFragment callback
-        // if story ready
-        if (mStoryProvider.isStoryReady()) {
-            // launch story
-            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-            mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
-            replaceFragment(mContentOp, mContentObjType, mContentMoniker);
-        }
-        else {
-            // if active theatre, launch edit
-            if (mStoryProvider.getActiveTheatre() != null) {
-                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                mContentMoniker = mStoryProvider.getActiveTheatre().getMoniker();
-                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
-            }
-            else {
-                // no theatre active, launch new
-                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
-                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
-            }
-        }
 
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
@@ -212,15 +187,15 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    mStoryProvider.getProviderListener().setTheatreListener();
-//                    mStoryProvider.queryThings();
+                    // create story provider - listeners based on auth user
+                    setStoryProvider(new StoryProvider(getBaseContext(), getStoryProviderCallback()));
                 }
                 else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
+                    // TODO: clear database, listeners, etc.?
                     mStoryProvider.removeFirebaseListener();
                 }
-                // ...TODO?
             }
         };
 
@@ -332,6 +307,21 @@ public class MainActivity extends AppCompatActivity
         // add outcomes
         addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME);
 
+        // TODO: refactor MainActivity & ContentFragment callback
+        // if story ready
+        if (mStoryProvider.isStoryReady()) {
+            Log.d(TAG, "setNavMenu: launching story...");
+            // launch story
+            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+            mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
+//            replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+        }
+        else {
+            Log.d(TAG, "setNavMenu: Story NOT ready!");
+        }
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -363,14 +353,17 @@ public class MainActivity extends AppCompatActivity
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
             title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoActorRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
             title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoActionRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
             title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoOutcomeRepo().getMonikerList();
         }
         // add submenu from moniker list plus a "new" item
         Menu menu = mNavigationView.getMenu();
@@ -478,73 +471,141 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onNavigationItemSelected itemname: " + itemname + ", split:" + itemSplit[0]);
 //        for static menu items, extract id & compare to resource
 //        int id = item.getItemId();
-//        if (id == R.id.nav_theatre)) {
+        mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NADA;
         // check split for top level object: active theatre, story, stage, etc...
         if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
             if (mStoryProvider.getActiveTheatre() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, mStoryProvider.getActiveTheatre().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, mStoryProvider.getActiveTheatre().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveTheatre().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER + mStoryProvider.getDaoTheatreRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
             if (mStoryProvider.getActiveEpic() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, mStoryProvider.getActiveEpic().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, mStoryProvider.getActiveEpic().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveEpic().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + mStoryProvider.getDaoEpicRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + mStoryProvider.getDaoEpicRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + mStoryProvider.getDaoEpicRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
             if (mStoryProvider.getActiveStory() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, mStoryProvider.getActiveStory().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, mStoryProvider.getActiveStory().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STORY_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER + mStoryProvider.getDaoStoryRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
             if (mStoryProvider.getActiveStage() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER, mStoryProvider.getActiveStage().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER, mStoryProvider.getActiveStage().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveStage().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER + mStoryProvider.getDaoStageRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
             if (mStoryProvider.getActiveActor() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER, mStoryProvider.getActiveActor().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER, mStoryProvider.getActiveActor().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveActor().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER + mStoryProvider.getDaoActorRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER + mStoryProvider.getDaoActorRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER + mStoryProvider.getDaoActorRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
             if (mStoryProvider.getActiveAction() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER, mStoryProvider.getActiveAction().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER, mStoryProvider.getActiveAction().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveAction().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER + mStoryProvider.getDaoActionRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER + mStoryProvider.getDaoActionRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER + mStoryProvider.getDaoActionRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
             if (mStoryProvider.getActiveOutcome() != null) {
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER, mStoryProvider.getActiveOutcome().getMoniker());
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT, DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER, mStoryProvider.getActiveOutcome().getMoniker());
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+                mContentMoniker = mStoryProvider.getActiveOutcome().getMoniker();
             }
             else {
-                String moniker = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER + mStoryProvider.getDaoOutcomeRepo().size();
-                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER, moniker);
+//                String moniker = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER + mStoryProvider.getDaoOutcomeRepo().size();
+//                replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_NEW, DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER, moniker);
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER + mStoryProvider.getDaoOutcomeRepo().size();
             }
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
-            replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST, DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER, "audit trial");
+//            replaceFragment(ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST, DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER, "audit trail");
+            // launch audit
+            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER;
+            mContentMoniker = "audit trail";
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
             // submenu selection - test for existing selection or new object
@@ -593,7 +654,8 @@ public class MainActivity extends AppCompatActivity
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER + mStoryProvider.getDaoOutcomeRepo().size();
                 }
                 // launch DaoMaker
-                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+//                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+//                ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
             }
             else {
                 // existing object - set active based on find object type
@@ -631,9 +693,16 @@ public class MainActivity extends AppCompatActivity
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                 mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
-                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+//                replaceFragment(mContentOp, mContentObjType, mContentMoniker);
+//                ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
             }
-
+        }
+        // if op has been assigned
+        if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
+            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+        }
+        else {
+            Log.e(TAG, "Oops! Unknown selection: " + itemname);
         }
         // close drawer
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -715,28 +784,27 @@ public class MainActivity extends AppCompatActivity
         };
         return callback;
     }
-    ///////////////////////////////////////////////////////////////////////////
-    // replace fragment
-    private Boolean replaceFragment(String op, String objType, String moniker) {
-
-        // TODO: refactor MainActivity onCreate & ContentFragment callback
-        Fragment fragment = new ContentFragment();
-
-        ContentFragment cf = (ContentFragment)fragment;
-        cf.setStoryProvider(mStoryProvider);
-
-        Bundle args = new Bundle();
-        args.putString(ContentFragment.ARG_CONTENT_KEY_OP, op);
-        args.putString(ContentFragment.ARG_CONTENT_KEY_OBJTYPE, objType);
-        args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, moniker);
-        fragment.setArguments(args);
-
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
-
-
-        return true;
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    // replace fragment
+//    private Boolean replaceFragment(String op, String objType, String moniker) {
+//
+//        // TODO: refactor MainActivity & ContentFragment callback
+//        Fragment fragment = new ContentFragment();
+//
+//        ContentFragment cf = (ContentFragment)fragment;
+//        cf.setStoryProvider(mStoryProvider);
+//
+//        Bundle args = new Bundle();
+//        args.putString(ContentFragment.ARG_CONTENT_KEY_OP, op);
+//        args.putString(ContentFragment.ARG_CONTENT_KEY_OBJTYPE, objType);
+//        args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, moniker);
+//        fragment.setArguments(args);
+//
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
+//
+//        return true;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     // update firebase user profile with display name derived from email
     private String updateFirebaseDisplayNameFromEmail(FirebaseUser user, String email) {

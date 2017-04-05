@@ -160,9 +160,9 @@ public class StageViewController extends View implements
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public StoryProvider getPlayProvider() { return mStoryProvider; }
+    public StoryProvider getStoryProvider() { return mStoryProvider; }
 
-    public Boolean setPlayProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true; }
+    public Boolean setStoryProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true; }
 
     public int getCanvasWidth() {
         return mCanvasWidth;
@@ -234,7 +234,7 @@ public class StageViewController extends View implements
             mInitLoad = false;
 
             mActiveStage = mStoryProvider.getActiveStage();
-            if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.v(TAG, "StoryProvider stage type: " + mActiveStage.getStageType());
                 // create stage view helper
                 mStageViewRing = new StageViewRing(mContext, this);
@@ -244,7 +244,7 @@ public class StageViewController extends View implements
                 // clear selection list
                 mStageViewRing.setSelectLocus(daoLocusList, false);
             }
-            else {
+            else if (mActiveStage != null) {
                 Log.e(TAG, "StoryProvider UNKNOWN stage type: " + mActiveStage.getStageType());
             }
 

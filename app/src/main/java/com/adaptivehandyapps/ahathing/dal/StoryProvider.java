@@ -3,6 +3,7 @@ package com.adaptivehandyapps.ahathing.dal;
 import android.content.Context;
 import android.util.Log;
 
+import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.StageModelRing;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
@@ -43,14 +44,6 @@ public class StoryProvider {
 
     private StoryProvider mStoryProvider;
 
-    private Boolean mTheatreReady = false;
-    private Boolean mEpicReady = false;
-    private Boolean mStoryReady = false;
-    private Boolean mStageReady = false;
-    private Boolean mActorReady = false;
-    private Boolean mActionReady = false;
-    private Boolean mOutcomeReady = false;
-
     private DaoAuditRepo mDaoAuditRepo;
     private DaoTheatreRepo mDaoTheatreRepo;
     private DaoEpicRepo mDaoEpicRepo;
@@ -59,16 +52,6 @@ public class StoryProvider {
     private DaoActorRepo mDaoActorRepo;
     private DaoActionRepo mDaoActionRepo;
     private DaoOutcomeRepo mDaoOutcomeRepo;
-
-    private DaoTheatre mActiveTheatre;
-    private DaoEpic mActiveEpic;
-    private DaoStory mActiveStory;
-    private DaoStage mActiveStage;
-    private DaoActor mActiveActor;
-    private DaoAction mActiveAction;
-    private DaoOutcome mActiveOutcome;
-
-    private StageModelRing mStageModelRing;
 
     // firebase
     private String mUserId = DaoDefs.INIT_STRING_MARKER;
@@ -83,6 +66,25 @@ public class StoryProvider {
     private DatabaseReference mOutcomesReference;
 
     private ProviderListener mProviderListener;
+
+    // story
+    private Boolean mTheatreReady = false;
+    private Boolean mEpicReady = false;
+    private Boolean mStoryReady = false;
+    private Boolean mStageReady = false;
+    private Boolean mActorReady = false;
+    private Boolean mActionReady = false;
+    private Boolean mOutcomeReady = false;
+
+    private DaoTheatre mActiveTheatre;
+    private DaoEpic mActiveEpic;
+    private DaoStory mActiveStory;
+    private DaoStage mActiveStage;
+    private DaoActor mActiveActor;
+    private DaoAction mActiveAction;
+    private DaoOutcome mActiveOutcome;
+
+    private StageModelRing mStageModelRing;
 
     ///////////////////////////////////////////////////////////////////////////
     // callback interface when model changes should trigger refresh
@@ -199,44 +201,95 @@ public class StoryProvider {
     public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
     public void setActiveTheatre(DaoTheatre activeTheatre) {
         mTheatreReady = false;
-        if (activeTheatre != null) mTheatreReady = true;
+        // if setting active object
+        if (activeTheatre != null) {
+            // set object ready & set prefs
+            mTheatreReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_THEATRE_KEY, activeTheatre.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_THEATRE_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveTheatre = activeTheatre;
     }
     public DaoEpic getActiveEpic() { return mActiveEpic; }
     public void setActiveEpic(DaoEpic activeEpic) {
         mEpicReady = false;
-        if (activeEpic != null) mEpicReady = true;
+        if (activeEpic != null) {
+            mEpicReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_EPIC_KEY, activeEpic.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_EPIC_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveEpic = activeEpic;
     }
 
     public DaoStory getActiveStory() { return mActiveStory; }
     public void setActiveStory(DaoStory activeStory) {
         mStoryReady = false;
-        if (activeStory != null) mStoryReady = true;
+        if (activeStory != null) {
+            mStoryReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STORY_KEY, activeStory.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STORY_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveStory = activeStory;
     }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeStage) {
         mStageReady = false;
-        if (activeStage != null) mStageReady = true;
+        if (activeStage != null) {
+            mStageReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, activeStage.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveStage = activeStage;
     }
     public DaoActor getActiveActor() { return mActiveActor; }
     public void setActiveActor(DaoActor activeActor) {
         mActorReady = false;
-        if (activeActor != null) mActorReady = true;
+        if (activeActor != null) {
+            mActorReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_ACTOR_KEY, activeActor.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_ACTOR_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveActor = activeActor;
     }
     public DaoAction getActiveAction() { return mActiveAction; }
     public void setActiveAction(DaoAction activeAction) {
         mActionReady = false;
-        if (activeAction != null) mActionReady = true;
+        if (activeAction != null) {
+            mActionReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_ACTION_KEY, activeAction.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_ACTION_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveAction = activeAction;
     }
     public DaoOutcome getActiveOutcome() { return mActiveOutcome; }
     public void setActiveOutcome(DaoOutcome activeOutcome) {
         mOutcomeReady = false;
-        if (activeOutcome != null) mOutcomeReady = true;
+        if (activeOutcome != null) {
+            mOutcomeReady = true;
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_OUTCOME_KEY, activeOutcome.getMoniker());
+        }
+        else {
+            // clear active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_OUTCOME_KEY, DaoDefs.INIT_STRING_MARKER);
+        }
         this.mActiveOutcome = activeOutcome;
     }
 
@@ -264,8 +317,13 @@ public class StoryProvider {
             // update db
             mTheatresReference.child(daoTheatre.getMoniker()).setValue(daoTheatre);
         }
-        // set active to updated object
-        setActiveTheatre(daoTheatre);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveTheatre = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_THEATRE_KEY);
+        if (getActiveTheatre() == null &&
+                (prefsActiveTheatre.equals(daoTheatre.getMoniker()) || prefsActiveTheatre.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveTheatre(daoTheatre);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -324,8 +382,13 @@ public class StoryProvider {
             // update db
             mEpicsReference.child(daoEpic.getMoniker()).setValue(daoEpic);
         }
-        // set active to updated object
-        setActiveEpic(daoEpic);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveEpic = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_EPIC_KEY);
+        if (getActiveEpic() == null &&
+                (prefsActiveEpic.equals(daoEpic.getMoniker()) || prefsActiveEpic.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveEpic(daoEpic);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -383,8 +446,13 @@ public class StoryProvider {
             // update db
             mStorysReference.child(daoStory.getMoniker()).setValue(daoStory);
         }
-        // set active to updated object
-        setActiveStory(daoStory);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveStory = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_STORY_KEY);
+        if (getActiveStory() == null &&
+                (prefsActiveStory.equals(daoStory.getMoniker()) || prefsActiveStory.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveStory(daoStory);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -442,8 +510,13 @@ public class StoryProvider {
             // update db
             mStagesReference.child(daoStage.getMoniker()).setValue(daoStage);
         }
-        // set active to updated object
-        setActiveStage(daoStage);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveStage = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY);
+        if (getActiveStage() == null &&
+                (prefsActiveStage.equals(daoStage.getMoniker()) || prefsActiveStage.equals(DaoDefs.INIT_STRING_MARKER))) {
+                // set active to updated object
+            setActiveStage(daoStage);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -476,7 +549,7 @@ public class StoryProvider {
             }
             else {
                 // clear active object
-                setActiveStory(null);
+                setActiveStage(null);
             }
         }
         // refresh
@@ -501,8 +574,13 @@ public class StoryProvider {
             // update db
             mActorsReference.child(daoActor.getMoniker()).setValue(daoActor);
         }
-        // set active to updated object
-        setActiveActor(daoActor);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveActor = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_ACTOR_KEY);
+        if (getActiveActor() == null &&
+                (prefsActiveActor.equals(daoActor.getMoniker()) || prefsActiveActor.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveActor(daoActor);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -560,8 +638,13 @@ public class StoryProvider {
             // update db
             mActionsReference.child(daoAction.getMoniker()).setValue(daoAction);
         }
-        // set active to updated object
-        setActiveAction(daoAction);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveAction = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_ACTION_KEY);
+        if (getActiveAction() == null &&
+                (prefsActiveAction.equals(daoAction.getMoniker())|| prefsActiveAction.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveAction(daoAction);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -619,8 +702,13 @@ public class StoryProvider {
             // update db
             mOutcomesReference.child(daoOutcome.getMoniker()).setValue(daoOutcome);
         }
-        // set active to updated object
-        setActiveOutcome(daoOutcome);
+        // if no active object & this object matches prefs or no prefs
+        String prefsActiveOutcome = PrefsUtils.getPrefs(mContext, PrefsUtils.ACTIVE_OUTCOME_KEY);
+        if (getActiveOutcome() == null &&
+                (prefsActiveOutcome.equals(daoOutcome.getMoniker()) || prefsActiveOutcome.equals(DaoDefs.INIT_STRING_MARKER))) {
+            // set active to updated object
+            setActiveOutcome(daoOutcome);
+        }
 
         // refresh
         if (mCallback != null) mCallback.onPlayProviderRefresh(true);
@@ -675,25 +763,35 @@ public class StoryProvider {
 //        updateStory(activeStory, true);
 
 
-        // create new stage & set active
+        // TEST: create new stage & set active
         DaoStage activeStage = new DaoStage();
-        daoStageRepo.set(activeStage);
-        setActiveStage(activeStage);
-
         // create model
         setStageModelRing(new StageModelRing(this));
         Integer ringMax = 4;
-        mStageReady = getStageModelRing().buildModel(ringMax);
+        mStageReady = getStageModelRing().buildModel(activeStage, ringMax);
+        // set stage attributes
+        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
+        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
+        // update repo with stage
+        updateStage(activeStage, true);
+//        daoStageRepo.set(activeStage);
+//        setActiveStage(activeStage);
+
 
         // TEST: create new stage & set active
         activeStage = new DaoStage();
-        daoStageRepo.set(activeStage);
-        setActiveStage(activeStage);
 
         // create model
         setStageModelRing(new StageModelRing(this));
         ringMax = 4;
-        mStageReady = getStageModelRing().buildModel(ringMax);
+        mStageReady = getStageModelRing().buildModel(activeStage, ringMax);
+        // set stage attributes
+        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
+        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
+        // update repo with stage
+        updateStage(activeStage, true);
+//        daoStageRepo.set(activeStage);
+//        setActiveStage(activeStage);
 
         return true;
     }
