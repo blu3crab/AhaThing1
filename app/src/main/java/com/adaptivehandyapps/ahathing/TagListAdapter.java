@@ -1,8 +1,7 @@
 /*
- * Project: Brain Pipes
+ * Project: Things
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
- * Origination: M.A.Tucker JAN 2016
- * Copyright © 2016 Intelligent Water Management Inc.
+ * Origination: M.A.Tucker JAN 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

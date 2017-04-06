@@ -1,0 +1,231 @@
+/*
+ * Project: Things
+ * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
+ * Origination: M.A.Tucker APR 2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.adaptivehandyapps.ahathing;
+//
+// Created by mat on 4/5/2017.
+//
+
+import android.support.design.widget.NavigationView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
+
+import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoAction;
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
+import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
+import com.adaptivehandyapps.ahathing.dao.DaoStage;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
+
+import java.util.ArrayList;
+import java.util.List;
+
+///////////////////////////////////////////////////////////////////////////
+public class NavMenu {
+    private static final String TAG = "NavMenu";
+
+    private static final Integer DUP_SKIP_LIMIT = 1024;
+
+    private StoryProvider mStoryProvider;
+    private NavigationView mNavigationView;
+
+    ///////////////////////////////////////////////////////////////////////////
+    public NavMenu(StoryProvider storyProvider, NavigationView navigationView) {
+        mStoryProvider = storyProvider;
+        mNavigationView = navigationView;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // build nav menu
+    public Boolean build() {
+
+        // append active object to menu title
+        String prefix = DaoDefs.INIT_STRING_MARKER;
+        int iconId = R.drawable.ic_star_black_48dp;
+        Menu menu = mNavigationView.getMenu();
+        menu.clear();
+        int objTypeCount = DaoDefs.DAOOBJ_TYPE_RESERVE;
+        for (int i = 0; i < objTypeCount; i++) {
+            String activeName = DaoDefs.INIT_STRING_MARKER;
+            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+                iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                if (mStoryProvider.isTheatreReady() && mStoryProvider.getActiveTheatre() != null) {
+                    activeName = mStoryProvider.getActiveTheatre().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
+                iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                if (mStoryProvider.isEpicReady() && mStoryProvider.getActiveEpic() != null) {
+                    activeName = mStoryProvider.getActiveEpic().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
+                iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                if (mStoryProvider.isStoryReady() && mStoryProvider.getActiveStory() != null) {
+                    activeName = mStoryProvider.getActiveStory().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
+                iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+                if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
+                    activeName = mStoryProvider.getActiveStage().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
+                iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+                activeName = "actor...";
+                if (mStoryProvider.isActorReady() && mStoryProvider.getActiveActor() != null) {
+                    activeName = mStoryProvider.getActiveActor().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
+                iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+                activeName = "action...";
+                if (mStoryProvider.isActionReady() && mStoryProvider.getActiveAction() != null) {
+                    activeName = mStoryProvider.getActiveAction().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
+                iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+                activeName = "outcome...";
+                if (mStoryProvider.isOutcomeReady() && mStoryProvider.getActiveOutcome() != null) {
+                    activeName = mStoryProvider.getActiveOutcome().getMoniker();
+                }
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {
+                iconId = DaoDefs.DAOOBJ_TYPE_AUDIT_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER;
+                activeName = "recent...";
+                if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
+                    activeName = mStoryProvider.getActiveStage().getMoniker();
+                }
+            }
+            else {
+                iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
+                activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
+            }
+            String itemName = prefix.concat(": " + activeName);
+
+            MenuItem menuItem = menu.add(itemName);
+            menuItem.setIcon(iconId);
+            Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
+
+        }
+        // add theatres
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE);
+        // add epics
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_EPIC);
+        // add stories
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY);
+        // add stages
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE);
+        // add actors
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR);
+        // add actions
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION);
+        // add outcomes
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME);
+
+//        // if story ready
+//        if (mStoryProvider.isStoryReady()) {
+//            Log.d(TAG, "setNavMenu: launching story...");
+//            // launch story
+//            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+//            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+//            mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
+//            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+//        }
+//        else {
+//            Log.d(TAG, "setNavMenu: Story NOT ready!");
+//        }
+
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // add nav sub menu
+    private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType) {
+        // extract moniker list
+        String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
+        int iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
+        List<String> monikerList = new ArrayList<>();
+        if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+            title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoTheatreRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
+            title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoEpicRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
+            title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoStoryRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
+            title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoStageRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
+            title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoActorRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
+            title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoActionRepo().getMonikerList();
+        }
+        else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
+            title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+            iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
+            monikerList = mStoryProvider.getDaoOutcomeRepo().getMonikerList();
+        }
+        // add submenu from moniker list plus a "new" item
+        Menu menu = mNavigationView.getMenu();
+        SubMenu subMenu = menu.addSubMenu(title);
+        subMenu.clear();
+        MenuItem subMenuItem;
+        for (String moniker : monikerList) {
+            subMenuItem = subMenu.add(moniker);
+            subMenuItem.setIcon(iconId);
+            Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+        }
+        subMenuItem = subMenu.add("New " + title);
+        subMenuItem.setIcon(iconId);
+        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+        return subMenu;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
+}
