@@ -27,7 +27,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
@@ -49,7 +49,7 @@ public class StageViewRing {
     private Context mContext;
     private StageViewController mParentViewController;
 
-    private StoryProvider mStoryProvider;
+    private RepoProvider mRepoProvider;
 
     private Canvas mCanvas;
 
@@ -83,16 +83,16 @@ public class StageViewRing {
         mCanvasHeight = mParentViewController.getCanvasHeight();
         mDensity = mParentViewController.getDensity();
 
-        // ensure StoryProvider ready
-        mStoryProvider = parentViewController.getStoryProvider();
-        if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
-            Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
-            DaoStage daoStage = mStoryProvider.getActiveStage();
+        // ensure RepoProvider ready
+        mRepoProvider = parentViewController.getRepoProvider();
+        if (mRepoProvider != null && mRepoProvider.getDalStory().isReady()) {
+            Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getDalStory().getActiveDao().getMoniker() + "...");
+            DaoStage daoStage = mRepoProvider.getDalStage().getActiveDao();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.e(TAG, "StoryProvider UNKNOWN stage type: " + daoStage.getStageType());
+                Log.e(TAG, "RepoProvider UNKNOWN stage type: " + daoStage.getStageType());
             }
         } else {
-            Log.e(TAG, "StoryProvider NULL or NOT ready!");
+            Log.e(TAG, "RepoProvider NULL or NOT ready!");
         }
         init(context);
     }
@@ -239,15 +239,15 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (mStoryProvider != null && mStoryProvider.isStoryReady()) {
-            Log.v(TAG, "StoryProvider ready for " + mStoryProvider.getActiveStory().getMoniker() + "...");
+        if (mRepoProvider != null && mRepoProvider.getDalStory().isReady()) {
+            Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getDalStory().getActiveDao().getMoniker() + "...");
         }
         else {
-            Log.e(TAG, "StoryProvider NOT ready...");
+            Log.e(TAG, "RepoProvider NOT ready...");
             return false;
         }
 
-        DaoStage daoStage = mStoryProvider.getActiveStage();
+        DaoStage daoStage = mRepoProvider.getDalStage().getActiveDao();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
         int color;
@@ -311,7 +311,7 @@ public class StageViewRing {
                 mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
                 // if selecting plus ring
                 if (plus) {
-                    List<Integer> ringIndexList = mStoryProvider.getStageModelRing().findRing(selectIndex);
+                    List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
                     // toggle each rect in ring list
                     for (Integer i : ringIndexList) {
                         mSelectList.set(i, !mSelectList.get(i));

@@ -34,7 +34,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,16 +42,13 @@ import android.widget.Toast;
 import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
-import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-
-import java.util.ArrayList;
-import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
 public class MainActivity extends AppCompatActivity
@@ -62,11 +58,9 @@ public class MainActivity extends AppCompatActivity
     private static final Integer REQUEST_CODE_GALLERY = 1;
     private static final Boolean FORCE_PHOTO_SELECTION = true;
 
-//    private static final Integer INSANE_LIMIT = 1024;
-
     private boolean mVacating = false;
 
-    private StoryProvider mStoryProvider;
+    private RepoProvider mRepoProvider;
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
@@ -178,17 +172,15 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        // create story provider
-        setStoryProvider(new StoryProvider(this, getStoryProviderCallback()));
-        // instantiate nav  menu & item
-        mNavMenu = new NavMenu(mStoryProvider, mNavigationView);
-        mNavItem = new NavItem(mStoryProvider);
+        // create repo provider
+        setRepoProvider(new RepoProvider(this, getRepoProviderCallback()));
 
-        // add new play
-//        mStoryProvider.addNewStage(mStoryProvider.getDaoStoryRepo(), mStoryProvider.getDaoStageRepo());
+        // instantiate nav  menu & item
+        mNavMenu = new NavMenu();
+        mNavItem = new NavItem();
 
         // set navigation menu
-        setNavMenu();
+        buildNavMenu();
 
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
@@ -200,15 +192,13 @@ public class MainActivity extends AppCompatActivity
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     // create story provider - listeners based on auth user
-                    setStoryProvider(new StoryProvider(getBaseContext(), getStoryProviderCallback()));
-                    // instantiate nav item
-                    mNavItem = new NavItem(mStoryProvider);
+                    setRepoProvider(new RepoProvider(getBaseContext(), getRepoProviderCallback()));
                 }
                 else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                     // TODO: clear database, listeners, etc.?
-                    mStoryProvider.removeFirebaseListener();
+                    mRepoProvider.removeFirebaseListener();
                 }
             }
         };
@@ -216,186 +206,36 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public StoryProvider getStoryProvider() { return mStoryProvider;}
-    public Boolean setStoryProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
+    public RepoProvider getRepoProvider() { return mRepoProvider;}
+    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
 
     ///////////////////////////////////////////////////////////////////////////////////////////
-    private Boolean setNavMenu() {
+    private Boolean buildNavMenu() {
 
 //        if( !mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
 //            // Drawer starting to open
-//            Log.d(TAG, "setNavMenu - Drawer NOT starting to open...");
+//            Log.d(TAG, "buildNavMenu - Drawer NOT starting to open...");
 //            return false;
 //        }
-//        // append active object to menu title
-//        String prefix = DaoDefs.INIT_STRING_MARKER;
-//        int iconId = R.drawable.ic_star_black_48dp;
-//        Menu menu = mNavigationView.getMenu();
-//        menu.clear();
-//        int objTypeCount = DaoDefs.DAOOBJ_TYPE_RESERVE;
-//        for (int i = 0; i < objTypeCount; i++) {
-//            String activeName = DaoDefs.INIT_STRING_MARKER;
-//            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-//                if (mStoryProvider.isTheatreReady() && mStoryProvider.getActiveTheatre() != null) {
-//                    activeName = mStoryProvider.getActiveTheatre().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-//                if (mStoryProvider.isEpicReady() && mStoryProvider.getActiveEpic() != null) {
-//                    activeName = mStoryProvider.getActiveEpic().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//                if (mStoryProvider.isStoryReady() && mStoryProvider.getActiveStory() != null) {
-//                    activeName = mStoryProvider.getActiveStory().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-//                if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
-//                    activeName = mStoryProvider.getActiveStage().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
-//                activeName = "actor...";
-//                if (mStoryProvider.isActorReady() && mStoryProvider.getActiveActor() != null) {
-//                    activeName = mStoryProvider.getActiveActor().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
-//                activeName = "action...";
-//                if (mStoryProvider.isActionReady() && mStoryProvider.getActiveAction() != null) {
-//                    activeName = mStoryProvider.getActiveAction().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
-//                activeName = "outcome...";
-//                if (mStoryProvider.isOutcomeReady() && mStoryProvider.getActiveOutcome() != null) {
-//                    activeName = mStoryProvider.getActiveOutcome().getMoniker();
-//                }
-//            }
-//            else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {
-//                iconId = DaoDefs.DAOOBJ_TYPE_AUDIT_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER;
-//                activeName = "recent...";
-//                if (mStoryProvider.isStageReady() && mStoryProvider.getActiveStage() != null) {
-//                    activeName = mStoryProvider.getActiveStage().getMoniker();
-//                }
-//            }
-//            else {
-//                iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
-//                prefix = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
-//                activeName = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
-//            }
-//            String itemName = prefix.concat(": " + activeName);
-//
-//            MenuItem menuItem = menu.add(itemName);
-//            menuItem.setIcon(iconId);
-//            Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
-//
-//        }
-//        // add theatres
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE);
-//        // add epics
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_EPIC);
-//        // add stories
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY);
-//        // add stages
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE);
-//        // add actors
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR);
-//        // add actions
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION);
-//        // add outcomes
-//        addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME);
-
-        // build nav menu
-        mNavMenu.build();
+       // build nav menu
+        mNavMenu.build(mRepoProvider, mNavigationView);
 
         // if story ready
-        if (mStoryProvider.isStoryReady()) {
-            Log.d(TAG, "setNavMenu: launching story...");
+        if (mRepoProvider.getDalStory().isReady()) {
+            Log.d(TAG, "buildNavMenu: launching story...");
             // launch story
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-            mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
-            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+            mContentMoniker = mRepoProvider.getDalStory().getActiveDao().getMoniker();
+            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
-            Log.d(TAG, "setNavMenu: Story NOT ready!");
+            Log.d(TAG, "buildNavMenu: Story NOT ready!");
         }
 
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
-//    private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType) {
-//        // extract moniker list
-//        String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
-//        int iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
-//        List<String> monikerList = new ArrayList<>();
-//        if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
-//            title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoTheatreRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
-//            title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoEpicRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
-//            title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoStoryRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
-//            title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoStageRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
-//            title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoActorRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
-//            title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoActionRepo().getMonikerList();
-//        }
-//        else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
-//            title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
-//            iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
-//            monikerList = mStoryProvider.getDaoOutcomeRepo().getMonikerList();
-//        }
-//        // add submenu from moniker list plus a "new" item
-//        Menu menu = mNavigationView.getMenu();
-//        SubMenu subMenu = menu.addSubMenu(title);
-//        subMenu.clear();
-//        MenuItem subMenuItem;
-//        for (String moniker : monikerList) {
-//            subMenuItem = subMenu.add(moniker);
-//            subMenuItem.setIcon(iconId);
-//            Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
-//        }
-//        subMenuItem = subMenu.add("New " + title);
-//        subMenuItem.setIcon(iconId);
-//        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
-//        return subMenu;
-//    }
     ///////////////////////////////////////////////////////////////////////////////////////////
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -407,16 +247,16 @@ public class MainActivity extends AppCompatActivity
 //        for static menu items, extract id & compare to resource
 //        int id = item.getItemId();
         // parse nav item - returns update trigger
-        if (mNavItem.parse(itemname, itemSplit)) {
+        if (mNavItem.parse(itemname, itemSplit, mRepoProvider)) {
             // update nav menu
-            setNavMenu();
+            buildNavMenu();
         }
         mContentOp = mNavItem.getOp();
         mContentObjType = mNavItem.getObjType();
         mContentMoniker = mNavItem.getMoniker();
         // if op has been assigned
         if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
-            ContentFragment.replaceFragment(this, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
             Log.e(TAG, "Oops! Unknown selection: " + itemname);
@@ -564,17 +404,17 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
     // provider refresh callback
-    private StoryProvider.OnStoryProviderRefresh getStoryProviderCallback() {
+    private RepoProvider.OnRepoProviderRefresh getRepoProviderCallback() {
         // instantiate callback
-        StoryProvider.OnStoryProviderRefresh callback = new StoryProvider.OnStoryProviderRefresh() {
+        RepoProvider.OnRepoProviderRefresh callback = new RepoProvider.OnRepoProviderRefresh() {
 
             @Override
-            public void onPlayProviderRefresh(Boolean refresh) {
-                Log.d(TAG, "getStoryProviderCallback onPlayProviderRefresh interior...");
+            public void onRepoProviderRefresh(Boolean refresh) {
+                Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
-                    Log.d(TAG, "getStoryProviderCallback onStoryProviderRefresh not vacating...setNavMenu");
+                    Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
                     // set navigation menu
-                    setNavMenu();
+                    buildNavMenu();
 
 //                    refresh(refresh);
                 }

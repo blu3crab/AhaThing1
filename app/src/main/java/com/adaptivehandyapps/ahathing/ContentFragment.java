@@ -20,14 +20,13 @@ package com.adaptivehandyapps.ahathing;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
 /**
@@ -60,13 +59,13 @@ public class ContentFragment extends Fragment {
 
     private DaoMakerUiHandler mDaoMakerUiHandler;
 
-    private StoryProvider mStoryProvider;
+    private RepoProvider mRepoProvider;
 
     ///////////////////////////////////////////////////////////////////////////
     public ContentFragment() {}
     ///////////////////////////////////////////////////////////////////////////
-    public StoryProvider getStoryProvider() { return mStoryProvider;}
-    public Boolean setStoryProvider(StoryProvider storyProvider) { mStoryProvider = storyProvider; return true;}
+    public RepoProvider getRepoProvider() { return mRepoProvider;}
+    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,7 +107,7 @@ public class ContentFragment extends Fragment {
 
         if (mContentId == R.layout.content_daomaker) {
             // create new handler & callback
-            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
             mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
         }
         return mRootView;
@@ -126,18 +125,19 @@ public class ContentFragment extends Fragment {
 //                Fragment fragment = new ContentFragment();
 //
 //                ContentFragment cf = (ContentFragment)fragment;
-//                cf.setStoryProvider(mStoryProvider);
+//                cf.setRepoProvider(mRepoProvider);
 
+                // TODO: consolidate Play launch
                 // update the main content with stage
-                if (mStoryProvider.isStoryReady()) {
+                if (mRepoProvider.getDalStory().isReady()) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = mStoryProvider.getActiveStory().getMoniker();
+                    mContentMoniker = mRepoProvider.getDalStory().getActiveDao().getMoniker();
                 }
                 else {
                     // TODO: determine next step based on just completed operation
                 }
-                replaceFragment(getActivity(), mStoryProvider, mContentOp, mContentObjType, mContentMoniker);
+                replaceFragment(getActivity(), mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
 
 //                Bundle args = new Bundle();
 //                args.putString(ContentFragment.ARG_CONTENT_KEY_OP, mContentOp);
@@ -154,12 +154,12 @@ public class ContentFragment extends Fragment {
     }
     ///////////////////////////////////////////////////////////////////////////
     // replace fragment
-    public static Boolean replaceFragment(Activity activity, StoryProvider storyProvider, String op, String objType, String moniker) {
+    public static Boolean replaceFragment(Activity activity, RepoProvider repoProvider, String op, String objType, String moniker) {
 
         Fragment fragment = new ContentFragment();
 
         ContentFragment cf = (ContentFragment)fragment;
-        cf.setStoryProvider(storyProvider);
+        cf.setRepoProvider(repoProvider);
 
         Bundle args = new Bundle();
         args.putString(ContentFragment.ARG_CONTENT_KEY_OP, op);

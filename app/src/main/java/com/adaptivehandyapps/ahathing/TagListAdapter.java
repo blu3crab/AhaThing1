@@ -19,6 +19,7 @@ package com.adaptivehandyapps.ahathing;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,9 @@ public class TagListAdapter extends ArrayAdapter<String> {
     public TagListAdapter(Context context, int resId, List<String> itemname, List<String> itemlabel, List<Integer> imgid, List<Integer> bgColor) {
 //        super(context, R.layout.pipe_list_item, itemname);
         super(context, resId, itemname);
+        if ((itemname.size() != imgid.size()) || (itemname.size() != bgColor.size())) {
+            Log.e(TAG, "Oops! TagListAdapter find mismatched list size!");
+        }
         this.mTagListItemResId = resId;
         this.mContext = context;
         this.mItemName = itemname;

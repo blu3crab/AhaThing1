@@ -19,7 +19,7 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dal.StoryProvider;
+import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -61,13 +61,13 @@ public class StageModelRing {
     public static final Long RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
     public static final Long RING_CENTER_Z = 0l;
 
-    private StoryProvider mStoryProvider;
+    private RepoProvider mRepoProvider;
     private Integer mRingMax = 1;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public StageModelRing(StoryProvider storyProvider) {
-        mStoryProvider = storyProvider;
+    public StageModelRing(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters, setters, helpers
@@ -80,8 +80,8 @@ public class StageModelRing {
     public Boolean buildModel(DaoStage activeStage, Integer ringMax) {
         mRingMax = ringMax;
 
-//        DaoStage activeStage = mStoryProvider.getActiveStage();
-//        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mStoryProvider.getDaoStageRepo().size());
+//        DaoStage activeStage = mRepoProvider.getActiveStage();
+//        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mRepoProvider.getDaoStageRepo().size());
 //        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
         // create stage locus list
@@ -169,7 +169,7 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-        DaoStage daoStage = mStoryProvider.getActiveStage();
+        DaoStage daoStage = mRepoProvider.getDalStage().getActiveDao();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList
