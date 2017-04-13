@@ -44,6 +44,8 @@ import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -413,14 +415,37 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
+                    // ensure object hierarchy is coherent
+                    setActiveHierarchy();
                     // set navigation menu
                     buildNavMenu();
-
-//                    refresh(refresh);
                 }
             }
         };
         return callback;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean setActiveHierarchy() {
+        DaoTheatre activeTheatre = null;
+        DaoEpic activeEpic = null;
+
+        activeTheatre = mRepoProvider.getDalTheatre().getActiveDao();
+        if (activeTheatre != null) {
+            activeEpic = mRepoProvider.getDalEpic().getActiveDao();
+            // if active epic defined & contained in theatre tag list
+            if (activeEpic != null &&
+                    activeTheatre.getTagList().contains(activeEpic.getMoniker())) {
+
+            }
+            else {
+                // no active epic or incoherent hierarchy
+                mRepoProvider.getDalEpic().setActiveDao(null);
+            }
+
+        }
+        mRepoProvider.getDalTheatre().setActiveDao(activeTheatre);
+        mRepoProvider.getDalEpic().setActiveDao(activeEpic);
+        return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     // update firebase user profile with display name derived from email

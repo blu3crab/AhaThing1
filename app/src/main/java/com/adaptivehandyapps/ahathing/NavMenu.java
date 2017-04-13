@@ -120,6 +120,14 @@ public class NavMenu {
 
             MenuItem menuItem = menu.add(itemName);
             menuItem.setIcon(iconId);
+            // set background color
+//            SpannableString s = new SpannableString("My red MenuItem");
+//            s.setSpan(new ForegroundColorSpan(Color.RED), 0, s.length(), 0);
+//            item.setTitle(s);
+            // set text formatting
+//            final SpannableString textToShow = new SpannableString("Hello stackOverflow");
+//            textToShow.setSpan(new RelativeSizeSpan(1.5f), textToShow.length() - "stackOverflow".length(),textToShow.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            textView.setText(textToShow);
             Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
 
         }
