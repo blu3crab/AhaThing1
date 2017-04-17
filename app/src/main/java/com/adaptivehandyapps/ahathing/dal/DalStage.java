@@ -23,6 +23,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.PlayList;
 import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.StageModelRing;
@@ -46,6 +47,7 @@ public class DalStage {
 
     private Context mContext;
     private RepoProvider mRepoProvider;
+    private PlayList mPlayList;
     private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
 
     private DatabaseReference mDatabaseReference;
@@ -60,14 +62,15 @@ public class DalStage {
 
     private DaoStageRepo mDaoRepo;
 
-    private Boolean mReady = false;
-    private DaoStage mActiveDao;
-
+//    private Boolean mReady = false;
+//    private DaoStage mActiveDao;
+//
 
     ///////////////////////////////////////////////////////////////////////////
     public DalStage(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
         mContext = context;
         mRepoProvider = repoProvider;
+        mPlayList = mRepoProvider.getPlayList();
         mCallback = callback;
 
         // set class
@@ -144,26 +147,26 @@ public class DalStage {
         this.mDaoRepo = daoStageRepo;
     }
 
-    public Boolean isReady() { return mReady;}
-    public void setReady(Boolean ready) {
-        this.mReady = ready;
-    }
-
-    public DaoStage getActiveDao() { return mActiveDao; }
-    public void setActiveDao(DaoStage activeDao) {
-        mReady = false;
-        // if setting active object
-        if (activeDao != null) {
-            // set object ready & set prefs
-            mReady = true;
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
-        }
-        else {
-            // clear active object
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
-        }
-        this.mActiveDao = activeDao;
-    }
+//    public Boolean isReady() { return mReady;}
+//    public void setReady(Boolean ready) {
+//        this.mReady = ready;
+//    }
+//
+//    public DaoStage getActiveDao() { return mActiveDao; }
+//    public void setActiveDao(DaoStage activeDao) {
+//        mReady = false;
+//        // if setting active object
+//        if (activeDao != null) {
+//            // set object ready & set prefs
+//            mReady = true;
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
+//        }
+//        else {
+//            // clear active object
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
+//        }
+//        this.mActiveDao = activeDao;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoStage dao, Boolean updateDatabase) {
         Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
@@ -182,10 +185,17 @@ public class DalStage {
         }
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(mContext, getPrefsKey());
-        if (getActiveDao() == null &&
+        if (mPlayList.getActiveStage() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
-            // set active to updated object
-            setActiveDao(dao);
+            if (mRepoProvider.getStageModelRing() == null) {
+                // TODO: single stage model - build stage model per stage
+                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider));
+                Integer ringMax = 4;
+                mRepoProvider.getStageModelRing().buildModel(dao, ringMax);
+                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+            }
+            // set updated object active
+            mPlayList.setActiveStage(dao);
         }
 
         // refresh
@@ -210,16 +220,12 @@ public class DalStage {
         }
 
         // if removing active object
-        if (getActiveDao().getMoniker().equals(dao.getMoniker())) {
-            // if an object is defined
-            if (getDaoRepo().get(0) != null) {
-                // set active object
-                setActiveDao((DaoStage) getDaoRepo().get(0));
-            }
-            else {
-                // clear active object
-                setActiveDao(null);
-            }
+        if (mPlayList.getActiveStage().getMoniker().equals(dao.getMoniker())) {
+            DaoStage daoReplacement = null;
+            // if an object is defined, set as replacement
+            if (getDaoRepo().size() > 0) daoReplacement = (DaoStage) getDaoRepo().get(0);
+            // set or clear active object
+            mPlayList.setActiveStage(daoReplacement);
         }
         // refresh
         if (mCallback != null) mCallback.onRepoProviderRefresh(true);

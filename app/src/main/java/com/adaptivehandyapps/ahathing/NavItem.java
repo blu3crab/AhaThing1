@@ -53,11 +53,11 @@ public class NavItem {
         mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NADA;
         // check split for top level object: active theatre, story, stage, etc...
         if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-            if (repoProvider.getDalTheatre().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveTheatre() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                mContentMoniker = repoProvider.getDalTheatre().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveTheatre().getMoniker();
             }
             else {
                 // launch dao maker
@@ -67,11 +67,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-            if (repoProvider.getDalEpic().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveEpic() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                mContentMoniker = repoProvider.getDalEpic().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveEpic().getMoniker();
             }
             else {
                 // launch dao maker
@@ -81,11 +81,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-            if (repoProvider.getDalStory().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveStory() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                mContentMoniker = repoProvider.getDalStory().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveStory().getMoniker();
             }
             else {
                 // launch dao maker
@@ -95,11 +95,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-            if (repoProvider.getDalStage().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveStage() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                mContentMoniker = repoProvider.getDalStage().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveStage().getMoniker();
             }
             else {
                 // launch dao maker
@@ -109,11 +109,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-            if (repoProvider.getDalActor().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveActor() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
-                mContentMoniker = repoProvider.getDalActor().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveActor().getMoniker();
             }
             else {
                 // launch dao maker
@@ -123,11 +123,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-            if (repoProvider.getDalAction().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveAction() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
-                mContentMoniker = repoProvider.getDalAction().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveAction().getMoniker();
             }
             else {
                 // launch dao maker
@@ -137,11 +137,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-            if (repoProvider.getDalOutcome().getActiveDao() != null) {
+            if (repoProvider.getPlayList().getActiveOutcome() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
-                mContentMoniker = repoProvider.getDalOutcome().getActiveDao().getMoniker();
+                mContentMoniker = repoProvider.getPlayList().getActiveOutcome().getMoniker();
             }
             else {
                 // launch dao maker
@@ -207,40 +207,42 @@ public class NavItem {
                 // existing object - set active based on find object type
                 if (repoProvider.getDalTheatre().getDaoRepo().get(itemname) != null) {
                     // theatre - set active
-                    repoProvider.getDalTheatre().setActiveDao((DaoTheatre) repoProvider.getDalTheatre().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveTheatre((DaoTheatre) repoProvider.getDalTheatre().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalEpic().getDaoRepo().get(itemname) != null) {
                     // Epic - set active
-                    repoProvider.getDalEpic().setActiveDao((DaoEpic) repoProvider.getDalEpic().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveEpic((DaoEpic) repoProvider.getDalEpic().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalStory().getDaoRepo().get(itemname) != null) {
                     // story - set active
-                    repoProvider.getDalStory().setActiveDao((DaoStory) repoProvider.getDalStory().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveStory((DaoStory) repoProvider.getDalStory().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalStage().getDaoRepo().get(itemname) != null) {
                     // stage - set active
-                    repoProvider.getDalStage().setActiveDao((DaoStage) repoProvider.getDalStage().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveStage((DaoStage) repoProvider.getDalStage().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalActor().getDaoRepo().get(itemname) != null) {
                     // Actor - set active
-                    repoProvider.getDalActor().setActiveDao((DaoActor) repoProvider.getDalActor().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveActor((DaoActor) repoProvider.getDalActor().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalAction().getDaoRepo().get(itemname) != null) {
                     // Action - set active
-                    repoProvider.getDalAction().setActiveDao((DaoAction) repoProvider.getDalAction().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveAction((DaoAction) repoProvider.getDalAction().getDaoRepo().get(itemname));
                 }
                 else if (repoProvider.getDalOutcome().getDaoRepo().get(itemname) != null) {
                     // Outcome - set active
-                    repoProvider.getDalOutcome().setActiveDao((DaoOutcome) repoProvider.getDalOutcome().getDaoRepo().get(itemname));
+                    repoProvider.getPlayList().setActiveOutcome((DaoOutcome) repoProvider.getDalOutcome().getDaoRepo().get(itemname));
                 }
                 // update nav menu
                 triggerUpdate = true;
 //                setNavMenu();
                 // TODO: consolidate Play launch
-                // launch active story
-                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                mContentMoniker = repoProvider.getDalStory().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveStory() != null) {
+                    // launch active story
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                    mContentMoniker = repoProvider.getPlayList().getActiveStory().getMoniker();
+                }
             }
         }
 

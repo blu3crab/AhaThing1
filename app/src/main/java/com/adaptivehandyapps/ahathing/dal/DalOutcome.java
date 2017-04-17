@@ -23,6 +23,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.PlayList;
 import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -43,6 +44,7 @@ public class DalOutcome {
 
     private Context mContext;
     private RepoProvider mRepoProvider;
+    private PlayList mPlayList;
     private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
 
     private DatabaseReference mDatabaseReference;
@@ -57,14 +59,15 @@ public class DalOutcome {
 
     private DaoOutcomeRepo mDaoRepo;
 
-    private Boolean mReady = false;
-    private DaoOutcome mActiveDao;
-
+//    private Boolean mReady = false;
+//    private DaoOutcome mActiveDao;
+//
 
     ///////////////////////////////////////////////////////////////////////////
     public DalOutcome(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
         mContext = context;
         mRepoProvider = repoProvider;
+        mPlayList = mRepoProvider.getPlayList();
         mCallback = callback;
 
         // set class
@@ -141,23 +144,23 @@ public class DalOutcome {
         this.mDaoRepo = daoOutcomeRepo;
     }
 
-    public Boolean isReady() { return mReady;}
-
-    public DaoOutcome getActiveDao() { return mActiveDao; }
-    public void setActiveDao(DaoOutcome activeDao) {
-        mReady = false;
-        // if setting active object
-        if (activeDao != null) {
-            // set object ready & set prefs
-            mReady = true;
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
-        }
-        else {
-            // clear active object
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
-        }
-        this.mActiveDao = activeDao;
-    }
+//    public Boolean isReady() { return mReady;}
+//
+//    public DaoOutcome getActiveDao() { return mActiveDao; }
+//    public void setActiveDao(DaoOutcome activeDao) {
+//        mReady = false;
+//        // if setting active object
+//        if (activeDao != null) {
+//            // set object ready & set prefs
+//            mReady = true;
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
+//        }
+//        else {
+//            // clear active object
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
+//        }
+//        this.mActiveDao = activeDao;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoOutcome dao, Boolean updateDatabase) {
         Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
@@ -176,10 +179,10 @@ public class DalOutcome {
         }
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(mContext, getPrefsKey());
-        if (getActiveDao() == null &&
+        if (mPlayList.getActiveOutcome() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            setActiveDao(dao);
+            mPlayList.setActiveOutcome(dao);
         }
 
         // refresh
@@ -204,16 +207,12 @@ public class DalOutcome {
         }
 
         // if removing active object
-        if (getActiveDao().getMoniker().equals(dao.getMoniker())) {
-            // if an object is defined
-            if (getDaoRepo().get(0) != null) {
-                // set active object
-                setActiveDao((DaoOutcome) getDaoRepo().get(0));
-            }
-            else {
-                // clear active object
-                setActiveDao(null);
-            }
+        if (mPlayList.getActiveOutcome().getMoniker().equals(dao.getMoniker())) {
+            DaoOutcome daoReplacement = null;
+            // if an object is defined, set as replacement
+            if (getDaoRepo().size() > 0) daoReplacement = (DaoOutcome) getDaoRepo().get(0);
+            // set or clear active object
+            mPlayList.setActiveOutcome(daoReplacement);
         }
         // refresh
         if (mCallback != null) mCallback.onRepoProviderRefresh(true);

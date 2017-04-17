@@ -43,8 +43,13 @@ import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dal.RepoProvider;
+import com.adaptivehandyapps.ahathing.dao.DaoAction;
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
+import com.adaptivehandyapps.ahathing.dao.DaoStage;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mVacating = false;
 
     private RepoProvider mRepoProvider;
+    private PlayList mPlayList;
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
@@ -174,8 +180,12 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
+        // create inital playlist
+        setPlayList(new PlayList(this));
         // create repo provider
-        setRepoProvider(new RepoProvider(this, getRepoProviderCallback()));
+        setRepoProvider(new RepoProvider(this, getPlayList(), getRepoProviderCallback()));
+        // link repo & playlist
+        getPlayList().setRepoProvider(getRepoProvider());
 
         // instantiate nav  menu & item
         mNavMenu = new NavMenu();
@@ -194,7 +204,7 @@ public class MainActivity extends AppCompatActivity
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     // create story provider - listeners based on auth user
-                    setRepoProvider(new RepoProvider(getBaseContext(), getRepoProviderCallback()));
+                    setRepoProvider(new RepoProvider(getBaseContext(), getPlayList(), getRepoProviderCallback()));
                 }
                 else {
                     // User is signed out
@@ -211,6 +221,8 @@ public class MainActivity extends AppCompatActivity
     public RepoProvider getRepoProvider() { return mRepoProvider;}
     public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
 
+    public PlayList getPlayList() { return mPlayList;}
+    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
     ///////////////////////////////////////////////////////////////////////////////////////////
     private Boolean buildNavMenu() {
 
@@ -223,12 +235,12 @@ public class MainActivity extends AppCompatActivity
         mNavMenu.build(mRepoProvider, mNavigationView);
 
         // if story ready
-        if (mRepoProvider.getDalStory().isReady()) {
+        if (mRepoProvider.getPlayList().getActiveStory() != null) {
             Log.d(TAG, "buildNavMenu: launching story...");
             // launch story
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-            mContentMoniker = mRepoProvider.getDalStory().getActiveDao().getMoniker();
+            mContentMoniker = mRepoProvider.getPlayList().getActiveStory().getMoniker();
             ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
@@ -415,8 +427,8 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
-                    // ensure object hierarchy is coherent
-                    setActiveHierarchy();
+//                    // ensure object hierarchy is coherent
+//                    setActiveHierarchy();
                     // set navigation menu
                     buildNavMenu();
                 }
@@ -424,29 +436,39 @@ public class MainActivity extends AppCompatActivity
         };
         return callback;
     }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean setActiveHierarchy() {
-        DaoTheatre activeTheatre = null;
-        DaoEpic activeEpic = null;
-
-        activeTheatre = mRepoProvider.getDalTheatre().getActiveDao();
-        if (activeTheatre != null) {
-            activeEpic = mRepoProvider.getDalEpic().getActiveDao();
-            // if active epic defined & contained in theatre tag list
-            if (activeEpic != null &&
-                    activeTheatre.getTagList().contains(activeEpic.getMoniker())) {
-
-            }
-            else {
-                // no active epic or incoherent hierarchy
-                mRepoProvider.getDalEpic().setActiveDao(null);
-            }
-
-        }
-        mRepoProvider.getDalTheatre().setActiveDao(activeTheatre);
-        mRepoProvider.getDalEpic().setActiveDao(activeEpic);
-        return true;
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    private Boolean setActiveHierarchy() {
+//        DaoTheatre activeTheatre = null;
+//        DaoEpic activeEpic = null;
+//        DaoStory activeStory = null;
+//        DaoStage activeStage = null;
+//        DaoActor activeActor = null;
+//        DaoAction activeAction = null;
+//        DaoOutcome activeOutcome = null;
+//
+//        activeTheatre = mRepoProvider.getDalTheatre().getActiveTheatre();
+//        if (activeTheatre != null) {
+//            activeEpic = mRepoProvider.getDalEpic().getActiveTheatre();
+//            // if active epic defined but not contained in theatre tag list
+//            if (activeEpic != null &&
+//                    !activeTheatre.getTagList().contains(activeEpic.getMoniker())) {
+//                // if epic defined
+//                if (activeTheatre.getTagList().size() > 0) {
+//                    // assign 1st in list
+//                    activeEpic = (DaoEpic)mRepoProvider.getDalEpic().getDaoRepo().get(activeTheatre.getTagList().get(0));
+//                }
+//            }
+//        }
+//        // set active objects based on above scan (null = none active)
+//        mRepoProvider.getDalTheatre().setActiveDao(activeTheatre);
+//        mRepoProvider.getDalEpic().setActiveDao(activeEpic);
+//        mRepoProvider.getDalStory().setActiveDao(activeStory);
+//        mRepoProvider.getDalStage().setActiveDao(activeStage);
+//        mRepoProvider.getDalActor().setActiveDao(activeActor);
+//        mRepoProvider.getDalAction().setActiveDao(activeAction);
+//        mRepoProvider.getDalOutcome().setActiveDao(activeOutcome);
+//        return true;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     // update firebase user profile with display name derived from email
     private String updateFirebaseDisplayNameFromEmail(FirebaseUser user, String email) {

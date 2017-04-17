@@ -120,8 +120,8 @@ public class StageViewController extends View implements
         MainActivity parent = (MainActivity) context;
         if (parent != null) {
             mRepoProvider = parent.getRepoProvider();
-            if (mRepoProvider != null && mRepoProvider.getDalStory().isReady()) {
-                Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getDalStory().getActiveDao().getMoniker() + "...");
+            if (mRepoProvider != null && mRepoProvider.getPlayList().getActiveStory() != null) {
+                Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getPlayList().getActiveStory().getMoniker() + "...");
             }
             else {
                 Log.e(TAG, "RepoProvider NULL or NOT ready!");
@@ -250,7 +250,7 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
             // TODO: support multiple stage gracefully
-            mActiveStage = mRepoProvider.getDalStage().getActiveDao();
+            mActiveStage = mRepoProvider.getPlayList().getActiveStage();
             if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
                 // create stage view helper
@@ -465,7 +465,7 @@ public class StageViewController extends View implements
             if (mRawScaleFactor != detector.getScaleFactor()) {
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
-                mActiveStage = mRepoProvider.getDalStage().getActiveDao();
+                mActiveStage = mRepoProvider.getPlayList().getActiveStage();
                 if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();

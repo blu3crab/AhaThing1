@@ -129,10 +129,10 @@ public class ContentFragment extends Fragment {
 
                 // TODO: consolidate Play launch
                 // update the main content with stage
-                if (mRepoProvider.getDalStory().isReady()) {
+                if (mRepoProvider.getPlayList().getActiveStory() != null) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = mRepoProvider.getDalStory().getActiveDao().getMoniker();
+                    mContentMoniker = mRepoProvider.getPlayList().getActiveStory().getMoniker();
                 }
                 else {
                     // TODO: determine next step based on just completed operation

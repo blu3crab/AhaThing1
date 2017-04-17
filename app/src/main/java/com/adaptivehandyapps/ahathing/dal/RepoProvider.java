@@ -20,6 +20,7 @@ package com.adaptivehandyapps.ahathing.dal;
 import android.content.Context;
 import android.util.Log;
 
+import com.adaptivehandyapps.ahathing.PlayList;
 import com.adaptivehandyapps.ahathing.StageModelRing;
 import com.adaptivehandyapps.ahathing.dao.DaoAuditRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -33,12 +34,13 @@ import com.google.firebase.database.FirebaseDatabase;
 ///////////////////////////////////////////////////////////////////////////
 // Repository provider
 public class RepoProvider {
-    private static final String TAG = "RepoProvider";
+    private static final String TAG = RepoProvider.class.getSimpleName();
 
     private Context mContext;
     private OnRepoProviderRefresh mCallback = null; //call back interface
 
     private RepoProvider mRepoProvider;
+    private PlayList mPlayList;
 
     // data access layer
     private DalTheatre mDalTheatre;
@@ -66,11 +68,13 @@ public class RepoProvider {
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public RepoProvider(Context context, OnRepoProviderRefresh callback) {
+    public RepoProvider(Context context, PlayList playList, OnRepoProviderRefresh callback) {
         // retain context & callback
         mContext = context;
         mCallback = callback;
         mRepoProvider = this;
+        // extract playlist
+        setPlayList(playList);
 
         // instantiate DAL object
         mDalTheatre = new DalTheatre(mContext, mRepoProvider, mCallback);
@@ -110,6 +114,9 @@ public class RepoProvider {
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters/helpers
+    public PlayList getPlayList() { return mPlayList;}
+    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
+
     public DalTheatre getDalTheatre() {
         return mDalTheatre;
     }

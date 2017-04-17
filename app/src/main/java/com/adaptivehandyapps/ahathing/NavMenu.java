@@ -57,53 +57,53 @@ public class NavMenu {
             if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                if (repoProvider.getDalTheatre().isReady() && repoProvider.getDalTheatre().getActiveDao() != null) {
-                    activeName = repoProvider.getDalTheatre().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveTheatre() != null) {
+                    activeName = repoProvider.getPlayList().getActiveTheatre().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
                 iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                if (repoProvider.getDalEpic().isReady() && repoProvider.getDalEpic().getActiveDao() != null) {
-                    activeName = repoProvider.getDalEpic().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveEpic() != null) {
+                    activeName = repoProvider.getPlayList().getActiveEpic().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                if (repoProvider.getDalStory().isReady() && repoProvider.getDalStory().getActiveDao() != null) {
-                    activeName = repoProvider.getDalStory().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveStory() != null) {
+                    activeName = repoProvider.getPlayList().getActiveStory().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                if (repoProvider.getDalStage().isReady() && repoProvider.getDalStage().getActiveDao() != null) {
-                    activeName = repoProvider.getDalStage().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveStage() != null) {
+                    activeName = repoProvider.getPlayList().getActiveStage().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
                 activeName = "actor...";
-                if (repoProvider.getDalActor().isReady() && repoProvider.getDalActor().getActiveDao() != null) {
-                    activeName = repoProvider.getDalActor().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveActor() != null) {
+                    activeName = repoProvider.getPlayList().getActiveActor().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
                 activeName = "action...";
-                if (repoProvider.getDalAction().isReady() && repoProvider.getDalAction().getActiveDao() != null) {
-                    activeName = repoProvider.getDalAction().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveAction() != null) {
+                    activeName = repoProvider.getPlayList().getActiveAction().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
                 iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
                 activeName = "outcome...";
-                if (repoProvider.getDalOutcome().isReady() && repoProvider.getDalOutcome().getActiveDao() != null) {
-                    activeName = repoProvider.getDalOutcome().getActiveDao().getMoniker();
+                if (repoProvider.getPlayList().getActiveOutcome() != null) {
+                    activeName = repoProvider.getPlayList().getActiveOutcome().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {

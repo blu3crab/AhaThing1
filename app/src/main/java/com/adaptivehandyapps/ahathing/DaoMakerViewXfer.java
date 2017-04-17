@@ -261,7 +261,7 @@ public class DaoMakerViewXfer {
         activeTheatre.setMoniker(editedMoniker);
         activeTheatre.setHeadline(headline);
         activeTheatre.setTagList(tagList);
-        mRepoProvider.getDalTheatre().setActiveDao(activeTheatre);
+        mRepoProvider.getPlayList().setActiveTheatre(activeTheatre);
         // update repo
         mRepoProvider.getDalTheatre().update(activeTheatre, true);
         return true;
@@ -290,7 +290,7 @@ public class DaoMakerViewXfer {
         activeEpic.setMoniker(editedMoniker);
         activeEpic.setHeadline(headline);
         activeEpic.setTagList(tagList);
-        mRepoProvider.getDalEpic().setActiveDao(activeEpic);
+        mRepoProvider.getPlayList().setActiveEpic(activeEpic);
         // update repo
         mRepoProvider.getDalEpic().update(activeEpic, true);
         return true;
@@ -321,7 +321,7 @@ public class DaoMakerViewXfer {
         String stagename = mSpinnerStages.getSelectedItem().toString();
         Log.d(TAG, "toStory selected stage " + stagename);
         activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
-        mRepoProvider.getDalStory().setActiveDao(activeStory);
+        mRepoProvider.getPlayList().setActiveStory(activeStory);
         // update repo
         mRepoProvider.getDalStory().update(activeStory, true);
         return true;
@@ -350,12 +350,14 @@ public class DaoMakerViewXfer {
         activeStage.setMoniker(editedMoniker);
         activeStage.setHeadline(headline);
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
-        // TODO: single stage model - build stage model per stage
-        mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider));
-        Integer ringMax = 4;
-        mRepoProvider.getStageModelRing().buildModel(activeStage, ringMax);
-
-        mRepoProvider.getDalStage().setActiveDao(activeStage);
+        if (mRepoProvider.getStageModelRing() == null) {
+            // TODO: single stage model - build stage model per stage
+            mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider));
+            Integer ringMax = 4;
+            mRepoProvider.getStageModelRing().buildModel(activeStage, ringMax);
+            Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+        }
+        mRepoProvider.getPlayList().setActiveStage(activeStage);
         // update repo
         mRepoProvider.getDalStage().update(activeStage, true);
         return true;
@@ -383,7 +385,7 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeActor.setMoniker(editedMoniker);
         activeActor.setHeadline(headline);
-        mRepoProvider.getDalActor().setActiveDao(activeActor);
+        mRepoProvider.getPlayList().setActiveActor(activeActor);
         // update repo
         mRepoProvider.getDalActor().update(activeActor, true);
         return true;
@@ -411,7 +413,7 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeAction.setMoniker(editedMoniker);
         activeAction.setHeadline(headline);
-        mRepoProvider.getDalAction().setActiveDao(activeAction);
+        mRepoProvider.getPlayList().setActiveAction(activeAction);
         // update repo
         mRepoProvider.getDalAction().update(activeAction, true);
         return true;
@@ -444,7 +446,7 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeOutcome.setMoniker(editedMoniker);
         activeOutcome.setHeadline(headline);
-        mRepoProvider.getDalOutcome().setActiveDao(activeOutcome);
+        mRepoProvider.getPlayList().setActiveOutcome(activeOutcome);
         // update repo
         mRepoProvider.getDalOutcome().update(activeOutcome, true);
         return true;

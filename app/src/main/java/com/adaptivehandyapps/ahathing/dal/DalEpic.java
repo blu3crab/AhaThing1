@@ -23,6 +23,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.PlayList;
 import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -47,6 +48,7 @@ public class DalEpic {
 
     private Context mContext;
     private RepoProvider mRepoProvider;
+    private PlayList mPlayList;
     private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
 
     private DatabaseReference mDatabaseReference;
@@ -61,14 +63,15 @@ public class DalEpic {
 
     private DaoEpicRepo mDaoRepo;
 
-    private Boolean mReady = false;
-    private DaoEpic mActiveDao;
+//    private Boolean mReady = false;
+//    private DaoEpic mActiveDao;
 
 
     ///////////////////////////////////////////////////////////////////////////
     public DalEpic(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
         mContext = context;
         mRepoProvider = repoProvider;
+        mPlayList = mRepoProvider.getPlayList();
         mCallback = callback;
 
         // set class
@@ -145,23 +148,23 @@ public class DalEpic {
         this.mDaoRepo = daoEpicRepo;
     }
 
-    public Boolean isReady() { return mReady;}
-
-    public DaoEpic getActiveDao() { return mActiveDao; }
-    public void setActiveDao(DaoEpic activeDao) {
-        mReady = false;
-        // if setting active object
-        if (activeDao != null) {
-            // set object ready & set prefs
-            mReady = true;
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
-        }
-        else {
-            // clear active object
-            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
-        }
-        this.mActiveDao = activeDao;
-    }
+//    public Boolean isReady() { return mReady;}
+//
+//    public DaoEpic getActiveTheatre() { return mActiveDao; }
+//    public void setActiveDao(DaoEpic activeDao) {
+//        mReady = false;
+//        // if setting active object
+//        if (activeDao != null) {
+//            // set object ready & set prefs
+//            mReady = true;
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
+//        }
+//        else {
+//            // clear active object
+//            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
+//        }
+//        this.mActiveDao = activeDao;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoEpic dao, Boolean updateDatabase) {
         Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
@@ -180,10 +183,10 @@ public class DalEpic {
         }
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(mContext, getPrefsKey());
-        if (getActiveDao() == null &&
+        if (mPlayList.getActiveEpic() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            setActiveDao(dao);
+            mPlayList.setActiveEpic(dao);
         }
 
         // refresh
@@ -208,16 +211,12 @@ public class DalEpic {
         }
 
         // if removing active object
-        if (getActiveDao().getMoniker().equals(dao.getMoniker())) {
-            // if an object is defined
-            if (getDaoRepo().get(0) != null) {
-                // set active object
-                setActiveDao((DaoEpic) getDaoRepo().get(0));
-            }
-            else {
-                // clear active object
-                setActiveDao(null);
-            }
+        if (mPlayList.getActiveEpic().getMoniker().equals(dao.getMoniker())) {
+            DaoEpic daoReplacement = null;
+            // if an object is defined, set as replacement
+            if (getDaoRepo().size() > 0) daoReplacement = (DaoEpic) getDaoRepo().get(0);
+            // set or clear active object
+            mPlayList.setActiveEpic(daoReplacement);
         }
         // refresh
         if (mCallback != null) mCallback.onRepoProviderRefresh(true);

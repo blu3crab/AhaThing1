@@ -169,7 +169,7 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-        DaoStage daoStage = mRepoProvider.getDalStage().getActiveDao();
+        DaoStage daoStage = mRepoProvider.getPlayList().getActiveStage();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList
