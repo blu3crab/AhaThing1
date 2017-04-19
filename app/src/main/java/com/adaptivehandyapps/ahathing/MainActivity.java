@@ -67,8 +67,15 @@ public class MainActivity extends AppCompatActivity
 
     private boolean mVacating = false;
 
-    private RepoProvider mRepoProvider;
-    private PlayList mPlayList;
+//    private static final DataHolder holder = new DataHolder();
+//    public static DataHolder getInstance() {return holder;}
+//    private PlayList mPlayList;
+    private static final PlayList playList = new PlayList();
+    public static PlayList getPlayListInstance() { return playList; }
+
+//    private RepoProvider mRepoProvider;
+    private static final RepoProvider repoProvider = new RepoProvider();
+    public static RepoProvider getRepoProviderInstance() { return repoProvider; }
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
@@ -180,12 +187,16 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        // create inital playlist
-        setPlayList(new PlayList(this));
+//        // create inital playlist
+//        setPlayList(new PlayList(this));
         // create repo provider
-        setRepoProvider(new RepoProvider(this, getPlayList(), getRepoProviderCallback()));
+//        setRepoProvider(new RepoProvider(this, getPlayListInstance(), getRepoProviderCallback()));
+//        setRepoProvider(new RepoProvider(this, getRepoProviderCallback()));
+        getRepoProviderInstance().setContext(this);
+        getRepoProviderInstance().setCallback(getRepoProviderCallback());
         // link repo & playlist
-        getPlayList().setRepoProvider(getRepoProvider());
+        getPlayListInstance().setContext(this);
+//        getPlayListInstance().setRepoProvider(getRepoProvider());
 
         // instantiate nav  menu & item
         mNavMenu = new NavMenu();
@@ -203,26 +214,26 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    // create story provider - listeners based on auth user
-                    setRepoProvider(new RepoProvider(getBaseContext(), getPlayList(), getRepoProviderCallback()));
+//                    // create story provider - listeners based on auth user
+//                    setRepoProvider(new RepoProvider(getBaseContext(), getRepoProviderCallback()));
                 }
                 else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                     // TODO: clear database, listeners, etc.?
-                    mRepoProvider.removeFirebaseListener();
+                    getRepoProviderInstance().removeFirebaseListener();
                 }
             }
         };
 
     }
     ///////////////////////////////////////////////////////////////////////////
-    // getters/setters
-    public RepoProvider getRepoProvider() { return mRepoProvider;}
-    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
+//    // getters/setters
+//    public RepoProvider getRepoProvider() { return mRepoProvider;}
+//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
 
-    public PlayList getPlayList() { return mPlayList;}
-    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
+//    public PlayList getPlayList() { return mPlayList;}
+//    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
     ///////////////////////////////////////////////////////////////////////////////////////////
     private Boolean buildNavMenu() {
 
@@ -232,16 +243,17 @@ public class MainActivity extends AppCompatActivity
 //            return false;
 //        }
        // build nav menu
-        mNavMenu.build(mRepoProvider, mNavigationView);
+        mNavMenu.build(mNavigationView);
 
         // if story ready
-        if (mRepoProvider.getPlayList().getActiveStory() != null) {
+        if (getPlayListInstance().getActiveStory() != null) {
             Log.d(TAG, "buildNavMenu: launching story...");
             // launch story
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-            mContentMoniker = mRepoProvider.getPlayList().getActiveStory().getMoniker();
-            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+            mContentMoniker = getPlayListInstance().getActiveStory().getMoniker();
+//            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+            ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
             Log.d(TAG, "buildNavMenu: Story NOT ready!");
@@ -261,7 +273,7 @@ public class MainActivity extends AppCompatActivity
 //        for static menu items, extract id & compare to resource
 //        int id = item.getItemId();
         // parse nav item - returns update trigger
-        if (mNavItem.parse(itemname, itemSplit, mRepoProvider)) {
+        if (mNavItem.parse(itemname, itemSplit)) {
             // update nav menu
             buildNavMenu();
         }
@@ -270,7 +282,7 @@ public class MainActivity extends AppCompatActivity
         mContentMoniker = mNavItem.getMoniker();
         // if op has been assigned
         if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
-            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+            ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
             Log.e(TAG, "Oops! Unknown selection: " + itemname);

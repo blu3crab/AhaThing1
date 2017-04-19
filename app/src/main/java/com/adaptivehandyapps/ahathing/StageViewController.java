@@ -57,7 +57,7 @@ public class StageViewController extends View implements
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
-    private RepoProvider mRepoProvider;
+//    private RepoProvider mRepoProvider;
     private DaoStage mActiveStage;
 
     private StageViewRing mStageViewRing;
@@ -117,21 +117,21 @@ public class StageViewController extends View implements
     private Boolean init(Context context) {
 
         mContext = context;
-        MainActivity parent = (MainActivity) context;
-        if (parent != null) {
-            mRepoProvider = parent.getRepoProvider();
-            if (mRepoProvider != null && mRepoProvider.getPlayList().getActiveStory() != null) {
-                Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getPlayList().getActiveStory().getMoniker() + "...");
-            }
-            else {
-                Log.e(TAG, "RepoProvider NULL or NOT ready!");
-                return false;
-            }
-        }
-        else {
-            Log.e(TAG, "Parent context (MainActivity) NULL!");
-            return false;
-        }
+//        MainActivity parent = (MainActivity) context;
+//        if (parent != null) {
+//            MainActivity.getRepoProviderInstance() = parent.getRepoProvider();
+////            if (mRepoProvider != null && MainActivity.getPlayListInstance().getActiveStory() != null) {
+//                Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
+//            }
+//            else {
+//                Log.e(TAG, "RepoProvider NULL or NOT ready!");
+//                return false;
+//            }
+//        }
+//        else {
+//            Log.e(TAG, "Parent context (MainActivity) NULL!");
+//            return false;
+//        }
 
         // adjust text size
         // TODO: refactor to getDensity()
@@ -177,10 +177,10 @@ public class StageViewController extends View implements
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-    public RepoProvider getRepoProvider() { return mRepoProvider; }
-
-    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true; }
-
+//    public RepoProvider getRepoProvider() { return mRepoProvider; }
+//
+//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true; }
+//
     public int getCanvasWidth() {
         return mCanvasWidth;
     }
@@ -250,7 +250,7 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
             // TODO: support multiple stage gracefully
-            mActiveStage = mRepoProvider.getPlayList().getActiveStage();
+            mActiveStage = MainActivity.getPlayListInstance().getActiveStage();
             if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
                 // create stage view helper
@@ -465,7 +465,7 @@ public class StageViewController extends View implements
             if (mRawScaleFactor != detector.getScaleFactor()) {
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
-                mActiveStage = mRepoProvider.getPlayList().getActiveStage();
+                mActiveStage = MainActivity.getPlayListInstance().getActiveStage();
                 if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();

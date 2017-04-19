@@ -61,14 +61,15 @@ public class StageModelRing {
     public static final Long RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
     public static final Long RING_CENTER_Z = 0l;
 
-    private RepoProvider mRepoProvider;
+//    private RepoProvider mRepoProvider;
     private Integer mRingMax = 1;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public StageModelRing(RepoProvider repoProvider) {
-        mRepoProvider = repoProvider;
-    }
+//    public StageModelRing(RepoProvider repoProvider) {
+//        mRepoProvider = repoProvider;
+//    }
+    public StageModelRing() {}
     ///////////////////////////////////////////////////////////////////////////
     // getters, setters, helpers
     private String setLocusName(Integer ring, Integer id) { return "R" + ring + "L" + id; }
@@ -169,7 +170,7 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-        DaoStage daoStage = mRepoProvider.getPlayList().getActiveStage();
+        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList

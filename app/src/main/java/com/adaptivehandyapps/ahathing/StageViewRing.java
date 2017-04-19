@@ -49,7 +49,7 @@ public class StageViewRing {
     private Context mContext;
     private StageViewController mParentViewController;
 
-    private RepoProvider mRepoProvider;
+//    private RepoProvider mRepoProvider;
 
     private Canvas mCanvas;
 
@@ -84,10 +84,10 @@ public class StageViewRing {
         mDensity = mParentViewController.getDensity();
 
         // ensure RepoProvider ready
-        mRepoProvider = parentViewController.getRepoProvider();
-        if (mRepoProvider != null && mRepoProvider.getPlayList().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getPlayList().getActiveStory().getMoniker() + "...");
-            DaoStage daoStage = mRepoProvider.getPlayList().getActiveStage();
+//        mRepoProvider = parentViewController.getRepoProvider();
+        if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+            Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
+            DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.e(TAG, "RepoProvider UNKNOWN stage type: " + daoStage.getStageType());
             }
@@ -239,15 +239,15 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (mRepoProvider != null && mRepoProvider.getPlayList().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + mRepoProvider.getPlayList().getActiveStory().getMoniker() + "...");
+        if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+            Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
         }
         else {
             Log.e(TAG, "RepoProvider NOT ready...");
             return false;
         }
 
-        DaoStage daoStage = mRepoProvider.getPlayList().getActiveStage();
+        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
         int color;
@@ -311,15 +311,15 @@ public class StageViewRing {
                 mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
                 // if selecting plus ring
                 if (plus) {
-                    if (mRepoProvider.getStageModelRing() != null) {
-                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
+                    if (MainActivity.getRepoProviderInstance().getStageModelRing() != null) {
+                        List<Integer> ringIndexList = MainActivity.getRepoProviderInstance().getStageModelRing().findRing(selectIndex);
                         // toggle each rect in ring list
                         for (Integer i : ringIndexList) {
                             mSelectList.set(i, !mSelectList.get(i));
                         }
                     }
                     else {
-                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL mRepoProvider.getStageModelRing()...");
+                        Log.e(TAG, "Oops! for repo " + MainActivity.getRepoProviderInstance().toString() + " NULL getStageModelRing()...");
                     }
                 }
             }

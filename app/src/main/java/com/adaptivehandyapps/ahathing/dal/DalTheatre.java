@@ -23,6 +23,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.MainActivity;
 import com.adaptivehandyapps.ahathing.PlayList;
 import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
@@ -44,10 +45,10 @@ import com.google.firebase.database.ValueEventListener;
 public class DalTheatre {
     private static final String TAG = DalTheatre.class.getSimpleName();
 
-    private Context mContext;
-    private RepoProvider mRepoProvider;
-    private PlayList mPlayList;
-    private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
+//    private Context mContext;
+//    private RepoProvider mRepoProvider;
+//    private PlayList mPlayList;
+//    private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mFirebaseReference;
@@ -66,11 +67,12 @@ public class DalTheatre {
 //
 
     ///////////////////////////////////////////////////////////////////////////
-    public DalTheatre(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
-        mContext = context;
-        mRepoProvider = repoProvider;
-        mPlayList = mRepoProvider.getPlayList();
-        mCallback = callback;
+    public DalTheatre() {
+//    public DalTheatre(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
+//        mContext = context;
+//        mRepoProvider = MainActivity.getRepoProviderInstance();
+//        mPlayList = MainActivity.getPlayListInstance();
+//        mCallback = callback;
 
         // set class
         setDaoClass(DaoTheatre.class);
@@ -169,26 +171,30 @@ public class DalTheatre {
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
-        mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
+        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
+            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             // update timestamp
             dao.setTimestamp((System.currentTimeMillis()));
             // update db
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
-        // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(mContext, getPrefsKey());
-        if (mPlayList.getActiveTheatre() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
-            // set active to updated object
-            mPlayList.setActiveTheatre(dao);
-        }
+        // update playlist to maintain coherence
+        MainActivity.getPlayListInstance().updateActiveTheatre(dao);
+//        // if no active object & this object matches prefs or no prefs
+//        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), getPrefsKey());
+//        if (MainActivity.getPlayListInstance().getActiveTheatre() == null &&
+//                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+//            // set active to updated object
+//            MainActivity.getPlayListInstance().setActiveTheatre(dao);
+//        }
 
         // refresh
-        if (mCallback != null) mCallback.onRepoProviderRefresh(true);
+        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
+            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
+        }
 
         return true;
     }
@@ -199,25 +205,29 @@ public class DalTheatre {
         getDaoRepo().remove(dao.getMoniker());
         Log.d(TAG, "remove removed dao: " + dao.getMoniker());
         // post audit trail
-        mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
+        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
+            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
             // remove object from remote db
             mFirebaseReference.child(dao.getMoniker()).removeValue();
         }
 
         // if removing active object
-        if (mPlayList.getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
-            DaoTheatre daoReplacement = null;
-            // if an object is defined, set as replacement
-            if (getDaoRepo().size() > 0) daoReplacement = (DaoTheatre) getDaoRepo().get(0);
-            // set or clear active object
-            mPlayList.setActiveTheatre(daoReplacement);
-        }
+        MainActivity.getPlayListInstance().removeActiveTheatre(dao);
+//        if (MainActivity.getPlayListInstance().getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
+//            DaoTheatre daoReplacement = null;
+//            // if an object is defined, set as replacement
+//            if (getDaoRepo().size() > 0) daoReplacement = (DaoTheatre) getDaoRepo().get(0);
+//            // set or clear active object
+//            MainActivity.getPlayListInstance().setActiveTheatre(daoReplacement);
+//        }
         // refresh
-        if (mCallback != null) mCallback.onRepoProviderRefresh(true);
+//        if (mCallback != null) mCallback.onRepoProviderRefresh(true);
+        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
+            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
+        }
 
         return true;
     }
@@ -234,11 +244,11 @@ public class DalTheatre {
 //                        DaoTheatre daoTheatre = snapshot.getValue(DaoTheatre.class);
 //                        if (daoTheatre != null) {
 //                            // if no recent local activity
-//                            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoTheatre.getMoniker());
+//                            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoTheatre.getMoniker());
 //                            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
 //                                Log.d(TAG, "onDataChange daoTheatre (remote trigger): " + daoTheatre.toString());
 //                                // update repo but not db
-//                                mRepoProvider.update(daoTheatre, false);
+//                                MainActivity.getRepoProviderInstance().update(daoTheatre, false);
 //                            }
 //                            else {
 //                                Log.d(TAG, "onDataChange: daoTheatre (ignore local|multiple trigger): " + daoTheatre.toString());
@@ -253,7 +263,7 @@ public class DalTheatre {
 //                    }
 //                }
 //                // post audit trail
-//                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_listen, dataSnapshot.getKey());
+//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_listen, dataSnapshot.getKey());
 //            }
 //
 //            @Override
@@ -261,11 +271,11 @@ public class DalTheatre {
 //                // get theatre object failed, log a message
 ////                Log.e(TAG, "theatreListener:onCancelled", databaseError.toException());
 //                Log.e(TAG, "theatreListener:onCancelled: " + databaseError.getMessage());
-//                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_cancelled, databaseError.getMessage());
+//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onDataChange, R.string.action_cancelled, databaseError.getMessage());
 //            }
 //        };
 //        // theatre level value event listener: dataSnapshot.getKey() "theatres"
-//        mRepoProvider.getFirebaseReference().addValueEventListener(valueEventListener);
+//        MainActivity.getRepoProviderInstance().getFirebaseReference().addValueEventListener(valueEventListener);
 ////        mEpicsReference.addValueEventListener(valueEventListener);
 ////        mDatabaseReference.addValueEventListener(valueEventListener);
 
@@ -279,7 +289,7 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -292,7 +302,7 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -304,7 +314,7 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -315,9 +325,9 @@ public class DalTheatre {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
-                Toast.makeText(mContext, "childEventListener onCancelled: " + databaseError.getMessage(),
+                Toast.makeText(MainActivity.getRepoProviderInstance().getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
                         Toast.LENGTH_LONG).show();
-                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
             }
         };
         // theatre level child event listener: dataSnapshot.getKey() = "theatreXX"
@@ -332,7 +342,7 @@ public class DalTheatre {
         DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
         if (daoTheatre != null) {
             // if no recent local activity
-            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoTheatre.getMoniker());
+            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoTheatre.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildAdded daoTheatre (remote trigger): " + daoTheatre.toString());
                 // update repo but not db
@@ -353,7 +363,7 @@ public class DalTheatre {
         DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
         if (daoTheatre != null) {
             // if no recent local activity
-            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoTheatre.getMoniker());
+            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoTheatre.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildRemoved daoTheatre (remote trigger): " + daoTheatre.toString());
                 // remove from repo leaving db unchanged

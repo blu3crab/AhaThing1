@@ -44,7 +44,7 @@ public class NavMenu {
 
     ///////////////////////////////////////////////////////////////////////////
     // build nav menu
-    public Boolean build(RepoProvider repoProvider, NavigationView navigationView) {
+    public Boolean build(NavigationView navigationView) {
 
         // append active object to menu title
         String prefix = DaoDefs.INIT_STRING_MARKER;
@@ -57,53 +57,53 @@ public class NavMenu {
             if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                if (repoProvider.getPlayList().getActiveTheatre() != null) {
-                    activeName = repoProvider.getPlayList().getActiveTheatre().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveTheatre() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveTheatre().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
                 iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                if (repoProvider.getPlayList().getActiveEpic() != null) {
-                    activeName = repoProvider.getPlayList().getActiveEpic().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveEpic() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveEpic().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                if (repoProvider.getPlayList().getActiveStory() != null) {
-                    activeName = repoProvider.getPlayList().getActiveStory().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                if (repoProvider.getPlayList().getActiveStage() != null) {
-                    activeName = repoProvider.getPlayList().getActiveStage().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveStage() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveStage().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
                 activeName = "actor...";
-                if (repoProvider.getPlayList().getActiveActor() != null) {
-                    activeName = repoProvider.getPlayList().getActiveActor().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveActor() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveActor().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
                 activeName = "action...";
-                if (repoProvider.getPlayList().getActiveAction() != null) {
-                    activeName = repoProvider.getPlayList().getActiveAction().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveAction() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveAction().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
                 iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
                 activeName = "outcome...";
-                if (repoProvider.getPlayList().getActiveOutcome() != null) {
-                    activeName = repoProvider.getPlayList().getActiveOutcome().getMoniker();
+                if (MainActivity.getPlayListInstance().getActiveOutcome() != null) {
+                    activeName = MainActivity.getPlayListInstance().getActiveOutcome().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {
@@ -132,19 +132,19 @@ public class NavMenu {
 
         }
         // add theatres
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_THEATRE, navigationView);
         // add epics
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_EPIC, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_EPIC, navigationView);
         // add stories
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STORY, navigationView);
         // add stages
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_STAGE,  navigationView);
         // add actors
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTOR, navigationView);
         // add actions
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION, navigationView);
         // add outcomes
-        addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME, repoProvider, navigationView);
+        addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME, navigationView);
 
 //        // if story ready
 //        if (repoProvider.isStoryReady()) {
@@ -164,7 +164,7 @@ public class NavMenu {
     }
     ///////////////////////////////////////////////////////////////////////////
     // add nav sub menu
-    private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType, RepoProvider repoProvider, NavigationView navigationView) {
+    private SubMenu addSubMenu(@DaoDefs.DaoObjType int objType, NavigationView navigationView) {
         // extract moniker list
         String title = DaoDefs.DAOOBJ_TYPE_UNKNOWN_MONIKER;
         int iconId = DaoDefs.DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID;
@@ -172,37 +172,37 @@ public class NavMenu {
         if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
             title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
-            monikerList = repoProvider.getDalTheatre().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
             title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-            monikerList = repoProvider.getDalEpic().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
-            monikerList = repoProvider.getDalStory().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
             title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
-            monikerList = repoProvider.getDalStage().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
             title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
-            monikerList = repoProvider.getDalActor().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
             title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
-            monikerList = repoProvider.getDalAction().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
             title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
-            monikerList = repoProvider.getDalOutcome().getDaoRepo().getMonikerList();
+            monikerList = MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().getMonikerList();
         }
         // add submenu from moniker list plus a "new" item
         Menu menu = navigationView.getMenu();

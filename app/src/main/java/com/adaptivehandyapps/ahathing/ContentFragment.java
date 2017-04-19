@@ -59,13 +59,13 @@ public class ContentFragment extends Fragment {
 
     private DaoMakerUiHandler mDaoMakerUiHandler;
 
-    private RepoProvider mRepoProvider;
+//    private RepoProvider mRepoProvider;
 
     ///////////////////////////////////////////////////////////////////////////
     public ContentFragment() {}
     ///////////////////////////////////////////////////////////////////////////
-    public RepoProvider getRepoProvider() { return mRepoProvider;}
-    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
+//    public RepoProvider getRepoProvider() { return mRepoProvider;}
+//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -107,7 +107,7 @@ public class ContentFragment extends Fragment {
 
         if (mContentId == R.layout.content_daomaker) {
             // create new handler & callback
-            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mContentOp, mContentObjType, mContentMoniker);
             mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
         }
         return mRootView;
@@ -129,15 +129,15 @@ public class ContentFragment extends Fragment {
 
                 // TODO: consolidate Play launch
                 // update the main content with stage
-                if (mRepoProvider.getPlayList().getActiveStory() != null) {
+                if (MainActivity.getPlayListInstance().getActiveStory() != null) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = mRepoProvider.getPlayList().getActiveStory().getMoniker();
+                    mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
                 }
                 else {
                     // TODO: determine next step based on just completed operation
                 }
-                replaceFragment(getActivity(), mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+                replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);
 
 //                Bundle args = new Bundle();
 //                args.putString(ContentFragment.ARG_CONTENT_KEY_OP, mContentOp);
@@ -154,12 +154,13 @@ public class ContentFragment extends Fragment {
     }
     ///////////////////////////////////////////////////////////////////////////
     // replace fragment
-    public static Boolean replaceFragment(Activity activity, RepoProvider repoProvider, String op, String objType, String moniker) {
+    public static Boolean replaceFragment(Activity activity, String op, String objType, String moniker) {
+//        public static Boolean replaceFragment(Activity activity, RepoProvider repoProvider, String op, String objType, String moniker) {
 
         Fragment fragment = new ContentFragment();
 
         ContentFragment cf = (ContentFragment)fragment;
-        cf.setRepoProvider(repoProvider);
+//        cf.setRepoProvider(repoProvider);
 
         Bundle args = new Bundle();
         args.putString(ContentFragment.ARG_CONTENT_KEY_OP, op);

@@ -21,6 +21,7 @@ package com.adaptivehandyapps.ahathing.dao;
 import android.content.Context;
 import android.util.Log;
 
+import com.adaptivehandyapps.ahathing.MainActivity;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -34,27 +35,39 @@ public class DaoAuditRepo {
 
 	public static final String JSON_CONTAINER = "auditTrail";
 
-	private Context mContext;
+//	private Context mContext;
 
 	@SerializedName("daoList")
 	private List<DaoAudit> daoList;
 
-	public DaoAuditRepo(Context context){
-		mContext = context;
+	public DaoAuditRepo(){
+//	public DaoAuditRepo(Context context){
+//		mContext = context;
 		daoList = new ArrayList<>();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+
+//	public Context getContext() {
+//		return mContext;
+//	}
+//
+//	public void setContext(Context context) {
+//		this.mContext = context;
+//	}
+
 	public List<DaoAudit> getDaoList() {
 		return daoList;
 	}
 	///////////////////////////////////////////////////////////////////////////
 	public DaoAudit postAudit(int actorResId, int actionResId, String outcome) {
+		// get context
+		Context context = MainActivity.getRepoProviderInstance().getContext();
 		// post audit trail
 		DaoAudit daoAudit = new DaoAudit();
 		daoAudit.setTimestamp(System.currentTimeMillis());
-		daoAudit.setActor(mContext.getString(actorResId));
-		daoAudit.setAction(mContext.getString(actionResId));
+		daoAudit.setActor(context.getString(actorResId));
+		daoAudit.setAction(context.getString(actionResId));
 		daoAudit.setOutcome(outcome);
 		set(daoAudit);
 		return daoAudit;
