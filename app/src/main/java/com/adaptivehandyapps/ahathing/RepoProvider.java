@@ -15,13 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.adaptivehandyapps.ahathing.dal;
+package com.adaptivehandyapps.ahathing;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.PlayList;
-import com.adaptivehandyapps.ahathing.StageModelRing;
+import com.adaptivehandyapps.ahathing.dal.DalAction;
+import com.adaptivehandyapps.ahathing.dal.DalActor;
+import com.adaptivehandyapps.ahathing.dal.DalEpic;
+import com.adaptivehandyapps.ahathing.dal.DalOutcome;
+import com.adaptivehandyapps.ahathing.dal.DalStage;
+import com.adaptivehandyapps.ahathing.dal.DalStory;
+import com.adaptivehandyapps.ahathing.dal.DalTheatre;
 import com.adaptivehandyapps.ahathing.dao.DaoAuditRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,14 +38,11 @@ import com.google.firebase.database.FirebaseDatabase;
 //
 ///////////////////////////////////////////////////////////////////////////
 // Repository provider
-public class RepoProvider {
+public class RepoProvider{
     private static final String TAG = RepoProvider.class.getSimpleName();
 
     private Context mContext;
     private OnRepoProviderRefresh mCallback = null; //call back interface
-
-//    private RepoProvider mRepoProvider;
-//    private PlayList mPlayList;
 
     // data access layer
     private DalTheatre mDalTheatre;
@@ -61,6 +63,28 @@ public class RepoProvider {
     // TODO: refactor to DalStage?
     private StageModelRing mStageModelRing;
 
+    private PlayListService mPlayListService;
+
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+        Log.d(TAG, "setPlayListService " + mPlayListService);
+        if (isFirebaseReady()) {
+            // establish listeners
+            getDalTheatre().setListener();
+            getDalEpic().setListener();
+            getDalStory().setListener();
+            getDalStage().setListener();
+            getDalActor().setListener();
+            getDalAction().setListener();
+            getDalOutcome().setListener();
+            Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", listeners established for " + mUserId);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // callback interface when model changes should trigger refresh
     public interface OnRepoProviderRefresh {
@@ -69,30 +93,18 @@ public class RepoProvider {
     ///////////////////////////////////////////////////////////////////////////
     // constructor
     public RepoProvider() {
-//    public RepoProvider(Context context, OnRepoProviderRefresh callback) {
-//    public RepoProvider(Context context, PlayList playList, OnRepoProviderRefresh callback) {
-        // retain context & callback
-//        mContext = context;
-//        mCallback = callback;
-//        mRepoProvider = this;
-//        // extract playlist
-//        setPlayList(playList);
-
-        // instantiate DAL object
-//        mDalTheatre = new DalTheatre(mContext, this, mCallback);
-//        mDalEpic = new DalEpic(mContext, this, mCallback);
-//        mDalStory = new DalStory(mContext, this, mCallback);
-//        mDalStage = new DalStage(mContext, this, mCallback);
-//        mDalActor = new DalActor(mContext, this, mCallback);
-//        mDalAction = new DalAction(mContext, this, mCallback);
-//        mDalOutcome = new DalOutcome(mContext, this, mCallback);
-        mDalTheatre = new DalTheatre();
-        mDalEpic = new DalEpic();
-        mDalStory = new DalStory();
-        mDalStage = new DalStage();
-        mDalActor = new DalActor();
-        mDalAction = new DalAction();
-        mDalOutcome = new DalOutcome();
+        init();
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean init() {
+        // instantiate DAL for each object type
+        setDalTheatre(new DalTheatre(this));
+        setDalEpic(new DalEpic(this));
+        setDalStory(new DalStory(this));
+        setDalStage(new DalStage(this));
+        setDalActor(new DalActor(this));
+        setDalAction(new DalAction(this));
+        setDalOutcome(new DalOutcome(this));
 
         // establish firebase reference
         setFirebaseReference();
@@ -103,37 +115,32 @@ public class RepoProvider {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             // get user id
             mUserId = getUid();
-
-            // establish listeners
-            mDalTheatre.setListener();
-            mDalEpic.setListener();
-            mDalStory.setListener();
-            mDalStage.setListener();
-            mDalActor.setListener();
-            mDalAction.setListener();
-            mDalOutcome.setListener();
+//
+//            // establish listeners
+//            getDalTheatre().setListener();
+//            getDalEpic().setListener();
+//            getDalStory().setListener();
+//            getDalStage().setListener();
+//            getDalActor().setListener();
+//            getDalAction().setListener();
+//            getDalOutcome().setListener();
         }
         else {
-            mIsFirebaseReady = false;
+            setFirebaseReady(false);
         }
         Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", UserId " + mUserId);
 
         // create Audit repo
-//        mDaoAuditRepo = new DaoAuditRepo(mContext);
         mDaoAuditRepo = new DaoAuditRepo();
+        return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters/helpers
-//    public PlayList getPlayList() { return mPlayList;}
-//    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
-
     public Context getContext() {
         return mContext;
     }
-
     public void setContext(Context context) {
         mContext = context;
-//        if (mDaoAuditRepo != null) mDaoAuditRepo.setContext(mContext);
     }
 
     public OnRepoProviderRefresh getCallback() {
@@ -212,13 +219,15 @@ public class RepoProvider {
     private Boolean setFirebaseReference() {
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         if (mDatabaseReference != null) {
-            mIsFirebaseReady = true;
+            setFirebaseReady(true);
         }
-        return mIsFirebaseReady;
+        return isFirebaseReady();
     }
     public Boolean isFirebaseReady() {
         return mIsFirebaseReady;
     }
+    public Boolean setFirebaseReady(Boolean ready) { mIsFirebaseReady = ready; return mIsFirebaseReady; }
+
     public DatabaseReference getFirebaseReference() {
         return mDatabaseReference;
     }

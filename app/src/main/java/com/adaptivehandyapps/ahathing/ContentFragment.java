@@ -20,13 +20,17 @@ package com.adaptivehandyapps.ahathing;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
 /**
@@ -59,16 +63,49 @@ public class ContentFragment extends Fragment {
 
     private DaoMakerUiHandler mDaoMakerUiHandler;
 
-//    private RepoProvider mRepoProvider;
+    ///////////////////////////////////////////////////////////////////////////
+    // bound service
+    PlayListService mPlayListService;
+    boolean mBound = false;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    public ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
+            mPlayListService = binder.getService();
+            mBound = true;
+            Log.d(TAG, "onServiceConnected: mBound " + mBound + ", mPlayListService " + mPlayListService);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     public ContentFragment() {}
     ///////////////////////////////////////////////////////////////////////////
-//    public RepoProvider getRepoProvider() { return mRepoProvider;}
-//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        // bind to playlist service
+        Intent intent = new Intent(getActivity(), PlayListService.class);
+        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onCreateView: mBound " + mBound + ", mPlayListService " + mPlayListService);
 
         Log.v(TAG, "onCreate...");
         mInflater = inflater;
@@ -107,7 +144,7 @@ public class ContentFragment extends Fragment {
 
         if (mContentId == R.layout.content_daomaker) {
             // create new handler & callback
-            mDaoMakerUiHandler = new DaoMakerUiHandler(mRootView, mContentOp, mContentObjType, mContentMoniker);
+            mDaoMakerUiHandler = new DaoMakerUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
             mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
         }
         return mRootView;
@@ -129,14 +166,23 @@ public class ContentFragment extends Fragment {
 
                 // TODO: consolidate Play launch
                 // update the main content with stage
-                if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+                if (getPlayListService().getActiveStory() != null) {
+//                    if (MainActivity.getPlayListInstance().getActiveStory() != null) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
+//                    mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
                 else {
                     // TODO: determine next step based on just completed operation
                 }
+
+                if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+                }
+
                 replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);
 
 //                Bundle args = new Bundle();

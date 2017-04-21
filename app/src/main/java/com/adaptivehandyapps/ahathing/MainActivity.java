@@ -17,10 +17,14 @@
  */
 package com.adaptivehandyapps.ahathing;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -42,15 +46,7 @@ import android.widget.Toast;
 import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
-import com.adaptivehandyapps.ahathing.dao.DaoAction;
-import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
-import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStory;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,13 +63,57 @@ public class MainActivity extends AppCompatActivity
 
     private boolean mVacating = false;
 
-//    private static final DataHolder holder = new DataHolder();
-//    public static DataHolder getInstance() {return holder;}
-//    private PlayList mPlayList;
-    private static final PlayList playList = new PlayList();
-    public static PlayList getPlayListInstance() { return playList; }
+    // singleton playlist
+//    private static final PlayList playList = new PlayList();
+//    public static PlayList getPlayListInstance() { return playList; }
+//
+    ///////////////////////////////////////////////////////////////////////////
+    // bound service
+    private PlayListService mPlayListService;
+    private boolean mBound = false;
 
-//    private RepoProvider mRepoProvider;
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
+            mPlayListService = binder.getService();
+            mBound = true;
+            Log.d(TAG, "onServiceConnected: mBound " + mBound + ", mPlayListService " + mPlayListService);
+
+            getRepoProviderInstance().setPlayListService(mPlayListService);
+
+            // instantiate nav  menu & item
+            mNavMenu = new NavMenu();
+            mNavItem = new NavItem();
+
+            if (mNavMenu != null) mNavMenu.setPlayListService(mPlayListService);
+            if (mNavItem != null) mNavItem.setPlayListService(mPlayListService);
+
+            // set navigation menu
+            buildNavMenu();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    // singleton repo
     private static final RepoProvider repoProvider = new RepoProvider();
     public static RepoProvider getRepoProviderInstance() { return repoProvider; }
 
@@ -187,23 +227,18 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-//        // create inital playlist
-//        setPlayList(new PlayList(this));
-        // create repo provider
-//        setRepoProvider(new RepoProvider(this, getPlayListInstance(), getRepoProviderCallback()));
-//        setRepoProvider(new RepoProvider(this, getRepoProviderCallback()));
+        // assign repo context & callback
         getRepoProviderInstance().setContext(this);
         getRepoProviderInstance().setCallback(getRepoProviderCallback());
-        // link repo & playlist
-        getPlayListInstance().setContext(this);
-//        getPlayListInstance().setRepoProvider(getRepoProvider());
+//        // assign playlist context
+//        getPlayListInstance().setContext(this);
 
-        // instantiate nav  menu & item
-        mNavMenu = new NavMenu();
-        mNavItem = new NavItem();
-
-        // set navigation menu
-        buildNavMenu();
+//        // instantiate nav  menu & item
+//        mNavMenu = new NavMenu();
+//        mNavItem = new NavItem();
+//
+//        // set navigation menu
+//        buildNavMenu();
 
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
@@ -214,8 +249,8 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-//                    // create story provider - listeners based on auth user
-//                    setRepoProvider(new RepoProvider(getBaseContext(), getRepoProviderCallback()));
+//                    // init repo provider - listeners based on auth user
+//                    getRepoProviderInstance().init();
                 }
                 else {
                     // User is signed out
@@ -228,12 +263,7 @@ public class MainActivity extends AppCompatActivity
 
     }
     ///////////////////////////////////////////////////////////////////////////
-//    // getters/setters
-//    public RepoProvider getRepoProvider() { return mRepoProvider;}
-//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true;}
-
-//    public PlayList getPlayList() { return mPlayList;}
-//    public Boolean setPlayList(PlayList playList) { mPlayList = playList; return true;}
+    // getters/setters
     ///////////////////////////////////////////////////////////////////////////////////////////
     private Boolean buildNavMenu() {
 
@@ -246,13 +276,14 @@ public class MainActivity extends AppCompatActivity
         mNavMenu.build(mNavigationView);
 
         // if story ready
-        if (getPlayListInstance().getActiveStory() != null) {
+        if (getPlayListService().getActiveStory() != null) {
+//            if (getPlayListInstance().getActiveStory() != null) {
             Log.d(TAG, "buildNavMenu: launching story...");
             // launch story
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-            mContentMoniker = getPlayListInstance().getActiveStory().getMoniker();
-//            ContentFragment.replaceFragment(this, mRepoProvider, mContentOp, mContentObjType, mContentMoniker);
+//            mContentMoniker = getPlayListInstance().getActiveStory().getMoniker();
+            mContentMoniker = getPlayListService().getActiveStory().getMoniker();
             ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
@@ -384,6 +415,15 @@ public class MainActivity extends AppCompatActivity
         Log.v(TAG, "onStart");
         // Firebase
         mAuth.addAuthStateListener(mAuthListener);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // Bind to LocalService
+        Intent intent = new Intent(this, PlayListService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onStart: mBound " + mBound + ", mPlayListService " + mPlayListService);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
     }
 
     @Override
@@ -409,6 +449,13 @@ public class MainActivity extends AppCompatActivity
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////
     }
 
     @Override
@@ -439,7 +486,8 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
-//                    // ensure object hierarchy is coherent
+                    // ensure object hierarchy is coherent
+                    // TODO: ensure object hierarchy coherence
 //                    setActiveHierarchy();
                     // set navigation menu
                     buildNavMenu();
@@ -448,39 +496,6 @@ public class MainActivity extends AppCompatActivity
         };
         return callback;
     }
-//    ///////////////////////////////////////////////////////////////////////////
-//    private Boolean setActiveHierarchy() {
-//        DaoTheatre activeTheatre = null;
-//        DaoEpic activeEpic = null;
-//        DaoStory activeStory = null;
-//        DaoStage activeStage = null;
-//        DaoActor activeActor = null;
-//        DaoAction activeAction = null;
-//        DaoOutcome activeOutcome = null;
-//
-//        activeTheatre = mRepoProvider.getDalTheatre().getActiveTheatre();
-//        if (activeTheatre != null) {
-//            activeEpic = mRepoProvider.getDalEpic().getActiveTheatre();
-//            // if active epic defined but not contained in theatre tag list
-//            if (activeEpic != null &&
-//                    !activeTheatre.getTagList().contains(activeEpic.getMoniker())) {
-//                // if epic defined
-//                if (activeTheatre.getTagList().size() > 0) {
-//                    // assign 1st in list
-//                    activeEpic = (DaoEpic)mRepoProvider.getDalEpic().getDaoRepo().get(activeTheatre.getTagList().get(0));
-//                }
-//            }
-//        }
-//        // set active objects based on above scan (null = none active)
-//        mRepoProvider.getDalTheatre().setActiveDao(activeTheatre);
-//        mRepoProvider.getDalEpic().setActiveDao(activeEpic);
-//        mRepoProvider.getDalStory().setActiveDao(activeStory);
-//        mRepoProvider.getDalStage().setActiveDao(activeStage);
-//        mRepoProvider.getDalActor().setActiveDao(activeActor);
-//        mRepoProvider.getDalAction().setActiveDao(activeAction);
-//        mRepoProvider.getDalOutcome().setActiveDao(activeOutcome);
-//        return true;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     // update firebase user profile with display name derived from email
     private String updateFirebaseDisplayNameFromEmail(FirebaseUser user, String email) {

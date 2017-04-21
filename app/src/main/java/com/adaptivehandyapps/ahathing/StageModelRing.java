@@ -19,7 +19,6 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -64,12 +63,21 @@ public class StageModelRing {
 //    private RepoProvider mRepoProvider;
     private Integer mRingMax = 1;
 
+    private PlayListService mPlayListService;
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // constructor
 //    public StageModelRing(RepoProvider repoProvider) {
 //        mRepoProvider = repoProvider;
 //    }
-    public StageModelRing() {}
+    public StageModelRing(PlayListService playListService) { setPlayListService(playListService); }
+
     ///////////////////////////////////////////////////////////////////////////
     // getters, setters, helpers
     private String setLocusName(Integer ring, Integer id) { return "R" + ring + "L" + id; }
@@ -170,7 +178,8 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
+//        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
+        DaoStage daoStage = getPlayListService().getActiveStage();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList

@@ -35,7 +35,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
@@ -57,7 +56,7 @@ public class StageViewController extends View implements
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
-//    private RepoProvider mRepoProvider;
+    //    private RepoProvider mRepoProvider;
     private DaoStage mActiveStage;
 
     private StageViewRing mStageViewRing;
@@ -101,6 +100,14 @@ public class StageViewController extends View implements
     ));
 
 //    private int mVertResizeFactor = 1;
+    ///////////////////////////////////////////////////////////////////////////
+    private PlayListService mPlayListService;
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // constructors
@@ -117,6 +124,22 @@ public class StageViewController extends View implements
     private Boolean init(Context context) {
 
         mContext = context;
+        MainActivity parent = (MainActivity) context;
+        if (parent != null) {
+            setPlayListService(parent.getPlayListService());
+            if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+                Log.v(TAG, "Story ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+            }
+            else {
+                Log.e(TAG, "Story NULL or NOT ready!");
+                return false;
+            }
+        }
+        else {
+            Log.e(TAG, "Parent context (MainActivity) NULL!");
+            return false;
+        }
+
 //        MainActivity parent = (MainActivity) context;
 //        if (parent != null) {
 //            MainActivity.getRepoProviderInstance() = parent.getRepoProvider();
@@ -250,7 +273,7 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
             // TODO: support multiple stage gracefully
-            mActiveStage = MainActivity.getPlayListInstance().getActiveStage();
+            mActiveStage = getPlayListService().getActiveStage();
             if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
                 // create stage view helper
@@ -465,7 +488,7 @@ public class StageViewController extends View implements
             if (mRawScaleFactor != detector.getScaleFactor()) {
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
-                mActiveStage = MainActivity.getPlayListInstance().getActiveStage();
+                mActiveStage = getPlayListService().getActiveStage();
                 if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();

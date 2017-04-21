@@ -1,11 +1,31 @@
+/*
+ * Project: Things
+ * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
+ * Origination: M.A.Tucker JAN 2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.adaptivehandyapps.ahathing;
 //
 // Created by mat on 4/13/2017.
 //
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -16,11 +36,10 @@ import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 
 ///////////////////////////////////////////////////////////////////////////
-public class PlayList {
-    private static final String TAG = PlayList.class.getSimpleName();
+public class PlayListService extends Service {
+    private static final String TAG = PlayListService.class.getSimpleName();
 
     private Context mContext;
-//    private RepoProvider mRepoProvider;
 
     private Boolean mReady = false;
 
@@ -33,14 +52,29 @@ public class PlayList {
     private DaoOutcome mActiveOutcome = null;
 
     ///////////////////////////////////////////////////////////////////////////
-    public PlayList() {
-//    public PlayList(Context context) {
-//
-//        Context context = getContext();
-//        setContext(context);
+    // Binder given to clients
+    private final IBinder mBinder = new LocalBinder();
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        PlayListService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return PlayListService.this;
+        }
+    }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
     ///////////////////////////////////////////////////////////////////////////
-    // getters/setters
+    ///////////////////////////////////////////////////////////////////////////
+    public PlayListService() {
+        setContext(this);
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // getters/setters/helpers
     private Context getContext() {
         return mContext;
     }
@@ -48,16 +82,35 @@ public class PlayList {
         mContext = context;
     }
 
-//    public RepoProvider getRepoProvider() {
-//        return mRepoProvider;
-//    }
-//    public void setRepoProvider(RepoProvider repoProvider) {
-//        this.mRepoProvider = repoProvider;
-//    }
-//
     public Boolean isReady() { return mReady;}
     public Boolean isReady(Boolean ready) { mReady = ready; return mReady;}
 
+    public String hierarchyToString() {
+        String hierarchyText = DaoDefs.INIT_STRING_MARKER;
+        String moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveTheatre != null) moniker = mActiveTheatre.getMoniker();
+        hierarchyText = moniker;
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveEpic != null) moniker = mActiveEpic.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveStory != null) moniker = mActiveStory.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveStage != null) moniker = mActiveStage.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveActor != null) moniker = mActiveActor.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveAction != null) moniker = mActiveAction.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+        moniker = DaoDefs.INIT_STRING_MARKER;
+        if (mActiveOutcome != null) moniker = mActiveOutcome.getMoniker();
+        hierarchyText = hierarchyText.concat(", " + moniker);
+
+        return hierarchyText;
+    }
     ///////////////////////////////////////////////////////////////////////////
     // theatre
     public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
@@ -77,24 +130,24 @@ public class PlayList {
     public Boolean updateActiveTheatre(DaoTheatre dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_THEATRE_KEY);
-        if (MainActivity.getPlayListInstance().getActiveTheatre() == null &&
+        if (getActiveTheatre() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveTheatre(dao);
+            setActiveTheatre(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveTheatre(DaoTheatre dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
             DaoTheatre daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveTheatre(daoReplacement);
+            setActiveTheatre(daoReplacement);
             return true;
         }
         return false;
@@ -119,24 +172,24 @@ public class PlayList {
     public Boolean updateActiveEpic(DaoEpic dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
-        if (MainActivity.getPlayListInstance().getActiveEpic() == null &&
+        if (getActiveEpic() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveEpic(dao);
+            setActiveEpic(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveEpic(DaoEpic dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveEpic().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveEpic().getMoniker().equals(dao.getMoniker())) {
             DaoEpic daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveEpic(daoReplacement);
+            setActiveEpic(daoReplacement);
             return true;
         }
         return false;
@@ -161,24 +214,24 @@ public class PlayList {
     public Boolean updateActiveStory(DaoStory dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_STORY_KEY);
-        if (MainActivity.getPlayListInstance().getActiveStory() == null &&
+        if (getActiveStory() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveStory(dao);
+            setActiveStory(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveStory(DaoStory dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveStory().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveStory().getMoniker().equals(dao.getMoniker())) {
             DaoStory daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveStory(daoReplacement);
+            setActiveStory(daoReplacement);
             return true;
         }
         return false;
@@ -203,24 +256,24 @@ public class PlayList {
     public Boolean updateActiveStage(DaoStage dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
-        if (MainActivity.getPlayListInstance().getActiveStage() == null &&
+        if (getActiveStage() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveStage(dao);
+            setActiveStage(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveStage(DaoStage dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveStage().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveStage().getMoniker().equals(dao.getMoniker())) {
             DaoStage daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveStage(daoReplacement);
+            setActiveStage(daoReplacement);
             return true;
         }
         return false;
@@ -245,24 +298,24 @@ public class PlayList {
     public Boolean updateActiveActor(DaoActor dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
-        if (MainActivity.getPlayListInstance().getActiveActor() == null &&
+        if (getActiveActor() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveActor(dao);
+            setActiveActor(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveActor(DaoActor dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveActor().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveActor().getMoniker().equals(dao.getMoniker())) {
             DaoActor daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveActor(daoReplacement);
+            setActiveActor(daoReplacement);
             return true;
         }
         return false;
@@ -287,24 +340,24 @@ public class PlayList {
     public Boolean updateActiveAction(DaoAction dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_ACTION_KEY);
-        if (MainActivity.getPlayListInstance().getActiveAction() == null &&
+        if (getActiveAction() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveAction(dao);
+            setActiveAction(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveAction(DaoAction dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveAction().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveAction().getMoniker().equals(dao.getMoniker())) {
             DaoAction daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveAction(daoReplacement);
+            setActiveAction(daoReplacement);
             return true;
         }
         return false;
@@ -329,24 +382,24 @@ public class PlayList {
     public Boolean updateActiveOutcome(DaoOutcome dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_OUTCOME_KEY);
-        if (MainActivity.getPlayListInstance().getActiveOutcome() == null &&
+        if (getActiveOutcome() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
-            MainActivity.getPlayListInstance().setActiveOutcome(dao);
+            setActiveOutcome(dao);
             return true;
         }
         return false;
     }
     public Boolean removeActiveOutcome(DaoOutcome dao) {
         // if dao is active object
-        if (MainActivity.getPlayListInstance().getActiveOutcome().getMoniker().equals(dao.getMoniker())) {
+        if (getActiveOutcome().getMoniker().equals(dao.getMoniker())) {
             DaoOutcome daoReplacement = null;
             // if an object is defined, set as replacement
             if (MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(0);
             }
             // set or clear active object
-            MainActivity.getPlayListInstance().setActiveOutcome(daoReplacement);
+            setActiveOutcome(daoReplacement);
             return true;
         }
         return false;

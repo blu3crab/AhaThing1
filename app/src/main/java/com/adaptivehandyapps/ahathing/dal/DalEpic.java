@@ -14,43 +14,35 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.adaptivehandyapps.ahathing.dal;
+ */
+package com.adaptivehandyapps.ahathing.dal;
 //
 // Created by mat on 4/6/2017.
 //
 
-import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.MainActivity;
-import com.adaptivehandyapps.ahathing.PlayList;
-import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
+import com.adaptivehandyapps.ahathing.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
 import com.adaptivehandyapps.ahathing.dao.DaoBase;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicRepo;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatreRepo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 ///////////////////////////////////////////////////////////////////////////
 // Epic Data Access Layer
 public class DalEpic {
     private static final String TAG = DalEpic.class.getSimpleName();
 
-//    private Context mContext;
-//    private RepoProvider mRepoProvider;
-//    private PlayList mPlayList;
-//    private RepoProvider.OnRepoProviderRefresh mCallback = null; //call back interface
+    private RepoProvider mRepoProvider;
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mFirebaseReference;
@@ -58,35 +50,26 @@ public class DalEpic {
 
     private Class daoClass = DaoBase.class;
     private String signature = DaoDefs.INIT_STRING_MARKER;
-    private String prefsKey = DaoDefs.INIT_STRING_MARKER;
     private int actorUpdateResId = R.string.actor_updateEpic;
     private int actorRemoveResId = R.string.actor_removeEpic;
 
     private DaoEpicRepo mDaoRepo;
 
-//    private Boolean mReady = false;
-//    private DaoEpic mActiveDao;
-
-
     ///////////////////////////////////////////////////////////////////////////
-    public DalEpic() {
-//    public DalEpic(Context context, RepoProvider repoProvider, RepoProvider.OnRepoProviderRefresh callback) {
-//        mContext = context;
-//        mRepoProvider = MainActivity.getRepoProviderInstance();
-//        mPlayList = MainActivity.getPlayListInstance();
-//        mCallback = callback;
+    public DalEpic(RepoProvider repoProvider) {
+        // retain parent repo provider
+        mRepoProvider = repoProvider;
 
         // set class
         setDaoClass(DaoEpic.class);
         // set firebase child signature
         setSignature(DaoEpicRepo.JSON_CONTAINER);
-        // set prefs key
-        setPrefsKey(PrefsUtils.ACTIVE_EPIC_KEY);
         // set audit actors
         setActorUpdateResId(R.string.actor_updateEpic);
         setActorRemoveResId(R.string.actor_removeEpic);
+
         // create Epic repo
-        mDaoRepo = new DaoEpicRepo();
+        setDaoRepo(new DaoEpicRepo());
 
         // set firebase reference
         setFirebaseReference();
@@ -124,13 +107,6 @@ public class DalEpic {
         this.signature = signature;
     }
 
-    public String getPrefsKey() {
-        return prefsKey;
-    }
-    public void setPrefsKey(String prefsKey) {
-        this.prefsKey = prefsKey;
-    }
-
     public int getActorUpdateResId() {
         return actorUpdateResId;
     }
@@ -150,53 +126,35 @@ public class DalEpic {
         this.mDaoRepo = daoEpicRepo;
     }
 
-//    public Boolean isReady() { return mReady;}
-//
-//    public DaoEpic getActiveTheatre() { return mActiveDao; }
-//    public void setActiveDao(DaoEpic activeDao) {
-//        mReady = false;
-//        // if setting active object
-//        if (activeDao != null) {
-//            // set object ready & set prefs
-//            mReady = true;
-//            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
-//        }
-//        else {
-//            // clear active object
-//            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
-//        }
-//        this.mActiveDao = activeDao;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoEpic dao, Boolean updateDatabase) {
         Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             // update timestamp
             dao.setTimestamp((System.currentTimeMillis()));
             // update db
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
+
         // update playlist to maintain coherence
-        MainActivity.getPlayListInstance().updateActiveEpic(dao);
-//        // if no active object & this object matches prefs or no prefs
-//        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), getPrefsKey());
-//        if (MainActivity.getPlayListInstance().getActiveEpic() == null &&
-//                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
-//            // set active to updated object
-//            MainActivity.getPlayListInstance().setActiveEpic(dao);
-//        }
+//        MainActivity.getPlayListInstance().updateActiveEpic(dao);
+        if (mRepoProvider.getPlayListService() != null) {
+            mRepoProvider.getPlayListService().updateActiveEpic(dao);
+            Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
+        }
+        else {
+            Log.e(TAG, "oops! update finds PlayListService NULL.");
+        }
 
         // refresh
-        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
-            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
-        }
+        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(true);
 
         return true;
     }
@@ -207,29 +165,27 @@ public class DalEpic {
         getDaoRepo().remove(dao.getMoniker());
         Log.d(TAG, "remove removed dao: " + dao.getMoniker());
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
             // remove object from remote db
             mFirebaseReference.child(dao.getMoniker()).removeValue();
         }
 
-        // if removing active object
-        MainActivity.getPlayListInstance().removeActiveEpic(dao);
-//        // if removing active object
-//        if (MainActivity.getPlayListInstance().getActiveEpic().getMoniker().equals(dao.getMoniker())) {
-//            DaoEpic daoReplacement = null;
-//            // if an object is defined, set as replacement
-//            if (getDaoRepo().size() > 0) daoReplacement = (DaoEpic) getDaoRepo().get(0);
-//            // set or clear active object
-//            MainActivity.getPlayListInstance().setActiveEpic(daoReplacement);
-//        }
-        // refresh
-        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
-            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
+        // update playlist if removing active object
+//        MainActivity.getPlayListInstance().removeActiveEpic(dao);
+        if (mRepoProvider.getPlayListService() != null) {
+            mRepoProvider.getPlayListService().removeActiveEpic(dao);
+            Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
         }
+        else {
+            Log.e(TAG, "oops! remove finds PlayListService NULL.");
+        }
+
+        // refresh
+        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(true);
 
         return true;
     }
@@ -247,7 +203,7 @@ public class DalEpic {
                     Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -260,7 +216,7 @@ public class DalEpic {
                     Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -272,7 +228,7 @@ public class DalEpic {
                     Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -283,9 +239,9 @@ public class DalEpic {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
-                Toast.makeText(MainActivity.getRepoProviderInstance().getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
+                Toast.makeText(mRepoProvider.getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
                         Toast.LENGTH_LONG).show();
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
             }
         };
         // Epic level child event listener: dataSnapshot.getKey() = "EpicXX"
@@ -297,7 +253,7 @@ public class DalEpic {
         DaoEpic daoEpic = dataSnapshot.getValue(DaoEpic.class);
         if (daoEpic != null) {
             // if no recent local activity
-            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoEpic.getMoniker());
+            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoEpic.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildAdded daoEpic (remote trigger): " + daoEpic.toString());
                 // update repo but not db
@@ -318,7 +274,7 @@ public class DalEpic {
         DaoEpic daoEpic = dataSnapshot.getValue(DaoEpic.class);
         if (daoEpic != null) {
             // if no recent local activity
-            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoEpic.getMoniker());
+            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoEpic.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildRemoved daoEpic (remote trigger): " + daoEpic.toString());
                 // remove from repo leaving db unchanged

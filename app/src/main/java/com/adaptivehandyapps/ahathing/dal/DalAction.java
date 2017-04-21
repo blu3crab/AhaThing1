@@ -14,26 +14,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.adaptivehandyapps.ahathing.dal;
+ */
+package com.adaptivehandyapps.ahathing.dal;
 //
 // Created by mat on 4/6/2017.
 //
 
-import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.MainActivity;
-import com.adaptivehandyapps.ahathing.PlayList;
-import com.adaptivehandyapps.ahathing.PrefsUtils;
 import com.adaptivehandyapps.ahathing.R;
+import com.adaptivehandyapps.ahathing.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActionRepo;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
 import com.adaptivehandyapps.ahathing.dao.DaoBase;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicRepo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,8 +42,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class DalAction {
     private static final String TAG = DalAction.class.getSimpleName();
 
-//    private RepoProvider mRepoProvider;
-//    private PlayList mPlayList;
+    private RepoProvider mRepoProvider;
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mFirebaseReference;
@@ -54,32 +50,26 @@ public class DalAction {
 
     private Class daoClass = DaoBase.class;
     private String signature = DaoDefs.INIT_STRING_MARKER;
-    private String prefsKey = DaoDefs.INIT_STRING_MARKER;
     private int actorUpdateResId = R.string.actor_updateAction;
     private int actorRemoveResId = R.string.actor_removeAction;
 
     private DaoActionRepo mDaoRepo;
 
-//    private Boolean mReady = false;
-//    private DaoAction mActiveDao;
-//
-
     ///////////////////////////////////////////////////////////////////////////
-    public DalAction() {
-//        mRepoProvider = MainActivity.getRepoProviderInstance();
-//        mPlayList = MainActivity.getPlayListInstance();
+    public DalAction(RepoProvider repoProvider) {
+        // retain parent repo provider
+        mRepoProvider = repoProvider;
 
         // set class
         setDaoClass(DaoAction.class);
         // set firebase child signature
         setSignature(DaoActionRepo.JSON_CONTAINER);
-        // set prefs key
-        setPrefsKey(PrefsUtils.ACTIVE_ACTION_KEY);
         // set audit actors
         setActorUpdateResId(R.string.actor_updateAction);
         setActorRemoveResId(R.string.actor_removeAction);
+
         // create Action repo
-        mDaoRepo = new DaoActionRepo();
+        setDaoRepo(new DaoActionRepo());
 
         // set firebase reference
         setFirebaseReference();
@@ -117,13 +107,6 @@ public class DalAction {
         this.signature = signature;
     }
 
-    public String getPrefsKey() {
-        return prefsKey;
-    }
-    public void setPrefsKey(String prefsKey) {
-        this.prefsKey = prefsKey;
-    }
-
     public int getActorUpdateResId() {
         return actorUpdateResId;
     }
@@ -143,23 +126,6 @@ public class DalAction {
         this.mDaoRepo = daoActionRepo;
     }
 
-//    public Boolean isReady() { return mReady;}
-//
-//    public DaoAction getActiveDao() { return mActiveDao; }
-//    public void setActiveDao(DaoAction activeDao) {
-//        mReady = false;
-//        // if setting active object
-//        if (activeDao != null) {
-//            // set object ready & set prefs
-//            mReady = true;
-//            PrefsUtils.setPrefs(mContext, getPrefsKey(), activeDao.getMoniker());
-//        }
-//        else {
-//            // clear active object
-//            PrefsUtils.setPrefs(mContext, getPrefsKey(), DaoDefs.INIT_STRING_MARKER);
-//        }
-//        this.mActiveDao = activeDao;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoAction dao, Boolean updateDatabase) {
         Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
@@ -176,20 +142,19 @@ public class DalAction {
             // update db
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
+
         // update playlist to maintain coherence
-        MainActivity.getPlayListInstance().updateActiveAction(dao);
-//        // if no active object & this object matches prefs or no prefs
-//        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), getPrefsKey());
-//        if (MainActivity.getPlayListInstance().getActiveAction() == null &&
-//                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
-//            // set active to updated object
-//            MainActivity.getPlayListInstance().setActiveAction(dao);
-//        }
+//        MainActivity.getPlayListInstance().updateActiveAction(dao);
+        if (mRepoProvider.getPlayListService() != null) {
+            mRepoProvider.getPlayListService().updateActiveAction(dao);
+            Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
+        }
+        else {
+            Log.e(TAG, "oops! update finds PlayListService NULL.");
+        }
 
         // refresh
-        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
-            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
-        }
+        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(true);
 
         return true;
     }
@@ -209,20 +174,18 @@ public class DalAction {
             mFirebaseReference.child(dao.getMoniker()).removeValue();
         }
 
-        // if removing active object
-        MainActivity.getPlayListInstance().removeActiveAction(dao);
-//        // if removing active object
-//        if (MainActivity.getPlayListInstance().getActiveAction().getMoniker().equals(dao.getMoniker())) {
-//            DaoAction daoReplacement = null;
-//            // if an object is defined, set as replacement
-//            if (getDaoRepo().size() > 0) daoReplacement = (DaoAction) getDaoRepo().get(0);
-//            // set or clear active object
-//            MainActivity.getPlayListInstance().setActiveAction(daoReplacement);
-//        }
-        // refresh
-        if (MainActivity.getRepoProviderInstance().getCallback() != null) {
-            MainActivity.getRepoProviderInstance().getCallback().onRepoProviderRefresh(true);
+        // update playlist if removing active object
+//        MainActivity.getPlayListInstance().removeActiveAction(dao);
+        if (mRepoProvider.getPlayListService() != null) {
+            mRepoProvider.getPlayListService().removeActiveAction(dao);
+            Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
         }
+        else {
+            Log.e(TAG, "oops! remove finds PlayListService NULL.");
+        }
+
+        // refresh
+        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(true);
 
         return true;
     }
@@ -240,7 +203,7 @@ public class DalAction {
                     Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -253,7 +216,7 @@ public class DalAction {
                     Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -265,7 +228,7 @@ public class DalAction {
                     Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
             }
 
             @Override
@@ -276,9 +239,9 @@ public class DalAction {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
-                Toast.makeText(MainActivity.getRepoProviderInstance().getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
+                Toast.makeText(mRepoProvider.getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
                         Toast.LENGTH_LONG).show();
-                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
+                mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
             }
         };
         // Action level child event listener: dataSnapshot.getKey() = "ActionXX"
@@ -290,7 +253,7 @@ public class DalAction {
         DaoAction daoAction = dataSnapshot.getValue(DaoAction.class);
         if (daoAction != null) {
             // if no recent local activity
-            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoAction.getMoniker());
+            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoAction.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildAdded daoAction (remote trigger): " + daoAction.toString());
                 // update repo but not db
@@ -311,7 +274,7 @@ public class DalAction {
         DaoAction daoAction = dataSnapshot.getValue(DaoAction.class);
         if (daoAction != null) {
             // if no recent local activity
-            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoAction.getMoniker());
+            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoAction.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildRemoved daoAction (remote trigger): " + daoAction.toString());
                 // remove from repo leaving db unchanged

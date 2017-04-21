@@ -26,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
 import java.util.ArrayList;
@@ -36,10 +35,20 @@ import java.util.List;
 public class NavMenu {
     private static final String TAG = "NavMenu";
 
-    private static final Integer DUP_SKIP_LIMIT = 1024;
+    private PlayListService mPlayListService;
 
     ///////////////////////////////////////////////////////////////////////////
-    public NavMenu() {
+    public NavMenu() {}
+
+    ///////////////////////////////////////////////////////////////////////////
+    // getters/setters
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+        Log.d(TAG, "setPlayListService " + mPlayListService);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -57,53 +66,53 @@ public class NavMenu {
             if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                if (MainActivity.getPlayListInstance().getActiveTheatre() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveTheatre().getMoniker();
+                if (getPlayListService().getActiveTheatre() != null) {
+                    activeName = getPlayListService().getActiveTheatre().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_EPIC) {
                 iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                if (MainActivity.getPlayListInstance().getActiveEpic() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveEpic().getMoniker();
+                if (getPlayListService().getActiveEpic() != null) {
+                    activeName = getPlayListService().getActiveEpic().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STORY) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                if (MainActivity.getPlayListInstance().getActiveStory() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
+                if (getPlayListService().getActiveStory() != null) {
+                    activeName = getPlayListService().getActiveStory().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_STAGE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                if (MainActivity.getPlayListInstance().getActiveStage() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveStage().getMoniker();
+                if (getPlayListService().getActiveStage() != null) {
+                    activeName = getPlayListService().getActiveStage().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTOR) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
                 activeName = "actor...";
-                if (MainActivity.getPlayListInstance().getActiveActor() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveActor().getMoniker();
+                if (getPlayListService().getActiveActor() != null) {
+                    activeName = getPlayListService().getActiveActor().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_ACTION) {
                 iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
                 activeName = "action...";
-                if (MainActivity.getPlayListInstance().getActiveAction() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveAction().getMoniker();
+                if (getPlayListService().getActiveAction() != null) {
+                    activeName = getPlayListService().getActiveAction().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
                 iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
                 activeName = "outcome...";
-                if (MainActivity.getPlayListInstance().getActiveOutcome() != null) {
-                    activeName = MainActivity.getPlayListInstance().getActiveOutcome().getMoniker();
+                if (getPlayListService().getActiveOutcome() != null) {
+                    activeName = getPlayListService().getActiveOutcome().getMoniker();
                 }
             }
             else if (i == DaoDefs.DAOOBJ_TYPE_AUDIT) {
@@ -145,20 +154,6 @@ public class NavMenu {
         addSubMenu(DaoDefs.DAOOBJ_TYPE_ACTION, navigationView);
         // add outcomes
         addSubMenu(DaoDefs.DAOOBJ_TYPE_OUTCOME, navigationView);
-
-//        // if story ready
-//        if (repoProvider.isStoryReady()) {
-//            Log.d(TAG, "setNavMenu: launching story...");
-//            // launch story
-//            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-//            mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//            mContentMoniker = repoProvider.getActiveStory().getMoniker();
-//            ContentFragment.replaceFragment(this, repoProvider, mContentOp, mContentObjType, mContentMoniker);
-//        }
-//        else {
-//            Log.d(TAG, "setNavMenu: Story NOT ready!");
-//        }
-
 
         return true;
     }

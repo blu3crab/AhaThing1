@@ -31,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -49,8 +48,8 @@ public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
 
     private View mRootView;
-//    private RepoProvider mRepoProvider;
 
+    private ContentFragment mParent;
     private DaoMakerViewXfer mDaoMakerViewXfer;
 
     private TagListAdapter mTagListAdapter = null;
@@ -81,15 +80,16 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public DaoMakerUiHandler(View v, final String op, final String objType, final String moniker) {
-//    public DaoMakerUiHandler(View v, RepoProvider repoProvider, final String op, final String objType, final String moniker) {
+    public DaoMakerUiHandler(ContentFragment parent, View v, final String op, final String objType, final String moniker) {
+
+        mParent = parent;
+//        Log.d(TAG, "DaoMakerUiHandler: mBound " + mBound + ", mPlayListService " + mPlayListService);
 
         Log.d(TAG, "DaoMakerUiHandler: op " + op + ", objtype" + objType + ", moniker " + moniker);
         mRootView = v;
-//        mRepoProvider = repoProvider;
 
         // create view xfer to transfer between view & objects
-        mDaoMakerViewXfer = new DaoMakerViewXfer(mRootView);
+        mDaoMakerViewXfer = new DaoMakerViewXfer(mParent, mRootView);
 
         // show title: op + moniker
         TextView tvTitle = (TextView) mRootView.findViewById(R.id.tv_title);
@@ -404,10 +404,11 @@ public class DaoMakerUiHandler {
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                     mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline);
                 }
-
-                // refresh content view
-                Log.d(TAG, "buttonCreate.setOnClickListener callback...");
-                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+                else {
+                    // refresh content view
+                    Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
+                    if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+                }
 
             }
         });
@@ -448,10 +449,11 @@ public class DaoMakerUiHandler {
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                     destroyOutcome(moniker);
                 }
-
-                // refresh content view
-                Log.d(TAG, "buttonDestroy.setOnClickListener callback...");
-                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+                else {
+                    // refresh content view
+                    Log.e(TAG, "buttonDestroy.setOnClickListener unknown object - callback...");
+                    if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+                }
             }
         });
 

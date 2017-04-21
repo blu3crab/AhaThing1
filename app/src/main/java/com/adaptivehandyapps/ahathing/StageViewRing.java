@@ -27,7 +27,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
@@ -73,10 +72,19 @@ public class StageViewRing {
     List<Boolean> mSelectList;
 
     ///////////////////////////////////////////////////////////////////////////
+    private PlayListService mPlayListService;
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // constructors
     public StageViewRing(Context context, StageViewController parentViewController) {
         mContext = context;
         mParentViewController = parentViewController;
+        setPlayListService(mParentViewController.getPlayListService());
 
         // get screen attributes
         mCanvasWidth = mParentViewController.getCanvasWidth();
@@ -85,9 +93,9 @@ public class StageViewRing {
 
         // ensure RepoProvider ready
 //        mRepoProvider = parentViewController.getRepoProvider();
-        if (MainActivity.getPlayListInstance().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
-            DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
+        if (getPlayListService().getActiveStory() != null) {
+            Log.v(TAG, "RepoProvider ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+            DaoStage daoStage = getPlayListService().getActiveStage();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.e(TAG, "RepoProvider UNKNOWN stage type: " + daoStage.getStageType());
             }
@@ -239,15 +247,15 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (MainActivity.getPlayListInstance().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
+        if (getPlayListService().getActiveStory() != null) {
+            Log.v(TAG, "RepoProvider ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
         }
         else {
             Log.e(TAG, "RepoProvider NOT ready...");
             return false;
         }
 
-        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
+        DaoStage daoStage = getPlayListService().getActiveStage();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
         int color;

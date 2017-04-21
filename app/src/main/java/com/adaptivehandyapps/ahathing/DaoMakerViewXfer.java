@@ -22,22 +22,12 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
-import com.adaptivehandyapps.ahathing.dao.DaoAudit;
-import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -50,11 +40,8 @@ import java.util.List;
 public class DaoMakerViewXfer {
     private static final String TAG = "DaoMakerUiHandler";
 
+    private ContentFragment mParent;
     private View mRootView;
-//    private RepoProvider mRepoProvider;
-
-//    private TagListAdapter mTagListAdapter = null;
-//    private List<String> mTagList;
 
     private ArrayAdapter<String> mStageListAdapter = null;
     private Spinner mSpinnerStages;
@@ -65,37 +52,13 @@ public class DaoMakerViewXfer {
     private ArrayAdapter<String> mOutcomeListAdapter = null;
     private Spinner mSpinnerOutcomes;
 
-//    private DaoTheatre mActiveTheatre;
-//    private DaoEpic mActiveEpic;
-//    private DaoStory mActiveStory;
-//    private DaoStage mActiveStage;
-//    private DaoActor mActiveActor;
-//    private DaoAction mActiveAction;
-//    private DaoOutcome mActiveOutcome;
-
-//    ///////////////////////////////////////////////////////////////////////////
-//    // define an interface for a callback invoked when a result occurs e.g. ok/cancal
-//    private OnContentHandlerResult mCallback = null; //call back interface
-//
-//    ///////////////////////////////////////////////////////////////////////////
-//    // interface for a callback invoked when a result occurs e.g. ok/cancal
-//    public interface OnContentHandlerResult {
-//        void onContentHandlerResult(String op, String objType, String moniker);
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    // setter
-//    public boolean setOnContentHandlerResultCallback(OnContentHandlerResult callback) {
-//        mCallback = callback;
-//        return true;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public DaoMakerViewXfer(View rootView) {
-//    public DaoMakerViewXfer(View rootView, RepoProvider repoProvider) {
+    public DaoMakerViewXfer(ContentFragment parent, View rootView) {
 
         Log.d(TAG, "DaoMakerUiHandler...");
+        mParent = parent;
         mRootView = rootView;
-//        mRepoProvider = repoProvider;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -262,7 +225,8 @@ public class DaoMakerViewXfer {
         activeTheatre.setMoniker(editedMoniker);
         activeTheatre.setHeadline(headline);
         activeTheatre.setTagList(tagList);
-        MainActivity.getPlayListInstance().setActiveTheatre(activeTheatre);
+//        MainActivity.getPlayListInstance().setActiveTheatre(activeTheatre);
+        mParent.getPlayListService().setActiveTheatre(activeTheatre);
         // update repo
         MainActivity.getRepoProviderInstance().getDalTheatre().update(activeTheatre, true);
         return true;
@@ -291,7 +255,8 @@ public class DaoMakerViewXfer {
         activeEpic.setMoniker(editedMoniker);
         activeEpic.setHeadline(headline);
         activeEpic.setTagList(tagList);
-        MainActivity.getPlayListInstance().setActiveEpic(activeEpic);
+//        MainActivity.getPlayListInstance().setActiveEpic(activeEpic);
+        mParent.getPlayListService().setActiveEpic(activeEpic);
         // update repo
         MainActivity.getRepoProviderInstance().getDalEpic().update(activeEpic, true);
         return true;
@@ -322,7 +287,8 @@ public class DaoMakerViewXfer {
         String stagename = mSpinnerStages.getSelectedItem().toString();
         Log.d(TAG, "toStory selected stage " + stagename);
         activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
-        MainActivity.getPlayListInstance().setActiveStory(activeStory);
+//        MainActivity.getPlayListInstance().setActiveStory(activeStory);
+        mParent.getPlayListService().setActiveStory(activeStory);
         // update repo
         MainActivity.getRepoProviderInstance().getDalStory().update(activeStory, true);
         return true;
@@ -353,13 +319,13 @@ public class DaoMakerViewXfer {
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
         if (MainActivity.getRepoProviderInstance().getStageModelRing() == null) {
             // TODO: single stage model - build stage model per stage
-            MainActivity.getRepoProviderInstance().setStageModelRing(new StageModelRing());
+            MainActivity.getRepoProviderInstance().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
             Integer ringMax = 4;
             MainActivity.getRepoProviderInstance().getStageModelRing().buildModel(activeStage, ringMax);
             Log.d(TAG, "NEW StageModelRing for repo " + MainActivity.getRepoProviderInstance().toString() + " at " + MainActivity.getRepoProviderInstance().getStageModelRing().toString());
         }
-        MainActivity.getPlayListInstance().setActiveStage(activeStage);
-        // update repo
+//        MainActivity.getPlayListInstance().setActiveStage(activeStage);
+        mParent.getPlayListService().setActiveStage(activeStage);        // update repo
         MainActivity.getRepoProviderInstance().getDalStage().update(activeStage, true);
         return true;
     }
@@ -386,7 +352,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeActor.setMoniker(editedMoniker);
         activeActor.setHeadline(headline);
-        MainActivity.getPlayListInstance().setActiveActor(activeActor);
+//        MainActivity.getPlayListInstance().setActiveActor(activeActor);
+        mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
         MainActivity.getRepoProviderInstance().getDalActor().update(activeActor, true);
         return true;
@@ -414,7 +381,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeAction.setMoniker(editedMoniker);
         activeAction.setHeadline(headline);
-        MainActivity.getPlayListInstance().setActiveAction(activeAction);
+//        MainActivity.getPlayListInstance().setActiveAction(activeAction);
+        mParent.getPlayListService().setActiveAction(activeAction);
         // update repo
         MainActivity.getRepoProviderInstance().getDalAction().update(activeAction, true);
         return true;
@@ -447,7 +415,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeOutcome.setMoniker(editedMoniker);
         activeOutcome.setHeadline(headline);
-        MainActivity.getPlayListInstance().setActiveOutcome(activeOutcome);
+//        MainActivity.getPlayListInstance().setActiveOutcome(activeOutcome);
+        mParent.getPlayListService().setActiveOutcome(activeOutcome);
         // update repo
         MainActivity.getRepoProviderInstance().getDalOutcome().update(activeOutcome, true);
         return true;

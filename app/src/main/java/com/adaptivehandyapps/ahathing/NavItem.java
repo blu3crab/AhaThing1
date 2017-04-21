@@ -20,7 +20,8 @@ package com.adaptivehandyapps.ahathing;
 // Created by mat on 4/5/2017.
 //
 
-import com.adaptivehandyapps.ahathing.dal.RepoProvider;
+import android.util.Log;
+
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -40,8 +41,19 @@ public class NavItem {
     private String mContentObjType = DaoDefs.INIT_STRING_MARKER;
     private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
 
+    private PlayListService mPlayListService;
+
     ///////////////////////////////////////////////////////////////////////////
-    public NavItem () {
+    public NavItem () {}
+    ///////////////////////////////////////////////////////////////////////////
+    // getters/setters
+    public PlayListService getPlayListService() {
+        return mPlayListService;
+    }
+
+    public void setPlayListService(PlayListService playListService) {
+        mPlayListService = playListService;
+        Log.d(TAG, "setPlayListService " + mPlayListService);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -53,11 +65,11 @@ public class NavItem {
         mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NADA;
         // check split for top level object: active theatre, story, stage, etc...
         if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveTheatre() != null) {
+            if (getPlayListService().getActiveTheatre() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveTheatre().getMoniker();
+                mContentMoniker = getPlayListService().getActiveTheatre().getMoniker();
             }
             else {
                 // launch dao maker
@@ -67,11 +79,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveEpic() != null) {
+            if (getPlayListService().getActiveEpic() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveEpic().getMoniker();
+                mContentMoniker = getPlayListService().getActiveEpic().getMoniker();
             }
             else {
                 // launch dao maker
@@ -81,11 +93,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+            if (getPlayListService().getActiveStory() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
+                mContentMoniker = getPlayListService().getActiveStory().getMoniker();
             }
             else {
                 // launch dao maker
@@ -95,11 +107,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveStage() != null) {
+            if (getPlayListService().getActiveStage() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveStage().getMoniker();
+                mContentMoniker = getPlayListService().getActiveStage().getMoniker();
             }
             else {
                 // launch dao maker
@@ -109,11 +121,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveActor() != null) {
+            if (getPlayListService().getActiveActor() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveActor().getMoniker();
+                mContentMoniker = getPlayListService().getActiveActor().getMoniker();
             }
             else {
                 // launch dao maker
@@ -123,11 +135,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveAction() != null) {
+            if (getPlayListService().getActiveAction() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveAction().getMoniker();
+                mContentMoniker = getPlayListService().getActiveAction().getMoniker();
             }
             else {
                 // launch dao maker
@@ -137,11 +149,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-            if (MainActivity.getPlayListInstance().getActiveOutcome() != null) {
+            if (getPlayListService().getActiveOutcome() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
-                mContentMoniker = MainActivity.getPlayListInstance().getActiveOutcome().getMoniker();
+                mContentMoniker = getPlayListService().getActiveOutcome().getMoniker();
             }
             else {
                 // launch dao maker
@@ -207,41 +219,40 @@ public class NavItem {
                 // existing object - set active based on find object type
                 if (MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(itemname) != null) {
                     // theatre - set active
-                    MainActivity.getPlayListInstance().setActiveTheatre((DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveTheatre((DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(itemname) != null) {
                     // Epic - set active
-                    MainActivity.getPlayListInstance().setActiveEpic((DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveEpic((DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(itemname) != null) {
                     // story - set active
-                    MainActivity.getPlayListInstance().setActiveStory((DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveStory((DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(itemname) != null) {
                     // stage - set active
-                    MainActivity.getPlayListInstance().setActiveStage((DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveStage((DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(itemname) != null) {
                     // Actor - set active
-                    MainActivity.getPlayListInstance().setActiveActor((DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveActor((DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(itemname) != null) {
                     // Action - set active
-                    MainActivity.getPlayListInstance().setActiveAction((DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveAction((DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(itemname));
                 }
                 else if (MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(itemname) != null) {
                     // Outcome - set active
-                    MainActivity.getPlayListInstance().setActiveOutcome((DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(itemname));
+                    getPlayListService().setActiveOutcome((DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(itemname));
                 }
                 // update nav menu
                 triggerUpdate = true;
-//                setNavMenu();
                 // TODO: consolidate Play launch
-                if (MainActivity.getPlayListInstance().getActiveStory() != null) {
+                if (getPlayListService().getActiveStory() != null) {
                     // launch active story
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
             }
         }

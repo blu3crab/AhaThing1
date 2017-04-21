@@ -32,6 +32,10 @@
             android:name=".auth.GoogleSignInActivity"
             android:label="@string/label_google_sign_in" />
 
+        <service
+            android:name=".PlayListService"
+            android:exported="true" />
+
     </application>
 
 </manifest>
