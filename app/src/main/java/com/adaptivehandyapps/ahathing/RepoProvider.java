@@ -17,7 +17,13 @@
  */
 package com.adaptivehandyapps.ahathing;
 
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Binder;
+import android.os.IBinder;
 import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.dal.DalAction;
@@ -38,7 +44,8 @@ import com.google.firebase.database.FirebaseDatabase;
 //
 ///////////////////////////////////////////////////////////////////////////
 // Repository provider
-public class RepoProvider{
+public class RepoProvider extends Service {
+//    public class RepoProvider{
     private static final String TAG = RepoProvider.class.getSimpleName();
 
     private Context mContext;
@@ -63,7 +70,30 @@ public class RepoProvider{
     // TODO: refactor to DalStage?
     private StageModelRing mStageModelRing;
 
-    private PlayListService mPlayListService;
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // playlist service
+    PlayListService mPlayListService;
+//    boolean mPlayListBound = false;
+//
+//    /** Defines callbacks for service binding, passed to bindService() */
+//    public ServiceConnection mPlayListConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
+//            setPlayListService(binder.getService());
+//            mPlayListBound = true;
+//            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mPlayListBound = false;
+//        }
+//    };
 
     public PlayListService getPlayListService() {
         return mPlayListService;
@@ -86,6 +116,23 @@ public class RepoProvider{
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    // Binder given to clients
+    private final IBinder mBinder = new RepoProvider.LocalBinder();
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        RepoProvider getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return RepoProvider.this;
+        }
+    }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // callback interface when model changes should trigger refresh
     public interface OnRepoProviderRefresh {
         void onRepoProviderRefresh(Boolean refresh);
@@ -93,6 +140,14 @@ public class RepoProvider{
     ///////////////////////////////////////////////////////////////////////////
     // constructor
     public RepoProvider() {
+        // service context
+        setContext(this);
+
+//        // bind to playlist service
+//        Intent intent = new Intent(this, PlayListService.class);
+//        this.bindService(intent, mPlayListConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+//
         init();
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -131,7 +186,7 @@ public class RepoProvider{
         Log.d(TAG, "Firebase ready: " + isFirebaseReady() + ", UserId " + mUserId);
 
         // create Audit repo
-        mDaoAuditRepo = new DaoAuditRepo();
+        mDaoAuditRepo = new DaoAuditRepo(this);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

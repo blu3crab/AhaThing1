@@ -109,6 +109,14 @@ public class StageViewController extends View implements
         mPlayListService = playListService;
     }
 
+    private RepoProvider mRepoProvider;
+    public RepoProvider getRepoProvider() {
+        return mRepoProvider;
+    }
+    public void setRepoProvider(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
+        Log.d(TAG, "setRepoProvider " + mRepoProvider);
+    }
     ///////////////////////////////////////////////////////////////////////////
     // constructors
     public StageViewController(Context context) {
@@ -132,6 +140,14 @@ public class StageViewController extends View implements
             }
             else {
                 Log.e(TAG, "Story NULL or NOT ready!");
+                return false;
+            }
+            setRepoProvider(parent.getRepoProvider());
+            if (getRepoProvider() != null) {
+                Log.v(TAG, "Repo Provider ready at " + getRepoProvider() + "...");
+            }
+            else {
+                Log.e(TAG, "Repo Provider NULL!");
                 return false;
             }
         }

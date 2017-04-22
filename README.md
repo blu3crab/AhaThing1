@@ -24,6 +24,7 @@ Mid-range goals:
 - explore gesture/voice interaction
 
 Long-range goals:
+- mirror gestures/voice comands on tablet to Virtual Reality engine (e.g. Galaxy phone)
 - evaluate framework for Augmented Reality apps
 - evaluate story execution vs IFTTT style scripting
 - explore framework migration to a thing (e.g. Rapsberry Pi running AndroidThings?)

@@ -83,7 +83,7 @@ public class DaoMakerUiHandler {
     public DaoMakerUiHandler(ContentFragment parent, View v, final String op, final String objType, final String moniker) {
 
         mParent = parent;
-//        Log.d(TAG, "DaoMakerUiHandler: mBound " + mBound + ", mPlayListService " + mPlayListService);
+        Log.d(TAG, "DaoMakerUiHandler: mParent " + mParent);
 
         Log.d(TAG, "DaoMakerUiHandler: op " + op + ", objtype" + objType + ", moniker " + moniker);
         mRootView = v;
@@ -107,47 +107,47 @@ public class DaoMakerUiHandler {
         // init object type specific fields
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                mActiveTheatre = (DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(moniker);
+                mActiveTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveTheatre.getTimestamp()) + "(" + mActiveTheatre.getTimestamp().toString() + ")";
                 headline = mActiveTheatre.getHeadline();
                 mTagList = new ArrayList<>(mActiveTheatre.getTagList());
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-                mActiveEpic = (DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(moniker);
+                mActiveEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveEpic.getTimestamp()) + "(" + mActiveEpic.getTimestamp().toString() + ")";
                 headline = mActiveEpic.getHeadline();
                 mTagList = new ArrayList<>(mActiveEpic.getTagList());
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-                mActiveStory = (DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(moniker);
+                mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveStory.getTimestamp()) + "(" + mActiveStory.getTimestamp().toString() + ")";
                 headline = mActiveStory.getHeadline();
                 // xfer object to view
                 mDaoMakerViewXfer.fromStory(mActiveStory);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-                mActiveStage = (DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(moniker);
+                mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveStage.getTimestamp()) + "(" + mActiveStage.getTimestamp().toString() + ")";
                 headline = mActiveStage.getHeadline();
                 // xfer object to view
                 mDaoMakerViewXfer.fromStage(mActiveStage);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-                mActiveActor = (DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(moniker);
+                mActiveActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveActor.getTimestamp()) + "(" + mActiveActor.getTimestamp().toString() + ")";
                 headline = mActiveActor.getHeadline();
                 // xfer object to view
                 mDaoMakerViewXfer.fromActor(mActiveActor);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-                mActiveAction = (DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(moniker);
+                mActiveAction = (DaoAction) mParent.getRepoProvider().getDalAction().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveAction.getTimestamp()) + "(" + mActiveAction.getTimestamp().toString() + ")";
                 headline = mActiveAction.getHeadline();
                 // xfer object to view
                 mDaoMakerViewXfer.fromAction(mActiveAction);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-                mActiveOutcome = (DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(moniker);
+                mActiveOutcome = (DaoOutcome) mParent.getRepoProvider().getDalOutcome().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveOutcome.getTimestamp()) + "(" + mActiveOutcome.getTimestamp().toString() + ")";
                 headline = mActiveOutcome.getHeadline();
                 // xfer object to view
@@ -230,7 +230,7 @@ public class DaoMakerUiHandler {
             // default list item color to not selected
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // dereference epic repo dao list
-            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().getDaoList();
+            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
             // for each epic in repo
             for (DaoEpic epic : daoEpicList) {
                 // build list of epic names, labels & images
@@ -259,7 +259,7 @@ public class DaoMakerUiHandler {
             // default list item color to not selected
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // dereference story repo dao list
-            List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().getDaoList();
+            List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
             // for each story in repo
             for (DaoStory story : daoStoryList) {
                 // build list of story names, labels & images
@@ -306,8 +306,8 @@ public class DaoMakerUiHandler {
             ll.setVisibility(View.VISIBLE);
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // build list of audit trail entries
-            for (int i = MainActivity.getRepoProviderInstance().getDaoAuditRepo().size()-1; i > -1 ; i--) {
-                DaoAudit audit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(i);
+            for (int i = mParent.getRepoProvider().getDaoAuditRepo().size()-1; i > -1 ; i--) {
+                DaoAudit audit = mParent.getRepoProvider().getDaoAuditRepo().get(i);
                 tagNameList.add(audit.toFormattedString());
 //                tagLabelList.add("");
                 int imageResId = DaoDefs.DAOOBJ_TYPE_AUDIT_IMAGE_RESID;
@@ -461,10 +461,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyTheatre(String moniker) {
-        DaoTheatre daoTheatre = (DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(moniker);
+        DaoTheatre daoTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
         if (daoTheatre != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalTheatre().remove(daoTheatre, true);
+            mParent.getRepoProvider().getDalTheatre().remove(daoTheatre, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -474,10 +474,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyEpic(String moniker) {
-        DaoEpic daoEpic = (DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(moniker);
+        DaoEpic daoEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
         if (daoEpic != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalEpic().remove(daoEpic, true);
+            mParent.getRepoProvider().getDalEpic().remove(daoEpic, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -487,10 +487,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyStory(String moniker) {
-        DaoStory daoStory = (DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(moniker);
+        DaoStory daoStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
         if (daoStory != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalStory().remove(daoStory, true);
+            mParent.getRepoProvider().getDalStory().remove(daoStory, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -500,10 +500,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyStage(String moniker) {
-        DaoStage daoStage = (DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(moniker);
+        DaoStage daoStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
         if (daoStage != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalStage().remove(daoStage, true);
+            mParent.getRepoProvider().getDalStage().remove(daoStage, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -513,10 +513,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyActor(String moniker) {
-        DaoActor daoActor = (DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(moniker);
+        DaoActor daoActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(moniker);
         if (daoActor != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalActor().remove(daoActor, true);
+            mParent.getRepoProvider().getDalActor().remove(daoActor, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -526,10 +526,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyAction(String moniker) {
-        DaoAction daoAction = (DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(moniker);
+        DaoAction daoAction = (DaoAction) mParent.getRepoProvider().getDalAction().getDaoRepo().get(moniker);
         if (daoAction != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalAction().remove(daoAction, true);
+            mParent.getRepoProvider().getDalAction().remove(daoAction, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...
@@ -539,10 +539,10 @@ public class DaoMakerUiHandler {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean destroyOutcome(String moniker) {
-        DaoOutcome daoOutcome = (DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(moniker);
+        DaoOutcome daoOutcome = (DaoOutcome) mParent.getRepoProvider().getDalOutcome().getDaoRepo().get(moniker);
         if (daoOutcome != null) {
             // remove obsolete entry
-            MainActivity.getRepoProviderInstance().getDalOutcome().remove(daoOutcome, true);
+            mParent.getRepoProvider().getDalOutcome().remove(daoOutcome, true);
         }
         else {
             // error: never should edit NULL object!  do nothing...

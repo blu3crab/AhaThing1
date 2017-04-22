@@ -21,10 +21,13 @@ package com.adaptivehandyapps.ahathing;
 //
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
@@ -69,9 +72,48 @@ public class PlayListService extends Service {
         return mBinder;
     }
     ///////////////////////////////////////////////////////////////////////////
+    // repo provider service
+    RepoProvider mRepoProvider;
+    boolean mRepoProviderBound = false;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    public ServiceConnection mRepoProviderConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            RepoProvider.LocalBinder binder = (RepoProvider.LocalBinder) service;
+            mRepoProvider = binder.getService();
+            mRepoProviderBound = true;
+            Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mRepoProviderBound = false;
+        }
+    };
+
+    public RepoProvider getRepoProvider() {
+        return mRepoProvider;
+    }
+    public void setRepoProvider(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     public PlayListService() {
         setContext(this);
+    }
+    public Boolean bindRepoProvider() {
+        // bind to repo provider service
+        Intent intentRepoProvider = new Intent(this, RepoProvider.class);
+        this.bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onCreateView: mRepoProviderBound " + mRepoProviderBound + ", mRepoProvider " + mRepoProvider);
+        return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters/helpers
@@ -129,7 +171,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveTheatre(DaoTheatre dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_THEATRE_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_THEATRE_KEY);
         if (getActiveTheatre() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -143,8 +185,8 @@ public class PlayListService extends Service {
         if (getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
             DaoTheatre daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(0);
+            if (mRepoProvider.getDalTheatre().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoTheatre) mRepoProvider.getDalTheatre().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveTheatre(daoReplacement);
@@ -171,7 +213,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveEpic(DaoEpic dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
         if (getActiveEpic() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -185,8 +227,8 @@ public class PlayListService extends Service {
         if (getActiveEpic().getMoniker().equals(dao.getMoniker())) {
             DaoEpic daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(0);
+            if (mRepoProvider.getDalEpic().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveEpic(daoReplacement);
@@ -213,7 +255,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveStory(DaoStory dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_STORY_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STORY_KEY);
         if (getActiveStory() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -227,8 +269,8 @@ public class PlayListService extends Service {
         if (getActiveStory().getMoniker().equals(dao.getMoniker())) {
             DaoStory daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(0);
+            if (mRepoProvider.getDalStory().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveStory(daoReplacement);
@@ -255,7 +297,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveStage(DaoStage dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
         if (getActiveStage() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -269,8 +311,8 @@ public class PlayListService extends Service {
         if (getActiveStage().getMoniker().equals(dao.getMoniker())) {
             DaoStage daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(0);
+            if (mRepoProvider.getDalStage().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoStage) mRepoProvider.getDalStage().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveStage(daoReplacement);
@@ -297,7 +339,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveActor(DaoActor dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
         if (getActiveActor() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -311,8 +353,8 @@ public class PlayListService extends Service {
         if (getActiveActor().getMoniker().equals(dao.getMoniker())) {
             DaoActor daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(0);
+            if (mRepoProvider.getDalActor().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveActor(daoReplacement);
@@ -339,7 +381,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveAction(DaoAction dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_ACTION_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTION_KEY);
         if (getActiveAction() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -353,8 +395,8 @@ public class PlayListService extends Service {
         if (getActiveAction().getMoniker().equals(dao.getMoniker())) {
             DaoAction daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(0);
+            if (mRepoProvider.getDalAction().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoAction) mRepoProvider.getDalAction().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveAction(daoReplacement);
@@ -381,7 +423,7 @@ public class PlayListService extends Service {
     }
     public Boolean updateActiveOutcome(DaoOutcome dao) {
         // if no active object & this object matches prefs or no prefs
-        String prefsActiveDao = PrefsUtils.getPrefs(MainActivity.getRepoProviderInstance().getContext(), PrefsUtils.ACTIVE_OUTCOME_KEY);
+        String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_OUTCOME_KEY);
         if (getActiveOutcome() == null &&
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
@@ -395,8 +437,8 @@ public class PlayListService extends Service {
         if (getActiveOutcome().getMoniker().equals(dao.getMoniker())) {
             DaoOutcome daoReplacement = null;
             // if an object is defined, set as replacement
-            if (MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().size() > 0) {
-                daoReplacement = (DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(0);
+            if (mRepoProvider.getDalOutcome().getDaoRepo().size() > 0) {
+                daoReplacement = (DaoOutcome) mRepoProvider.getDalOutcome().getDaoRepo().get(0);
             }
             // set or clear active object
             setActiveOutcome(daoReplacement);

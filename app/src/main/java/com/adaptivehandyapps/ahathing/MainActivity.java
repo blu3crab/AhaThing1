@@ -68,12 +68,12 @@ public class MainActivity extends AppCompatActivity
 //    public static PlayList getPlayListInstance() { return playList; }
 //
     ///////////////////////////////////////////////////////////////////////////
-    // bound service
+    // playlist service
     private PlayListService mPlayListService;
-    private boolean mBound = false;
+    private boolean mPlayListBound = false;
 
     /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mPlayListConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -81,41 +81,85 @@ public class MainActivity extends AppCompatActivity
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
             mPlayListService = binder.getService();
-            mBound = true;
-            Log.d(TAG, "onServiceConnected: mBound " + mBound + ", mPlayListService " + mPlayListService);
+            mPlayListBound = true;
+            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
 
-            getRepoProviderInstance().setPlayListService(mPlayListService);
-
-            // instantiate nav  menu & item
-            mNavMenu = new NavMenu();
-            mNavItem = new NavItem();
-
-            if (mNavMenu != null) mNavMenu.setPlayListService(mPlayListService);
-            if (mNavItem != null) mNavItem.setPlayListService(mPlayListService);
-
-            // set navigation menu
-            buildNavMenu();
+            bindRepoProvider();
+//            getRepoProvider().setPlayListService(mPlayListService);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mPlayListBound = false;
         }
     };
 
     public PlayListService getPlayListService() {
         return mPlayListService;
     }
-
     public void setPlayListService(PlayListService playListService) {
         mPlayListService = playListService;
     }
-
     ///////////////////////////////////////////////////////////////////////////
 
-    // singleton repo
-    private static final RepoProvider repoProvider = new RepoProvider();
-    public static RepoProvider getRepoProviderInstance() { return repoProvider; }
+//    // singleton repo
+//    private static final RepoProvider repoProvider = new RepoProvider();
+//    public static RepoProvider getRepoProviderInstance() { return repoProvider; }
+//
+    ///////////////////////////////////////////////////////////////////////////
+    // playlist service
+    private RepoProvider mRepoProvider;
+    private boolean mRepoProviderBound = false;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mRepoProviderConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            RepoProvider.LocalBinder binder = (RepoProvider.LocalBinder) service;
+            mRepoProvider = binder.getService();
+            mRepoProviderBound = true;
+            Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
+
+            // assign repo callback
+            getRepoProvider().setCallback(getRepoProviderCallback());
+            getRepoProvider().setPlayListService(getPlayListService());
+            // bind playlist to repo
+            getPlayListService().bindRepoProvider();
+
+            if (mNavMenu != null) {
+                mNavMenu.setPlayListService(getPlayListService());
+                mNavMenu.setRepoProvider(getRepoProvider());
+            }
+            if (mNavItem != null) {
+                mNavItem.setPlayListService(getPlayListService());
+                mNavItem.setRepoProvider(getRepoProvider());
+            }
+
+            // all services bound
+            if (mPlayListBound) {
+                // set navigation menu
+                buildNavMenu();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mPlayListBound = false;
+        }
+    };
+
+    public RepoProvider getRepoProvider() {
+        return mRepoProvider;
+    }
+
+    public void setRepoProvider(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
@@ -227,16 +271,16 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        // assign repo context & callback
-        getRepoProviderInstance().setContext(this);
-        getRepoProviderInstance().setCallback(getRepoProviderCallback());
+//        // assign repo context & callback
+//        getRepoProviderInstance().setContext(this);
+//        getRepoProviderInstance().setCallback(getRepoProviderCallback());
 //        // assign playlist context
 //        getPlayListInstance().setContext(this);
 
-//        // instantiate nav  menu & item
-//        mNavMenu = new NavMenu();
-//        mNavItem = new NavItem();
-//
+        // instantiate nav  menu & item
+        mNavMenu = new NavMenu();
+        mNavItem = new NavItem();
+
 //        // set navigation menu
 //        buildNavMenu();
 
@@ -256,7 +300,7 @@ public class MainActivity extends AppCompatActivity
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                     // TODO: clear database, listeners, etc.?
-                    getRepoProviderInstance().removeFirebaseListener();
+                    getRepoProvider().removeFirebaseListener();
                 }
             }
         };
@@ -406,6 +450,19 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   public Boolean bindPlayListService() {
+        Intent intentPlayList = new Intent(this, PlayListService.class);
+        bindService(intentPlayList, mPlayListConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onStart: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+        return true;
+    }
+    public Boolean bindRepoProvider() {
+        Intent intentRepoProvider = new Intent(this, RepoProvider.class);
+        bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "onStart: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
+        return true;
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////
     // lifecycle methods
     @Override
@@ -417,10 +474,15 @@ public class MainActivity extends AppCompatActivity
         mAuth.addAuthStateListener(mAuthListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////
-        // Bind to LocalService
-        Intent intent = new Intent(this, PlayListService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "onStart: mBound " + mBound + ", mPlayListService " + mPlayListService);
+        // Bind to Local Services
+        bindPlayListService();
+//        Intent intentPlayList = new Intent(this, PlayListService.class);
+//        bindService(intentPlayList, mPlayListConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(TAG, "onStart: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+
+//        Intent intentRepoProvider = new Intent(this, RepoProvider.class);
+//        bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(TAG, "onStart: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
 
         ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -451,9 +513,9 @@ public class MainActivity extends AppCompatActivity
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Unbind from the service
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
+        if (mPlayListBound) {
+            unbindService(mPlayListConnection);
+            mPlayListBound = false;
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
     }

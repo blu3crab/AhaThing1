@@ -133,11 +133,11 @@ public class DalStage {
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             // update timestamp
             dao.setTimestamp((System.currentTimeMillis()));
             // update db
@@ -157,10 +157,10 @@ public class DalStage {
             // true if new stage
             if (mRepoProvider.getPlayListService().updateActiveStage(dao)) {
                 // TODO: single stage model - build stage model per stage
-                MainActivity.getRepoProviderInstance().setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
                 Integer ringMax = 4;
-                MainActivity.getRepoProviderInstance().getStageModelRing().buildModel(dao, ringMax);
-                Log.d(TAG, "NEW StageModelRing for repo " + MainActivity.getRepoProviderInstance().toString() + " at " + MainActivity.getRepoProviderInstance().getStageModelRing().toString());
+                mRepoProvider.getStageModelRing().buildModel(dao, ringMax);
+                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
             }
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
         }
@@ -180,11 +180,11 @@ public class DalStage {
         getDaoRepo().remove(dao.getMoniker());
         Log.d(TAG, "remove removed dao: " + dao.getMoniker());
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
             // remove object from remote db
             mFirebaseReference.child(dao.getMoniker()).removeValue();
         }

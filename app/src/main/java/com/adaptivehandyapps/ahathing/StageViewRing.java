@@ -79,12 +79,22 @@ public class StageViewRing {
     public void setPlayListService(PlayListService playListService) {
         mPlayListService = playListService;
     }
+
+    private RepoProvider mRepoProvider;
+    public RepoProvider getRepoProvider() {
+        return mRepoProvider;
+    }
+    public void setRepoProvider(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
+        Log.d(TAG, "setRepoProvider " + mRepoProvider);
+    }
     ///////////////////////////////////////////////////////////////////////////
     // constructors
     public StageViewRing(Context context, StageViewController parentViewController) {
         mContext = context;
         mParentViewController = parentViewController;
         setPlayListService(mParentViewController.getPlayListService());
+        setRepoProvider(mParentViewController.getRepoProvider());
 
         // get screen attributes
         mCanvasWidth = mParentViewController.getCanvasWidth();
@@ -319,15 +329,15 @@ public class StageViewRing {
                 mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
                 // if selecting plus ring
                 if (plus) {
-                    if (MainActivity.getRepoProviderInstance().getStageModelRing() != null) {
-                        List<Integer> ringIndexList = MainActivity.getRepoProviderInstance().getStageModelRing().findRing(selectIndex);
+                    if (mRepoProvider.getStageModelRing() != null) {
+                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
                         // toggle each rect in ring list
                         for (Integer i : ringIndexList) {
                             mSelectList.set(i, !mSelectList.get(i));
                         }
                     }
                     else {
-                        Log.e(TAG, "Oops! for repo " + MainActivity.getRepoProviderInstance().toString() + " NULL getStageModelRing()...");
+                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
                     }
                 }
             }

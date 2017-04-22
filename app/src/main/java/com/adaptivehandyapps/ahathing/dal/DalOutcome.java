@@ -130,11 +130,11 @@ public class DalOutcome {
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             // update timestamp
             dao.setTimestamp((System.currentTimeMillis()));
             // update db
@@ -163,11 +163,11 @@ public class DalOutcome {
         getDaoRepo().remove(dao.getMoniker());
         Log.d(TAG, "remove removed dao: " + dao.getMoniker());
         // post audit trail
-        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
+        mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_remove, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
+            mRepoProvider.getDaoAuditRepo().postAudit(getActorRemoveResId(), R.string.action_child_removeValue, dao.getMoniker());
             // remove object from remote db
             mFirebaseReference.child(dao.getMoniker()).removeValue();
         }

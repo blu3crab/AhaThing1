@@ -70,7 +70,7 @@ public class DaoMakerViewXfer {
 
         // Stage spinner
         // dereference repo dao list
-        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().getDaoList();
+        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mParent.getRepoProvider().getDalStage().getDaoRepo().getDaoList();
         List<String> stageNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoStage stage : daoStageList) {
@@ -95,7 +95,7 @@ public class DaoMakerViewXfer {
         }
         // Actor spinner
         // dereference repo dao list
-        List<DaoActor> daoActorList = (List<DaoActor>)(List<?>) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().getDaoList();
+        List<DaoActor> daoActorList = (List<DaoActor>)(List<?>) mParent.getRepoProvider().getDalActor().getDaoRepo().getDaoList();
         List<String> actorNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoActor actor : daoActorList) {
@@ -119,7 +119,7 @@ public class DaoMakerViewXfer {
         }
         // Action spinner
         // dereference repo dao list
-        List<DaoAction> daoActionList = (List<DaoAction>)(List<?>) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().getDaoList();
+        List<DaoAction> daoActionList = (List<DaoAction>)(List<?>) mParent.getRepoProvider().getDalAction().getDaoRepo().getDaoList();
         List<String> actionNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoAction action : daoActionList) {
@@ -143,7 +143,7 @@ public class DaoMakerViewXfer {
         }
         // Outcome spinner
         // dereference repo dao list
-        List<DaoOutcome> daoOutcomeList = (List<DaoOutcome>)(List<?>) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().getDaoList();
+        List<DaoOutcome> daoOutcomeList = (List<DaoOutcome>)(List<?>) mParent.getRepoProvider().getDalOutcome().getDaoRepo().getDaoList();
         List<String> outcomeNameList = new ArrayList<>();
         // for each stage in repo
         for (DaoOutcome outcome : daoOutcomeList) {
@@ -206,12 +206,12 @@ public class DaoMakerViewXfer {
         DaoTheatre activeTheatre = null;
         // xfer view to theatre object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeTheatre = (DaoTheatre) MainActivity.getRepoProviderInstance().getDalTheatre().getDaoRepo().get(moniker);
+            activeTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
             if (activeTheatre != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalTheatre().remove(activeTheatre, true);
+                    mParent.getRepoProvider().getDalTheatre().remove(activeTheatre, true);
                 }
             }
         }
@@ -228,7 +228,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveTheatre(activeTheatre);
         mParent.getPlayListService().setActiveTheatre(activeTheatre);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalTheatre().update(activeTheatre, true);
+        mParent.getRepoProvider().getDalTheatre().update(activeTheatre, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -237,12 +237,12 @@ public class DaoMakerViewXfer {
         DaoEpic activeEpic = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeEpic = (DaoEpic) MainActivity.getRepoProviderInstance().getDalEpic().getDaoRepo().get(moniker);
+            activeEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
             if (activeEpic != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalEpic().remove(activeEpic, true);
+                    mParent.getRepoProvider().getDalEpic().remove(activeEpic, true);
                 }
             }
         }
@@ -258,7 +258,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveEpic(activeEpic);
         mParent.getPlayListService().setActiveEpic(activeEpic);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalEpic().update(activeEpic, true);
+        mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -267,12 +267,12 @@ public class DaoMakerViewXfer {
         DaoStory activeStory = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeStory = (DaoStory) MainActivity.getRepoProviderInstance().getDalStory().getDaoRepo().get(moniker);
+            activeStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
             if (activeStory != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalStory().remove(activeStory, true);
+                    mParent.getRepoProvider().getDalStory().remove(activeStory, true);
                 }
             }
         }
@@ -290,7 +290,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveStory(activeStory);
         mParent.getPlayListService().setActiveStory(activeStory);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalStory().update(activeStory, true);
+        mParent.getRepoProvider().getDalStory().update(activeStory, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -299,12 +299,12 @@ public class DaoMakerViewXfer {
         DaoStage activeStage = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeStage = (DaoStage) MainActivity.getRepoProviderInstance().getDalStage().getDaoRepo().get(moniker);
+            activeStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
             if (activeStage != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalStage().remove(activeStage, true);
+                    mParent.getRepoProvider().getDalStage().remove(activeStage, true);
                 }
             }
         }
@@ -317,16 +317,16 @@ public class DaoMakerViewXfer {
         activeStage.setMoniker(editedMoniker);
         activeStage.setHeadline(headline);
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
-        if (MainActivity.getRepoProviderInstance().getStageModelRing() == null) {
+        if (mParent.getRepoProvider().getStageModelRing() == null) {
             // TODO: single stage model - build stage model per stage
-            MainActivity.getRepoProviderInstance().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
+            mParent.getRepoProvider().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
             Integer ringMax = 4;
-            MainActivity.getRepoProviderInstance().getStageModelRing().buildModel(activeStage, ringMax);
-            Log.d(TAG, "NEW StageModelRing for repo " + MainActivity.getRepoProviderInstance().toString() + " at " + MainActivity.getRepoProviderInstance().getStageModelRing().toString());
+            mParent.getRepoProvider().getStageModelRing().buildModel(activeStage, ringMax);
+            Log.d(TAG, "NEW StageModelRing for repo " + mParent.getRepoProvider().toString() + " at " + mParent.getRepoProvider().getStageModelRing().toString());
         }
 //        MainActivity.getPlayListInstance().setActiveStage(activeStage);
         mParent.getPlayListService().setActiveStage(activeStage);        // update repo
-        MainActivity.getRepoProviderInstance().getDalStage().update(activeStage, true);
+        mParent.getRepoProvider().getDalStage().update(activeStage, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -335,12 +335,12 @@ public class DaoMakerViewXfer {
         DaoActor activeActor = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeActor = (DaoActor) MainActivity.getRepoProviderInstance().getDalActor().getDaoRepo().get(moniker);
+            activeActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(moniker);
             if (activeActor != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalActor().remove(activeActor, true);
+                    mParent.getRepoProvider().getDalActor().remove(activeActor, true);
                 }
             }
         }
@@ -355,7 +355,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveActor(activeActor);
         mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalActor().update(activeActor, true);
+        mParent.getRepoProvider().getDalActor().update(activeActor, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -364,12 +364,12 @@ public class DaoMakerViewXfer {
         DaoAction activeAction = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeAction = (DaoAction) MainActivity.getRepoProviderInstance().getDalAction().getDaoRepo().get(moniker);
+            activeAction = (DaoAction) mParent.getRepoProvider().getDalAction().getDaoRepo().get(moniker);
             if (activeAction != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalAction().remove(activeAction, true);
+                    mParent.getRepoProvider().getDalAction().remove(activeAction, true);
                 }
             }
         }
@@ -384,7 +384,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveAction(activeAction);
         mParent.getPlayListService().setActiveAction(activeAction);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalAction().update(activeAction, true);
+        mParent.getRepoProvider().getDalAction().update(activeAction, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -393,12 +393,12 @@ public class DaoMakerViewXfer {
         DaoOutcome activeOutcome = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
-            activeOutcome = (DaoOutcome) MainActivity.getRepoProviderInstance().getDalOutcome().getDaoRepo().get(moniker);
+            activeOutcome = (DaoOutcome) mParent.getRepoProvider().getDalOutcome().getDaoRepo().get(moniker);
             if (activeOutcome != null) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
-                    MainActivity.getRepoProviderInstance().getDalOutcome().remove(activeOutcome, true);
+                    mParent.getRepoProvider().getDalOutcome().remove(activeOutcome, true);
                 }
             }
             else {
@@ -418,7 +418,7 @@ public class DaoMakerViewXfer {
 //        MainActivity.getPlayListInstance().setActiveOutcome(activeOutcome);
         mParent.getPlayListService().setActiveOutcome(activeOutcome);
         // update repo
-        MainActivity.getRepoProviderInstance().getDalOutcome().update(activeOutcome, true);
+        mParent.getRepoProvider().getDalOutcome().update(activeOutcome, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

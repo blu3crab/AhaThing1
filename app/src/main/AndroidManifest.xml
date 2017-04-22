@@ -34,7 +34,10 @@
 
         <service
             android:name=".PlayListService"
-            android:exported="true" />
+            android:exported="false" />
+        <service
+            android:name=".RepoProvider"
+            android:exported="false" />
 
     </application>
 

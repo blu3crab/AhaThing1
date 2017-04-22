@@ -35,39 +35,36 @@ public class DaoAuditRepo {
 
 	public static final String JSON_CONTAINER = "auditTrail";
 
-//	private Context mContext;
+	private Context mContext;
 
 	@SerializedName("daoList")
 	private List<DaoAudit> daoList;
 
-	public DaoAuditRepo(){
-//	public DaoAuditRepo(Context context){
-//		mContext = context;
+//	public DaoAuditRepo(){
+	public DaoAuditRepo(Context context){
+		mContext = context;
 		daoList = new ArrayList<>();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 
-//	public Context getContext() {
-//		return mContext;
-//	}
-//
-//	public void setContext(Context context) {
-//		this.mContext = context;
-//	}
+	public Context getContext() {
+		return mContext;
+	}
+	public void setContext(Context context) {
+		this.mContext = context;
+	}
 
 	public List<DaoAudit> getDaoList() {
 		return daoList;
 	}
 	///////////////////////////////////////////////////////////////////////////
 	public DaoAudit postAudit(int actorResId, int actionResId, String outcome) {
-		// get context
-		Context context = MainActivity.getRepoProviderInstance().getContext();
 		// post audit trail
 		DaoAudit daoAudit = new DaoAudit();
 		daoAudit.setTimestamp(System.currentTimeMillis());
-		daoAudit.setActor(context.getString(actorResId));
-		daoAudit.setAction(context.getString(actionResId));
+		daoAudit.setActor(getContext().getString(actorResId));
+		daoAudit.setAction(getContext().getString(actionResId));
 		daoAudit.setOutcome(outcome);
 		set(daoAudit);
 		return daoAudit;
