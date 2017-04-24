@@ -23,7 +23,6 @@ package com.adaptivehandyapps.ahathing.dal;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.MainActivity;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -144,7 +143,6 @@ public class DalEpic {
         }
 
         // update playlist to maintain coherence
-//        MainActivity.getPlayListInstance().updateActiveEpic(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().updateActiveEpic(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
@@ -175,7 +173,6 @@ public class DalEpic {
         }
 
         // update playlist if removing active object
-//        MainActivity.getPlayListInstance().removeActiveEpic(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().removeActiveEpic(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());

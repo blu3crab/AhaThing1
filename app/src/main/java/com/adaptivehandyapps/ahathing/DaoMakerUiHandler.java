@@ -44,6 +44,7 @@ import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 import java.util.ArrayList;
 import java.util.List;
 
+///////////////////////////////////////////////////////////////////////////
 public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
 

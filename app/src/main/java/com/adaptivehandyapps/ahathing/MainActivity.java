@@ -63,14 +63,13 @@ public class MainActivity extends AppCompatActivity
 
     private boolean mVacating = false;
 
-    // singleton playlist
-//    private static final PlayList playList = new PlayList();
-//    public static PlayList getPlayListInstance() { return playList; }
-//
     ///////////////////////////////////////////////////////////////////////////
     // playlist service
     private PlayListService mPlayListService;
     private boolean mPlayListBound = false;
+//    // singleton playlist
+//    private static final PlayList playList = new PlayList();
+//    public static PlayList getPlayListInstance() { return playList; }
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mPlayListConnection = new ServiceConnection() {
@@ -83,9 +82,8 @@ public class MainActivity extends AppCompatActivity
             mPlayListService = binder.getService();
             mPlayListBound = true;
             Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-
+            // bind to repo provider
             bindRepoProvider();
-//            getRepoProvider().setPlayListService(mPlayListService);
         }
 
         @Override
@@ -102,14 +100,13 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////////////////
+    // repo provider service
+    private RepoProvider mRepoProvider;
+    private boolean mRepoProviderBound = false;
 //    // singleton repo
 //    private static final RepoProvider repoProvider = new RepoProvider();
 //    public static RepoProvider getRepoProviderInstance() { return repoProvider; }
-//
-    ///////////////////////////////////////////////////////////////////////////
-    // playlist service
-    private RepoProvider mRepoProvider;
-    private boolean mRepoProviderBound = false;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mRepoProviderConnection = new ServiceConnection() {
@@ -158,7 +155,6 @@ public class MainActivity extends AppCompatActivity
     public void setRepoProvider(RepoProvider repoProvider) {
         mRepoProvider = repoProvider;
     }
-
     ///////////////////////////////////////////////////////////////////////////
 
     private NavigationView mNavigationView;
@@ -271,18 +267,9 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-//        // assign repo context & callback
-//        getRepoProviderInstance().setContext(this);
-//        getRepoProviderInstance().setCallback(getRepoProviderCallback());
-//        // assign playlist context
-//        getPlayListInstance().setContext(this);
-
         // instantiate nav  menu & item
         mNavMenu = new NavMenu();
         mNavItem = new NavItem();
-
-//        // set navigation menu
-//        buildNavMenu();
 
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
@@ -293,14 +280,15 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-//                    // init repo provider - listeners based on auth user
-//                    getRepoProviderInstance().init();
+                    // TODO: test sign out - sign in sequence
+                    // restore repo provider listeners based on auth user
+                    if (getRepoProvider() != null) getRepoProvider().setPlayListService(getPlayListService());
                 }
                 else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                     // TODO: clear database, listeners, etc.?
-                    getRepoProvider().removeFirebaseListener();
+                    if (getRepoProvider() != null) getRepoProvider().removeFirebaseListener();
                 }
             }
         };
@@ -321,12 +309,10 @@ public class MainActivity extends AppCompatActivity
 
         // if story ready
         if (getPlayListService().getActiveStory() != null) {
-//            if (getPlayListInstance().getActiveStory() != null) {
             Log.d(TAG, "buildNavMenu: launching story...");
             // launch story
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//            mContentMoniker = getPlayListInstance().getActiveStory().getMoniker();
             mContentMoniker = getPlayListService().getActiveStory().getMoniker();
             ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
         }
@@ -450,8 +436,19 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////
-   public Boolean bindPlayListService() {
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // lifecycle methods
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mVacating = false;
+        Log.v(TAG, "onStart");
+        // Firebase
+        mAuth.addAuthStateListener(mAuthListener);
+        // Bind to Local Services
+        bindPlayListService();
+    }
+    public Boolean bindPlayListService() {
         Intent intentPlayList = new Intent(this, PlayListService.class);
         bindService(intentPlayList, mPlayListConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onStart: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
@@ -462,30 +459,6 @@ public class MainActivity extends AppCompatActivity
         bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onStart: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
         return true;
-    }
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // lifecycle methods
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mVacating = false;
-        Log.v(TAG, "onStart");
-        // Firebase
-        mAuth.addAuthStateListener(mAuthListener);
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // Bind to Local Services
-        bindPlayListService();
-//        Intent intentPlayList = new Intent(this, PlayListService.class);
-//        bindService(intentPlayList, mPlayListConnection, Context.BIND_AUTO_CREATE);
-//        Log.d(TAG, "onStart: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-
-//        Intent intentRepoProvider = new Intent(this, RepoProvider.class);
-//        bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
-//        Log.d(TAG, "onStart: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-
     }
 
     @Override
@@ -511,11 +484,14 @@ public class MainActivity extends AppCompatActivity
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        // TODO: remove firebase listeners?
         ///////////////////////////////////////////////////////////////////////////////////////////
-        // Unbind from the service
+        // Unbind from services
         if (mPlayListBound) {
             unbindService(mPlayListConnection);
             mPlayListBound = false;
+            unbindService(mRepoProviderConnection);
+            mRepoProviderBound = false;
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
     }

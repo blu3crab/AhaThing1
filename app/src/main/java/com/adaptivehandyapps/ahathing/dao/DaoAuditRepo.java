@@ -40,7 +40,8 @@ public class DaoAuditRepo {
 	@SerializedName("daoList")
 	private List<DaoAudit> daoList;
 
-//	public DaoAuditRepo(){
+	///////////////////////////////////////////////////////////////////////////
+
 	public DaoAuditRepo(Context context){
 		mContext = context;
 		daoList = new ArrayList<>();

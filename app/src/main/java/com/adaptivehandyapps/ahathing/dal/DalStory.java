@@ -22,7 +22,6 @@
 import android.util.Log;
 import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.MainActivity;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -143,7 +142,6 @@ public class DalStory {
         }
 
         // update playlist to maintain coherence
-//        MainActivity.getPlayListInstance().updateActiveStory(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().updateActiveStory(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
@@ -174,7 +172,6 @@ public class DalStory {
         }
 
         // update playlist if removing active object
-//        MainActivity.getPlayListInstance().removeActiveStory(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().removeActiveStory(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());

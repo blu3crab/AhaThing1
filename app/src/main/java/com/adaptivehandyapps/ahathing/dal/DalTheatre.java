@@ -23,7 +23,6 @@ package com.adaptivehandyapps.ahathing.dal;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.MainActivity;
 import com.adaptivehandyapps.ahathing.R;
 import com.adaptivehandyapps.ahathing.RepoProvider;
 import com.adaptivehandyapps.ahathing.dao.DaoAudit;
@@ -45,7 +44,6 @@ public class DalTheatre {
     private static final String TAG = DalTheatre.class.getSimpleName();
 
     private RepoProvider mRepoProvider;
-//    private RepoService mRepoProvider;
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mFirebaseReference;
@@ -135,12 +133,10 @@ public class DalTheatre {
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
-//        MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
         mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
 
         if (updateDatabase) {
             // post audit trail
-//            MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_child_setValue, dao.getMoniker());
             // update timestamp
             dao.setTimestamp((System.currentTimeMillis()));
@@ -149,7 +145,6 @@ public class DalTheatre {
         }
 
         // update playlist to maintain coherence
-//        MainActivity.getPlayListInstance().updateActiveTheatre(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().updateActiveTheatre(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
@@ -182,7 +177,6 @@ public class DalTheatre {
         }
 
         // update playlist if removing active object
-//        MainActivity.getPlayListInstance().removeActiveTheatre(dao);
         if (mRepoProvider.getPlayListService() != null) {
             mRepoProvider.getPlayListService().removeActiveTheatre(dao);
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
@@ -254,7 +248,6 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildAdded unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
                 mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildAdded, R.string.action_listen, dataSnapshot.getKey());
             }
 
@@ -268,7 +261,6 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildChanged unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
                 mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildChanged, R.string.action_listen, dataSnapshot.getKey());
             }
 
@@ -281,7 +273,6 @@ public class DalTheatre {
                     Log.e(TAG, "childEventListener onChildRemoved unknown key: " + dataSnapshot.getKey());
                 }
                 // post audit trail
-//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
                 mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildRemoved, R.string.action_listen, dataSnapshot.getKey());
             }
 
@@ -295,7 +286,6 @@ public class DalTheatre {
                 Log.e(TAG, "childEventListener onCancelled: " + databaseError.getMessage());
                 Toast.makeText(mRepoProvider.getContext(), "childEventListener onCancelled: " + databaseError.getMessage(),
                         Toast.LENGTH_LONG).show();
-//                MainActivity.getRepoProviderInstance().getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
                 mRepoProvider.getDaoAuditRepo().postAudit(R.string.actor_onChildListener, R.string.action_cancelled, databaseError.getMessage());
             }
         };
@@ -311,7 +301,6 @@ public class DalTheatre {
         DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
         if (daoTheatre != null) {
             // if no recent local activity
-//            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoTheatre.getMoniker());
             DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoTheatre.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildAdded daoTheatre (remote trigger): " + daoTheatre.toString());
@@ -333,7 +322,6 @@ public class DalTheatre {
         DaoTheatre daoTheatre = dataSnapshot.getValue(DaoTheatre.class);
         if (daoTheatre != null) {
             // if no recent local activity
-//            DaoAudit daoAudit = MainActivity.getRepoProviderInstance().getDaoAuditRepo().get(daoTheatre.getMoniker());
             DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoTheatre.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildRemoved daoTheatre (remote trigger): " + daoTheatre.toString());

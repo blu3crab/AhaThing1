@@ -207,10 +207,8 @@ public class ContentFragment extends Fragment {
                 // TODO: consolidate Play launch
                 // update the main content with stage
                 if (getPlayListService().getActiveStory() != null) {
-//                    if (MainActivity.getPlayListInstance().getActiveStory() != null) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//                    mContentMoniker = MainActivity.getPlayListInstance().getActiveStory().getMoniker();
                     mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
                 else {
@@ -241,7 +239,6 @@ public class ContentFragment extends Fragment {
     ///////////////////////////////////////////////////////////////////////////
     // replace fragment
     public static Boolean replaceFragment(Activity activity, String op, String objType, String moniker) {
-//        public static Boolean replaceFragment(Activity activity, RepoProvider repoProvider, String op, String objType, String moniker) {
 
         Fragment fragment = new ContentFragment();
 

@@ -18,10 +18,8 @@
 package com.adaptivehandyapps.ahathing;
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -74,26 +72,6 @@ public class RepoProvider extends Service {
     ///////////////////////////////////////////////////////////////////////////
     // playlist service
     PlayListService mPlayListService;
-//    boolean mPlayListBound = false;
-//
-//    /** Defines callbacks for service binding, passed to bindService() */
-//    public ServiceConnection mPlayListConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className,
-//                                       IBinder service) {
-//            // We've bound to LocalService, cast the IBinder and get LocalService instance
-//            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
-//            setPlayListService(binder.getService());
-//            mPlayListBound = true;
-//            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            mPlayListBound = false;
-//        }
-//    };
 
     public PlayListService getPlayListService() {
         return mPlayListService;
@@ -103,7 +81,7 @@ public class RepoProvider extends Service {
         mPlayListService = playListService;
         Log.d(TAG, "setPlayListService " + mPlayListService);
         if (isFirebaseReady()) {
-            // establish listeners
+            // establish firebase listeners
             getDalTheatre().setListener();
             getDalEpic().setListener();
             getDalStory().setListener();
@@ -142,12 +120,6 @@ public class RepoProvider extends Service {
     public RepoProvider() {
         // service context
         setContext(this);
-
-//        // bind to playlist service
-//        Intent intent = new Intent(this, PlayListService.class);
-//        this.bindService(intent, mPlayListConnection, Context.BIND_AUTO_CREATE);
-//        Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-//
         init();
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -170,15 +142,6 @@ public class RepoProvider extends Service {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             // get user id
             mUserId = getUid();
-//
-//            // establish listeners
-//            getDalTheatre().setListener();
-//            getDalEpic().setListener();
-//            getDalStory().setListener();
-//            getDalStage().setListener();
-//            getDalActor().setListener();
-//            getDalAction().setListener();
-//            getDalOutcome().setListener();
         }
         else {
             setFirebaseReady(false);
