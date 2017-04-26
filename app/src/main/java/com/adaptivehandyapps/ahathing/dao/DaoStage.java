@@ -37,6 +37,9 @@ public class DaoStage extends DaoBase {
 	@SerializedName("locusList")		// locus list
 	private DaoLocusList locusList;
 
+	@SerializedName("actorList")			// actor list mirrors locusList
+	private List<String> actorList;
+
 	@SerializedName("propList")			// props list
 	private List<String> propList;
 
@@ -48,6 +51,7 @@ public class DaoStage extends DaoBase {
 		super();
 		this.stageType = DaoDefs.INIT_STRING_MARKER;
 		this.locusList = new DaoLocusList();
+		this.actorList = new ArrayList<>();
 		this.propList = new ArrayList<>();
 
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
@@ -62,6 +66,7 @@ public class DaoStage extends DaoBase {
 
 			String stageType,
 			DaoLocusList locusList,
+			List<String> actorList,
 			List<String> propList,
             String reserve2
     ) {
@@ -69,13 +74,14 @@ public class DaoStage extends DaoBase {
 
 		this.stageType = stageType;
 		this.locusList = locusList;
+		this.actorList = actorList;
 		this.propList = propList;
 		this.reserve2 = reserve2;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
-		return super.toString() + ", " + stageType + ", " + locusList + ", " + propList + ", " + reserve2;
+		return super.toString() + ", " + stageType + ", " + locusList + ", " + actorList + ", " + propList + ", " + reserve2;
 	}
 
 	public static long getSerialVersionUID() {
@@ -96,6 +102,14 @@ public class DaoStage extends DaoBase {
 
 	public void setLocusList(DaoLocusList locusList) {
 		this.locusList = locusList;
+	}
+
+	public List<String> getActorList() {
+		return actorList;
+	}
+
+	public void setActorList(List<String> actorList) {
+		this.actorList = actorList;
 	}
 
 	public List<String> getPropList() {

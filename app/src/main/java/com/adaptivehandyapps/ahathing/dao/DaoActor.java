@@ -27,12 +27,20 @@ public class DaoActor extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
+	@SerializedName("foreColor")
+	private Integer foreColor;
+
+	@SerializedName("backColor")
+	private Integer backColor;
+
 	@SerializedName("reserve2")
 	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoActor() {
 		super();
+		this.foreColor = DaoDefs.INIT_INTEGER_MARKER;
+		this.backColor = DaoDefs.INIT_INTEGER_MARKER;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
@@ -41,14 +49,42 @@ public class DaoActor extends DaoBase {
 			String headline,
 			Long timestamp,
 			List<String> tagList,
-            String reserve1
-    ) {
+            String reserve1,
+
+			Integer foreColor,
+			Integer backColor,
+            String reserve2
+	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
+
+		this.foreColor = foreColor;
+		this.backColor = backColor;
+		this.reserve2 = reserve2;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
+	}
+
+	public String toString() {
+		return super.toString() + ", " + foreColor + ", " + backColor + ", " + reserve2;
+	}
+
+	public Integer getForeColor() {
+		return foreColor;
+	}
+
+	public void setForeColor(Integer foreColor) {
+		this.foreColor = foreColor;
+	}
+
+	public Integer getBackColor() {
+		return backColor;
+	}
+
+	public void setBackColor(Integer backColor) {
+		this.backColor = backColor;
 	}
 
 	public String getReserve2() {
