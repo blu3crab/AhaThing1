@@ -143,16 +143,6 @@ public class DalStage {
             // update db
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
-        // update playlist to maintain coherence
-//        if (MainActivity.getPlayListInstance().updateActiveStage(dao)) {
-//            if (MainActivity.getRepoProviderInstance().getStageModelRing() == null) {
-//                // TODO: single stage model - build stage model per stage
-//                MainActivity.getRepoProviderInstance().setStageModelRing(new StageModelRing());
-//                Integer ringMax = 4;
-//                MainActivity.getRepoProviderInstance().getStageModelRing().buildModel(dao, ringMax);
-//                Log.d(TAG, "NEW StageModelRing for repo " + MainActivity.getRepoProviderInstance().toString() + " at " + MainActivity.getRepoProviderInstance().getStageModelRing().toString());
-//            }
-//        }
         if (mRepoProvider.getPlayListService() != null) {
             // true if new stage
             if (mRepoProvider.getPlayListService().updateActiveStage(dao)) {
@@ -163,6 +153,22 @@ public class DalStage {
                 Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
             }
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
+//            // TODO: support multiple stage gracefully
+//            mActiveStage = getPlayListService().getActiveStage();
+//            !!!!!!!NULL exception!
+//            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+//                Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
+//                // create stage view helper
+//                mStageViewRing = new StageViewRing(mContext, this);
+//                DaoLocusList daoLocusList = mActiveStage.getLocusList();
+//                // transform locus to device coords
+//                mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
+//                // clear selection list
+//                mStageViewRing.setSelectLocus(daoLocusList, false);
+//            }
+//            else if (mActiveStage != null) {
+//                Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
+//            }
         }
         else {
             Log.e(TAG, "oops! update finds PlayListService NULL.");

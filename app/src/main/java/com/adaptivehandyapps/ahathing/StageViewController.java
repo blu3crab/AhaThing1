@@ -56,7 +56,6 @@ public class StageViewController extends View implements
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
-    //    private RepoProvider mRepoProvider;
     private DaoStage mActiveStage;
 
     private StageViewRing mStageViewRing;
@@ -155,22 +154,6 @@ public class StageViewController extends View implements
             Log.e(TAG, "Parent context (MainActivity) NULL!");
             return false;
         }
-
-//        MainActivity parent = (MainActivity) context;
-//        if (parent != null) {
-//            MainActivity.getRepoProviderInstance() = parent.getRepoProvider();
-////            if (mRepoProvider != null && MainActivity.getPlayListInstance().getActiveStory() != null) {
-//                Log.v(TAG, "RepoProvider ready for " + MainActivity.getPlayListInstance().getActiveStory().getMoniker() + "...");
-//            }
-//            else {
-//                Log.e(TAG, "RepoProvider NULL or NOT ready!");
-//                return false;
-//            }
-//        }
-//        else {
-//            Log.e(TAG, "Parent context (MainActivity) NULL!");
-//            return false;
-//        }
 
         // adjust text size
         // TODO: refactor to getDensity()
@@ -289,21 +272,21 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
             // TODO: support multiple stage gracefully
-            mActiveStage = getPlayListService().getActiveStage();
-            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
-                // create stage view helper
-                mStageViewRing = new StageViewRing(mContext, this);
-                DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                // transform locus to device coords
-                mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
-                // clear selection list
-                mStageViewRing.setSelectLocus(daoLocusList, false);
+            if (getPlayListService() != null) {
+                mActiveStage = getPlayListService().getActiveStage();
+                if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                    Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
+                    // create stage view helper
+                    mStageViewRing = new StageViewRing(mContext, this);
+                    DaoLocusList daoLocusList = mActiveStage.getLocusList();
+                    // transform locus to device coords
+                    mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
+                    // clear selection list
+                    mStageViewRing.setSelectLocus(daoLocusList, false);
+                } else if (mActiveStage != null) {
+                    Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
+                }
             }
-            else if (mActiveStage != null) {
-                Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
-            }
-
         }
 
         //MUST CALL THIS

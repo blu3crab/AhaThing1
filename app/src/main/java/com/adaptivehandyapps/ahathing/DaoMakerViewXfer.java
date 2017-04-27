@@ -56,10 +56,13 @@ public class DaoMakerViewXfer {
     private ArrayAdapter<String> mOutcomeListAdapter = null;
     private Spinner mSpinnerOutcomes;
 
-    private Boolean mSetForeColor;
+    private Boolean mIsForeColor;
     private Integer mForeColor = DaoDefs.INIT_INTEGER_MARKER;
     private Integer mBackColor = DaoDefs.INIT_INTEGER_MARKER;
     private Integer mSelectedColorRGB = DaoDefs.INIT_INTEGER_MARKER;
+
+    private Button mButtonForeColor;
+    private Button mButtonBackColor;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
@@ -68,6 +71,85 @@ public class DaoMakerViewXfer {
         Log.d(TAG, "DaoMakerUiHandler...");
         mParent = parent;
         mRootView = rootView;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // setters/getters
+    private Boolean isForeColor() { return mIsForeColor; }
+    private Boolean isForeColor(Boolean isForeColor) { mIsForeColor = isForeColor; return mIsForeColor; }
+
+    public Integer getForeColor() {
+        return mForeColor;
+    }
+    public void setForeColor(Integer foreColor) {
+        // default color to 0
+        this.mForeColor = 0;
+        // if incoming color defined, assign color
+        if (foreColor != DaoDefs.INIT_INTEGER_MARKER) this.mForeColor = foreColor;
+        // if button defined, assign button color
+        if (mButtonForeColor != null) mButtonForeColor.setBackgroundColor(getForeColor());
+        Log.d(TAG, "fore color rgb " + getForeColor());
+
+    }
+
+    public Integer getBackColor() {
+        return mBackColor;
+    }
+    public void setBackColor(Integer backColor) {
+        // default color to 0
+        this.mBackColor = 0;
+        // if incoming color defined, assign color
+        if (backColor != DaoDefs.INIT_INTEGER_MARKER) this.mBackColor = backColor;
+        // if button defined, assign button color
+        if (mButtonBackColor != null) mButtonBackColor.setBackgroundColor(getBackColor());
+        Log.d(TAG, "Back color rgb " + getBackColor());
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // helpers
+    private void launchColorPicker(final Boolean isForeColor, int rgb) {
+        // clear selected rgb
+        mSelectedColorRGB = DaoDefs.INIT_INTEGER_MARKER;
+        // extract component r,g,b
+        int red = (rgb >> 16) & 0xFF;
+        int green = (rgb >> 8) & 0xFF;
+        int blue = rgb & 0xFF;
+        Log.d(TAG, "r,g,b,rgb " + red + ", " + green  + ", " + blue  + ", " + rgb);
+        final ColorPicker cp = new ColorPicker(mParent.getActivity(), red, green, blue);
+                /* Show color picker dialog */
+        cp.show();
+
+                /* On Click listener for the dialog, when the user select the color */
+        Button okColor = (Button)cp.findViewById(R.id.okColorButton);
+
+        okColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                        /* You can get single channel (value 0-255) */
+                int selectedColorR = cp.getRed();
+                int selectedColorG = cp.getGreen();
+                int selectedColorB = cp.getBlue();
+
+                        /* Or the android RGB Color (see the android Color class reference) */
+                int selectedColorRGB = cp.getColor();
+                Log.d(TAG, "r,g,b,rgb " + selectedColorR + ", " + selectedColorG  + ", " + selectedColorB  + ", " + selectedColorRGB);
+
+                int red = (selectedColorRGB >> 16) & 0xFF;
+                int green = (selectedColorRGB >> 8) & 0xFF;
+                int blue = selectedColorRGB & 0xFF;
+                Log.d(TAG, "r,g,b,rgb " + red + ", " + green  + ", " + blue  + ", " + selectedColorRGB);
+
+                cp.dismiss();
+
+                mSelectedColorRGB = selectedColorRGB;
+                // if fore color
+                if (isForeColor) {
+                    setForeColor(selectedColorRGB);
+                }
+                else {
+                    setBackColor(selectedColorRGB);
+                }
+            }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -193,110 +275,41 @@ public class DaoMakerViewXfer {
         ll.setVisibility(View.VISIBLE);
 
         // establish fore color button visibility & click listener
-        final Button buttonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
-        buttonForeColor.setVisibility(View.VISIBLE);
-//        buttonForeColor.setBackgroundColor(daoActor.getForeColor());
+//        final Button buttonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
+        mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
+        mButtonForeColor.setVisibility(View.VISIBLE);
+        setForeColor(daoActor.getForeColor());
+//        mButtonForeColor.setBackgroundColor(getForeColor());
+//        Log.d(TAG, "fore color rgb " + getForeColor());
 
-        buttonForeColor.setOnClickListener(new View.OnClickListener() {
+        mButtonForeColor.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonForeColor.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "buttonForeColor...", Toast.LENGTH_SHORT).show();
                 // launch color picker
-                mSetForeColor = true;
-                launchColorPicker(mSetForeColor, mForeColor);
-                // assign selected color
-                if ( !mSelectedColorRGB.equals(DaoDefs.INIT_INTEGER_MARKER) ) mForeColor = mSelectedColorRGB;
-                Log.d(TAG, "selected fore color rgb " + mSelectedColorRGB + ", assigned forecolor "+ mForeColor);
-////                final ColorPicker cp = new ColorPicker(mParent, defaultColorR, defaultColorG, defaultColorB);
-//                final ColorPicker cp = new ColorPicker(mParent.getActivity(), 0, 0, 0);
-//                /* Show color picker dialog */
-//                cp.show();
-//
-//                /* On Click listener for the dialog, when the user select the color */
-//                Button okColor = (Button)cp.findViewById(R.id.okColorButton);
-//
-//                okColor.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        /* You can get single channel (value 0-255) */
-//                        int selectedColorR = cp.getRed();
-//                        int selectedColorG = cp.getGreen();
-//                        int selectedColorB = cp.getBlue();
-//
-//                        /* Or the android RGB Color (see the android Color class reference) */
-//                        int selectedColorRGB = cp.getColor();
-//                        Log.d(TAG, "r,g,b,rgb " + selectedColorR + ", " + selectedColorG  + ", " + selectedColorB  + ", " + selectedColorRGB);
-//
-//                        int red = (selectedColorRGB >> 16) & 0xFF;
-//                        int green = (selectedColorRGB >> 8) & 0xFF;
-//                        int blue = selectedColorRGB & 0xFF;
-//                        Log.d(TAG, "r,g,b,rgb " + red + ", " + green  + ", " + blue  + ", " + selectedColorRGB);
-//
-//                        cp.dismiss();
-//                    }
-//                });
-//                // assign selected color
+                isForeColor(true);
+                launchColorPicker(isForeColor(), getForeColor());
             }
         });
         // establish back color button visibility & click listener
-        final Button buttonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
-        buttonBackColor.setVisibility(View.VISIBLE);
-//        buttonBackColor.setBackgroundColor(daoActor.getBackColor());
+//        final Button buttonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
+        mButtonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
+        mButtonBackColor.setVisibility(View.VISIBLE);
+        setBackColor(daoActor.getBackColor());
+//        mButtonBackColor.setBackgroundColor(getBackColor());
+//        Log.d(TAG, "Back color rgb " + getBackColor());
 
-        buttonBackColor.setOnClickListener(new View.OnClickListener() {
+        mButtonBackColor.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonBackColor.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "buttonBackColor...", Toast.LENGTH_SHORT).show();
                 // launch color picker
-                mSetForeColor = false;
-                launchColorPicker(mSetForeColor, mBackColor);
-                // assign selected color
-                if ( !mSelectedColorRGB.equals(DaoDefs.INIT_INTEGER_MARKER) ) mBackColor = mSelectedColorRGB;
-                Log.d(TAG, "selected rgb " + mSelectedColorRGB + ", assigned backcolor "+ mBackColor);
+                isForeColor(false);
+                launchColorPicker(isForeColor(), getBackColor());
             }
         });
 
         return true;
-    }
-    private void launchColorPicker(Boolean setForeColor, int rgb) {
-        // clear selected rgb
-        mSelectedColorRGB = DaoDefs.INIT_INTEGER_MARKER;
-        // extract component r,g,b
-        int red = (rgb >> 16) & 0xFF;
-        int green = (rgb >> 8) & 0xFF;
-        int blue = rgb & 0xFF;
-        Log.d(TAG, "r,g,b,rgb " + red + ", " + green  + ", " + blue  + ", " + rgb);
-        final ColorPicker cp = new ColorPicker(mParent.getActivity(), red, green, blue);
-                /* Show color picker dialog */
-        cp.show();
-
-                /* On Click listener for the dialog, when the user select the color */
-        Button okColor = (Button)cp.findViewById(R.id.okColorButton);
-
-        okColor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                        /* You can get single channel (value 0-255) */
-                int selectedColorR = cp.getRed();
-                int selectedColorG = cp.getGreen();
-                int selectedColorB = cp.getBlue();
-
-                        /* Or the android RGB Color (see the android Color class reference) */
-                int selectedColorRGB = cp.getColor();
-                Log.d(TAG, "r,g,b,rgb " + selectedColorR + ", " + selectedColorG  + ", " + selectedColorB  + ", " + selectedColorRGB);
-
-                int red = (selectedColorRGB >> 16) & 0xFF;
-                int green = (selectedColorRGB >> 8) & 0xFF;
-                int blue = selectedColorRGB & 0xFF;
-                Log.d(TAG, "r,g,b,rgb " + red + ", " + green  + ", " + blue  + ", " + selectedColorRGB);
-
-                cp.dismiss();
-
-                mSelectedColorRGB = selectedColorRGB;
-            }
-        });
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromAction(DaoAction daoAction) {
@@ -462,6 +475,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeActor.setMoniker(editedMoniker);
         activeActor.setHeadline(headline);
+        if (getForeColor() != activeActor.getForeColor()) activeActor.setForeColor(getForeColor());
+        if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
         mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
         mParent.getRepoProvider().getDalActor().update(activeActor, true);
