@@ -24,8 +24,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
@@ -55,6 +57,9 @@ public class DaoMakerViewXfer {
     private Spinner mSpinnerActions;
     private ArrayAdapter<String> mOutcomeListAdapter = null;
     private Spinner mSpinnerOutcomes;
+
+    private ArrayAdapter<String> mRingTypeListAdapter = null;
+    private Spinner mSpinnerRingType;
 
     private Boolean mIsForeColor;
     private Integer mForeColor = DaoDefs.INIT_INTEGER_MARKER;
@@ -263,8 +268,41 @@ public class DaoMakerViewXfer {
     public Boolean fromStage(DaoStage daoStage) {
 
         // set Stage views visible
-        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_stages);
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_stage);
         ll.setVisibility(View.VISIBLE);
+
+        // ring type spinner
+        List<String> ringTypeList = new ArrayList<>();
+        ringTypeList.add(DaoStage.STAGE_TYPE_RING);
+//        // for each stage in repo
+//        for (DaoActor actor : daoActorList) {
+//            // build list of names
+//            actorNameList.add(actor.getMoniker());
+//        }
+//        if (actorNameList.isEmpty()) {
+//            actorNameList.add("actors!  where are the actors?");
+//        }
+        mRingTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                ringTypeList);
+
+        mSpinnerRingType = (Spinner) mRootView.findViewById(R.id.spinner_ringtype);
+        if (mRingTypeListAdapter != null && mSpinnerRingType != null) {
+            mSpinnerRingType.setAdapter(mRingTypeListAdapter);
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mRingTypeListAdapter? " + mRingTypeListAdapter + ", spinner ringtype? " + mSpinnerRingType);
+            return false;
+        }
+
+        // set ring size, locii size
+        EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
+        etRingSize.setText(daoStage.getRingSize().toString());
+
+        TextView tvLociiSize = (TextView) mRootView.findViewById(R.id.tv_lociisize);
+        Integer size = daoStage.getLocusList().locii.size();
+        tvLociiSize.setText(size.toString());
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -441,13 +479,18 @@ public class DaoMakerViewXfer {
         activeStage.setMoniker(editedMoniker);
         activeStage.setHeadline(headline);
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
-        if (mParent.getRepoProvider().getStageModelRing() == null) {
-            // TODO: single stage model - build stage model per stage
-            mParent.getRepoProvider().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
-            Integer ringMax = 4;
-            mParent.getRepoProvider().getStageModelRing().buildModel(activeStage, ringMax);
-            Log.d(TAG, "NEW StageModelRing for repo " + mParent.getRepoProvider().toString() + " at " + mParent.getRepoProvider().getStageModelRing().toString());
-        }
+        // ignore ring type
+        EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
+        Integer ringSize = Integer.parseInt(etRingSize.getText().toString());;
+        activeStage.setRingSize(ringSize);
+
+//        if (mParent.getRepoProvider().getStageModelRing() == null) {
+//            // TODO: single stage model - build stage model per stage
+//            mParent.getRepoProvider().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
+//            Integer ringMax = 4;
+//            mParent.getRepoProvider().getStageModelRing().buildModel(activeStage, ringMax);
+//            Log.d(TAG, "NEW StageModelRing for repo " + mParent.getRepoProvider().toString() + " at " + mParent.getRepoProvider().getStageModelRing().toString());
+//        }
         mParent.getPlayListService().setActiveStage(activeStage);        // update repo
         mParent.getRepoProvider().getDalStage().update(activeStage, true);
         return true;

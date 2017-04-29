@@ -61,7 +61,13 @@ public class StageModelRing {
     public static final Long RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
     public static final Long RING_CENTER_Z = 0L;
 
-    private Integer mRingMax = 1;
+//    private Integer mRingSize = 1;
+//    public Integer getRingSize() {
+//        return mRingSize;
+//    }
+//    public void setRingSize(Integer ringMax) {
+//        this.mRingSize = ringMax;
+//    }
 
     private PlayListService mPlayListService;
     public PlayListService getPlayListService() {
@@ -83,8 +89,8 @@ public class StageModelRing {
     // builder
     // create a collection of locus & assign to active stage
 //    public Boolean buildModel(Integer ringMax) {
-    public Boolean buildModel(DaoStage activeStage, Integer ringMax) {
-        mRingMax = ringMax;
+    public Boolean buildModel(DaoStage activeStage) {
+//        mRingSize = ringMax;
 
 //        DaoStage activeStage = mRepoProvider.getActiveStage();
 //        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mRepoProvider.getDaoStageRepo().size());
@@ -124,7 +130,7 @@ public class StageModelRing {
         ringMaxId.add(ringId);
 
         // populate next ring by expanding around each locus in previous ring
-        while (ring < ringMax) {
+        while (ring < activeStage.getRingSize()) {
             ++ring;
             // for each locus in previous ring
             Integer locusIndex = ringMaxId.get(ring-2) + 1;

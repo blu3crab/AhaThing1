@@ -282,7 +282,7 @@ public class StageViewController extends View implements
                     // transform locus to device coords
                     mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
                     // clear selection list
-                    mStageViewRing.setSelectLocus(daoLocusList, false);
+//                    mStageViewRing.setSelectLocus(daoLocusList, false);
                 } else if (mActiveStage != null) {
                     Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
                 }
@@ -300,19 +300,52 @@ public class StageViewController extends View implements
     }
     ///////////////////////////////////////////////////////////////////////////
     // gesture handlers
-    private Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
-        if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            int i = mStageViewRing.toggleSelection(touchX, touchY, z, plus);
-            if (i > DaoDefs.INIT_INTEGER_MARKER) {
-                DaoLocus daoLocus = mActiveStage.getLocusList().locii.get(i);
-                Log.v(TAG, "toggleSelection stage type: " + mActiveStage.getStageType() + " toggle at " + daoLocus.getNickname());
+    public Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
+        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
+        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
+        DaoStage daoStage = getPlayListService().getActiveStage();
+        if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+            // for each rect
+            for (RectF r : mStageViewRing.getRectList()) {
+                // if rect touched
+                if (r.contains(touchX, touchY)) {
+                    selectIndex = mStageViewRing.getRectList().indexOf(r);
+//                        mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
+                    // TODO: refactor if stage actor list empty then set active actor
+                    // if stage actor list empty
+                    if (daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        // set stage to active actor at selected location
+                        daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
+                    }
+                    // if selecting plus ring
+                    if (plus) {
+                        if (mRepoProvider.getStageModelRing() != null) {
+                            List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
+                            // toggle each rect in ring list
+                            for (Integer i : ringIndexList) {
+                                // TODO: refactor if stage actor list empty then set active actor
+                                // if stage actor list empty at ring location
+                                if (daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                                    // set stage to active actor at selected location
+                                    daoStage.getActorList().set(i, getPlayListService().getActiveActor().getMoniker());
+                                }
+                            }
+                        }
+                        else {
+                            Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
+                        }
+                    }
+                }
+
             }
-            else {
-                Log.e(TAG, "toggleSelection UNKNOWN invalid selection for " + mActiveStage.getStageType());
-            }
+//            if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
+//                DaoLocus daoLocus = daoStage.getLocusList().locii.get(selectIndex);
+//                Log.v(TAG, "toggleSelection stage type: " + daoStage.getStageType() + " toggle at " + daoLocus.getNickname());
+//            }
+//            else Log.e(TAG, "Oops touch not found in area?");
         }
         else {
-            Log.e(TAG, "toggleSelection UNKNOWN stage type: " + mActiveStage.getStageType());
+            Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
             return false;
         }
         return true;

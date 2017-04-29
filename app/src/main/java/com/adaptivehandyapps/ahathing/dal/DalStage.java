@@ -144,31 +144,17 @@ public class DalStage {
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
         if (mRepoProvider.getPlayListService() != null) {
-            // true if new stage
-            if (mRepoProvider.getPlayListService().updateActiveStage(dao)) {
+            // test for update active stage
+            mRepoProvider.getPlayListService().updateActiveStage(dao);
+            // if stage model undefined, build model
+            if (mRepoProvider.getStageModelRing() == null) {
+//                if (mRepoProvider.getPlayListService().updateActiveStage(dao)) {
                 // TODO: single stage model - build stage model per stage
                 mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-                Integer ringMax = 4;
-                mRepoProvider.getStageModelRing().buildModel(dao, ringMax);
+                mRepoProvider.getStageModelRing().buildModel(dao);
                 Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
             }
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
-//            // TODO: support multiple stage gracefully
-//            mActiveStage = getPlayListService().getActiveStage();
-//            !!!!!!!NULL exception!
-//            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-//                Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
-//                // create stage view helper
-//                mStageViewRing = new StageViewRing(mContext, this);
-//                DaoLocusList daoLocusList = mActiveStage.getLocusList();
-//                // transform locus to device coords
-//                mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
-//                // clear selection list
-//                mStageViewRing.setSelectLocus(daoLocusList, false);
-//            }
-//            else if (mActiveStage != null) {
-//                Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
-//            }
         }
         else {
             Log.e(TAG, "oops! update finds PlayListService NULL.");

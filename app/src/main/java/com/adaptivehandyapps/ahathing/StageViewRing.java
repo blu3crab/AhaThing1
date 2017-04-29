@@ -27,6 +27,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
@@ -48,8 +49,6 @@ public class StageViewRing {
     private Context mContext;
     private StageViewController mParentViewController;
 
-//    private RepoProvider mRepoProvider;
-
     private Canvas mCanvas;
 
     private int mCanvasWidth;
@@ -66,10 +65,18 @@ public class StageViewRing {
     // pinch zoom support - scale factor ranges from .1 to 1.9
     private float mScaleFactor = 1.0f;
 
+    ///////////////////////////////////////////////////////////////////////////
     // list of rects cooresponding to locus translated to device coords
     List<RectF> mRectList;
-    // list of selection markers for each locus
-    List<Boolean> mSelectList;
+    public List<RectF> getRectList() {
+        return mRectList;
+    }
+    public void setRectList(List<RectF> rectList) {
+        this.mRectList = rectList;
+    }
+
+//    // list of selection markers for each locus
+//    List<Boolean> mSelectList;
 
     ///////////////////////////////////////////////////////////////////////////
     private PlayListService mPlayListService;
@@ -204,16 +211,16 @@ public class StageViewRing {
         return y;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    public List<Boolean> setSelectLocus(DaoLocusList daoLocusList, Boolean select) {
-        // create select list
-        mSelectList = new ArrayList<>();
-        // for each locus
-        for (DaoLocus daoLocus : daoLocusList.locii) {
-            mSelectList.add(select);
-        }
-        return mSelectList;
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    public List<Boolean> setSelectLocus(DaoLocusList daoLocusList, Boolean select) {
+//        // create select list
+//        mSelectList = new ArrayList<>();
+//        // for each locus
+//        for (DaoLocus daoLocus : daoLocusList.locii) {
+//            mSelectList.add(select);
+//        }
+//        return mSelectList;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     // TODO: add pan support
     public List<RectF> transformLocus(DaoLocusList daoLocusList, float scaleFactor) {
@@ -273,9 +280,13 @@ public class StageViewRing {
         for (DaoLocus daoLocus : daoLocusList.locii) {
             // find index of locus
             int i = daoLocusList.locii.indexOf(daoLocus);
-            if (mSelectList.get(i)) {
-                // if selected, set selected color & fill
-                color = mContext.getResources().getColor(R.color.colorStageAccent);
+            if (!daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                // if actor present, set selected color & fill
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
+                color = daoActor.getForeColor();
+//            if (mSelectList.get(i)) {
+//                // if selected, set selected color & fill
+//                color = mContext.getResources().getColor(R.color.colorStageAccent);
                 mPaintMapRect.setStyle(Paint.Style.FILL);
             }
             else {
@@ -315,35 +326,38 @@ public class StageViewRing {
         canvas.drawText(greeting, x, y, paint);
         return true;
     }
-    ///////////////////////////////////////////////////////////////////////////
-    // gesture handlers
-    public int toggleSelection(float touchX, float touchY, float z, Boolean plus) {
-        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
-        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
-
-        // for each rect
-        for (RectF r : mRectList) {
-            // if rect touched
-            if (r.contains(touchX, touchY)) {
-                selectIndex = mRectList.indexOf(r);
-                mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
-                // if selecting plus ring
-                if (plus) {
-                    if (mRepoProvider.getStageModelRing() != null) {
-                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
-                        // toggle each rect in ring list
-                        for (Integer i : ringIndexList) {
-                            mSelectList.set(i, !mSelectList.get(i));
-                        }
-                    }
-                    else {
-                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
-                    }
-                }
-            }
-        }
-        return selectIndex;
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    // gesture handlers
+//    public int toggleSelection(float touchX, float touchY, float z, Boolean plus) {
+//        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
+//        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
+//
+//        DaoStage daoStage = getPlayListService().getActiveStage();
+//        List<String> daoActorList = daoStage.getActorList();
+//
+//        // for each rect
+//        for (RectF r : mRectList) {
+//            // if rect touched
+//            if (r.contains(touchX, touchY)) {
+//                selectIndex = mRectList.indexOf(r);
+//                mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
+//                // if selecting plus ring
+//                if (plus) {
+//                    if (mRepoProvider.getStageModelRing() != null) {
+//                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
+//                        // toggle each rect in ring list
+//                        for (Integer i : ringIndexList) {
+//                            mSelectList.set(i, !mSelectList.get(i));
+//                        }
+//                    }
+//                    else {
+//                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
+//                    }
+//                }
+//            }
+//        }
+//        return selectIndex;
+//    }
     ///////////////////////////////////////////////////////////////////////////
 
 }
