@@ -49,10 +49,11 @@ public class StageViewController extends View implements
 
     private static final String TAG = StageViewController.class.getSimpleName();
 
+    public static final float DEFAULT_SCALE_FACTOR = 1.0F;
+
     private static final int DEFAULT_MINOR_TEXT_SIZE_DP = 12;
     private static final int DEFAULT_MAJOR_TEXT_SIZE_DP = 24;
     private static final float DECREMENT_TEXT_SIZE_DP = 24.0F;
-
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
@@ -78,8 +79,8 @@ public class StageViewController extends View implements
 //    private Integer mMapVertCountY;
 
     // pinch zoom support - scale factor ranges from .1 to 1.9
-    private float mRawScaleFactor = 1.0f;   // retain raw scale factor to test for change
-    private float mScaleFactor = 1.0f;
+    private float mRawScaleFactor = DEFAULT_SCALE_FACTOR;   // retain raw scale factor to test for change
+    private float mScaleFactor = DEFAULT_SCALE_FACTOR;
     private ScaleGestureDetector mScaleGestureDetector;
 
     // gesture marker: onLongPress, onSingleTapConfirmed, onDoubleTap, onScale
@@ -233,6 +234,7 @@ public class StageViewController extends View implements
 
     private void setScaleFactor(float scaleFactor) {
         this.mScaleFactor = scaleFactor;
+        PrefsUtils.setPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY, scaleFactor);
     }
 
     public int getMinorTextSize() {
@@ -271,6 +273,9 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height mode " + modeToString(widthMode) + "/" + modeToString(heightMode));
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
+            // get scale factor
+            setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
+            Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));
             // TODO: support multiple stage gracefully
             if (getPlayListService() != null) {
                 mActiveStage = getPlayListService().getActiveStage();
@@ -317,6 +322,10 @@ public class StageViewController extends View implements
                         // set stage to active actor at selected location
                         daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
                     }
+                    else {
+                        // clear stage active actor at selected location
+                        daoStage.getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+                    }
                     // if selecting plus ring
                     if (plus) {
                         if (mRepoProvider.getStageModelRing() != null) {
@@ -329,12 +338,18 @@ public class StageViewController extends View implements
                                     // set stage to active actor at selected location
                                     daoStage.getActorList().set(i, getPlayListService().getActiveActor().getMoniker());
                                 }
+                                else {
+                                    // clear stage active actor at selected location
+                                    daoStage.getActorList().set(i, DaoDefs.INIT_STRING_MARKER);
+                                }
                             }
                         }
                         else {
                             Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
                         }
                     }
+                    // update object
+                    getRepoProvider().getDalStage().update(daoStage, true);
                 }
 
             }
@@ -512,8 +527,8 @@ public class StageViewController extends View implements
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             // prevent scaling too small or too large
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 1.9f));
-            Log.v(TAG, "ScaleListener : " + mScaleFactor + ", detector: " + detector.getScaleFactor());
+            setScaleFactor(Math.max(0.1f, Math.min(mScaleFactor, 1.9f)));
+            Log.v(TAG, "ScaleListener : " + getScaleFactor() + ", detector: " + detector.getScaleFactor());
             mGestureDetected = true;
 
             // if scale factor changed
@@ -526,7 +541,7 @@ public class StageViewController extends View implements
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();
                     // transform locus to device coords
                     if (mStageViewRing != null) {
-                        mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
+                        mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
                     }
                     else {
                         Log.e(TAG, "onScale finds NULL StageViewRing ");

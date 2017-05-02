@@ -17,6 +17,7 @@
  */
 package com.adaptivehandyapps.ahathing;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity
     }
     ///////////////////////////////////////////////////////////////////////////
 
+    private Activity mActivity;
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
     private NavMenu mNavMenu;
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivity = this;
         Log.d(TAG, PrefsUtils.toString(this));
         // set content to main
         setContentView(R.layout.activity_main);
@@ -529,6 +532,14 @@ public class MainActivity extends AppCompatActivity
 //                    setActiveHierarchy();
                     // set navigation menu
                     buildNavMenu();
+                    // if op has been assigned
+                    if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
+                        ContentFragment.replaceFragment(mActivity, mContentOp, mContentObjType, mContentMoniker);
+                    }
+                    else {
+                        Log.e(TAG, "Oops! Nada op... ");
+                    }
+
                 }
             }
         };

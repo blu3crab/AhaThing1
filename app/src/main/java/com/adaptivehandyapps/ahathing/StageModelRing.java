@@ -96,51 +96,54 @@ public class StageModelRing {
 //        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mRepoProvider.getDaoStageRepo().size());
 //        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
-        // create actor list mirroring locus list
-        List<String>  actorList = new ArrayList<>();
-        activeStage.setActorList(actorList);
-        // create stage locus list  mirroring locus list
-        List<String>  propList = new ArrayList<>();
-        activeStage.setPropList(propList);
+        // if no previous model, create locus, actor, prop lists
+        if (activeStage.getLocusList().locii.size() == 0) {
+            // create actor list mirroring locus list
+            List<String> actorList = new ArrayList<>();
+            activeStage.setActorList(actorList);
+            // create stage locus list  mirroring locus list
+            List<String> propList = new ArrayList<>();
+            activeStage.setPropList(propList);
 
-        // create prop list
-        DaoLocusList daoLocusList = new DaoLocusList();
-        activeStage.setLocusList(daoLocusList);
-        // establish ring max id list
-        Integer ring = 0;
-        Integer ringId = 0;
-        List<Integer> ringMaxId = new ArrayList<>();
-        ringMaxId.add(0);
+            // create prop list
+            DaoLocusList daoLocusList = new DaoLocusList();
+            activeStage.setLocusList(daoLocusList);
+            // establish ring max id list
+            Integer ring = 0;
+            Integer ringId = 0;
+            List<Integer> ringMaxId = new ArrayList<>();
+            ringMaxId.add(0);
 
-        // seed 1st locus at 0,0
-        DaoLocus origin = new DaoLocus();
+            // seed 1st locus at 0,0
+            DaoLocus origin = new DaoLocus();
 //        daoLocusList.locii.add(origin);
-        // mirror locus list add with actor & prop
-        mirrorLociiAdd(origin, daoLocusList, actorList, propList);
-        // TODO:
-        origin.setNickname(setLocusName(ring, ringMaxId.get(ring)));
-        origin.setVertX(RING_CENTER_X);
-        origin.setVertY(RING_CENTER_Y);
-        origin.setVertZ(RING_CENTER_Z);
-        Log.d(TAG, origin.toString() + " at origin.");
+            // mirror locus list add with actor & prop
+            mirrorLociiAdd(origin, daoLocusList, actorList, propList);
+            // TODO:
+            origin.setNickname(setLocusName(ring, ringMaxId.get(ring)));
+            origin.setVertX(RING_CENTER_X);
+            origin.setVertY(RING_CENTER_Y);
+            origin.setVertZ(RING_CENTER_Z);
+            Log.d(TAG, origin.toString() + " at origin.");
 
-        // populate 1st ring around origin
-        ++ring; // 1st
-        ringId = populateLocii(ring, ringMaxId.get(ring-1), daoLocusList, origin, actorList, propList);
-        ringMaxId.add(ringId);
-
-        // populate next ring by expanding around each locus in previous ring
-        while (ring < activeStage.getRingSize()) {
-            ++ring;
-            // for each locus in previous ring
-            Integer locusIndex = ringMaxId.get(ring-2) + 1;
-            ringId = ringMaxId.get(ring-1);
-            while ( locusIndex < ringMaxId.get(ring-1)+1) {
-                origin = daoLocusList.locii.get(locusIndex);
-                ringId = populateLocii(ring, ringId, daoLocusList, origin, actorList, propList);
-                ++locusIndex;
-            }
+            // populate 1st ring around origin
+            ++ring; // 1st
+            ringId = populateLocii(ring, ringMaxId.get(ring - 1), daoLocusList, origin, actorList, propList);
             ringMaxId.add(ringId);
+
+            // populate next ring by expanding around each locus in previous ring
+            while (ring < activeStage.getRingSize()) {
+                ++ring;
+                // for each locus in previous ring
+                Integer locusIndex = ringMaxId.get(ring - 2) + 1;
+                ringId = ringMaxId.get(ring - 1);
+                while (locusIndex < ringMaxId.get(ring - 1) + 1) {
+                    origin = daoLocusList.locii.get(locusIndex);
+                    ringId = populateLocii(ring, ringId, daoLocusList, origin, actorList, propList);
+                    ++locusIndex;
+                }
+                ringMaxId.add(ringId);
+            }
         }
         return true;
     }

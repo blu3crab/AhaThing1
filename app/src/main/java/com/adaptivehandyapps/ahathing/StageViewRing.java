@@ -265,25 +265,32 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
         if (getPlayListService().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+            Log.v(TAG, "getPlayListService().getActiveStory() ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
         }
         else {
-            Log.e(TAG, "RepoProvider NOT ready...");
+            Log.e(TAG, "getPlayListService().getActiveStory() NOT ready...");
             return false;
         }
 
         DaoStage daoStage = getPlayListService().getActiveStage();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
+        Log.v(TAG, daoStage.getActorList().toString());
+
         int color;
         // for each locus
         for (DaoLocus daoLocus : daoLocusList.locii) {
+            // default color & fill to signal incoherence
+            color = mContext.getResources().getColor(R.color.colorLightGrey);
+            mPaintMapRect.setStyle(Paint.Style.FILL);
             // find index of locus
             int i = daoLocusList.locii.indexOf(daoLocus);
             if (!daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
                 // if actor present, set selected color & fill
                 DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
-                color = daoActor.getForeColor();
+                if (daoActor != null) {
+                    color = daoActor.getForeColor();
+                }
 //            if (mSelectList.get(i)) {
 //                // if selected, set selected color & fill
 //                color = mContext.getResources().getColor(R.color.colorStageAccent);

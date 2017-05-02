@@ -262,16 +262,16 @@ public class DalStage {
             // if no recent local activity
             DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoStage.getMoniker());
             if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-                Log.d(TAG, "onChildAdded daoStage (remote trigger): " + daoStage.toString());
+                Log.d(TAG, "snapshotUpdate daoStage (remote trigger): " + daoStage.toString());
                 // update repo but not db
                 update(daoStage, false);
             }
             else {
-                Log.d(TAG, "onChildAdded: daoStage (ignore local|multiple trigger): " + daoStage.toString());
+                Log.d(TAG, "snapshotUpdate: daoStage (ignore local|multiple trigger): " + daoStage.toString());
             }
         }
         else {
-            Log.e(TAG, "onChildAdded: NULL daoStage?");
+            Log.e(TAG, "snapshotUpdate: NULL daoStage?");
         }
 
         return true;

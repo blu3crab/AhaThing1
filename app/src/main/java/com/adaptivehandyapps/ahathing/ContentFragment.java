@@ -138,6 +138,7 @@ public class ContentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // bind to playlist service
+
         Intent intent = new Intent(getActivity(), PlayListService.class);
         getActivity().bindService(intent, mPlayListConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
@@ -176,12 +177,19 @@ public class ContentFragment extends Fragment {
             mContentMoniker = getArguments().getString(ARG_CONTENT_KEY_MONIKER);
         }
         Log.v(TAG, "onCreate: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
-        mRootView = mInflater.inflate(mContentId, mContainer, false);
+//        mRootView = mInflater.inflate(mContentId, mContainer, false);
+        mRootView = refresh();
+
+//        // if services bound refresh the view
+//        if (mPlayListBound && mRepoProviderBound) refresh();
+//        Log.v(TAG, "onCreate: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
+
         return mRootView;
     }
     private View refresh() {
-//        mRootView = mInflater.inflate(mContentId, mContainer, false);
-
+        // inflate to refresh
+        mRootView = mInflater.inflate(mContentId, mContainer, false);
+        Log.v(TAG, "refresh inflating " + mContentId + ", Moniker = " + mContentMoniker);
         if (mContentId == R.layout.content_daomaker) {
             // create new handler & callback
             mDaoMakerUiHandler = new DaoMakerUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
@@ -204,16 +212,16 @@ public class ContentFragment extends Fragment {
 //                ContentFragment cf = (ContentFragment)fragment;
 //                cf.setRepoProvider(mRepoProvider);
 
-                // TODO: consolidate Play launch
-                // update the main content with stage
-                if (getPlayListService().getActiveStory() != null) {
-                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
-                }
-                else {
-                    // TODO: determine next step based on just completed operation
-                }
+//                // TODO: consolidate Play launch
+//                // update the main content with stage
+//                if (getPlayListService().getActiveStory() != null) {
+//                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+//                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+//                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+//                }
+//                else {
+//                    // TODO: determine next step based on just completed operation
+//                }
 
                 if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;

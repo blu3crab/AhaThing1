@@ -44,6 +44,7 @@ public class PrefsUtils {
     public static final String ACTIVE_ACTOR_KEY = "activeActor";
     public static final String ACTIVE_ACTION_KEY = "activeAction";
     public static final String ACTIVE_OUTCOME_KEY = "activeOutcome";
+    public static final String SCALE_FACTOR_KEY = "scaleFactor";
 
     ///////////////////////////////////////////////////////////////////////////
     public static void setDefaults(Context context) {
@@ -56,6 +57,7 @@ public class PrefsUtils {
         prefs.edit().putString(ACTIVE_ACTOR_KEY, DaoDefs.INIT_STRING_MARKER);
         prefs.edit().putString(ACTIVE_ACTION_KEY, DaoDefs.INIT_STRING_MARKER);
         prefs.edit().putString(ACTIVE_OUTCOME_KEY, DaoDefs.INIT_STRING_MARKER);
+        prefs.edit().putFloat(SCALE_FACTOR_KEY, StageViewController.DEFAULT_SCALE_FACTOR);
         return;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -83,9 +85,18 @@ public class PrefsUtils {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(key, DaoDefs.INIT_STRING_MARKER);
     }
+    public static Float getFloatPrefs(Context context, String key) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getFloat(key, StageViewController.DEFAULT_SCALE_FACTOR);
+    }
     public static void setPrefs(Context context, String key, String value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.edit().putString(key, value).apply();
+        return;
+    }
+    public static void setPrefs(Context context, String key, float value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().putFloat(key, value).apply();
         return;
     }
     ///////////////////////////////////////////////////////////////////////////

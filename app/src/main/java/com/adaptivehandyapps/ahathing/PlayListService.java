@@ -298,12 +298,18 @@ public class PlayListService extends Service {
     public Boolean updateActiveStage(DaoStage dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
-        if (getActiveStage() == null &&
+        if (getActiveStage() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveStage(dao);
             return true;
         }
+//        if (getActiveStage() == null &&
+//                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+//            // set active to updated object
+//            setActiveStage(dao);
+//            return true;
+//        }
         return false;
     }
     public Boolean removeActiveStage(DaoStage dao) {
