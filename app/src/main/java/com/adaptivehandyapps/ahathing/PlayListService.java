@@ -172,7 +172,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveTheatre(DaoTheatre dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_THEATRE_KEY);
-        if (getActiveTheatre() == null &&
+        if (getActiveTheatre() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveTheatre(dao);
@@ -214,7 +214,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveEpic(DaoEpic dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
-        if (getActiveEpic() == null &&
+        if (getActiveEpic() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveEpic(dao);
@@ -256,7 +256,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveStory(DaoStory dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STORY_KEY);
-        if (getActiveStory() == null &&
+        if (getActiveStory() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveStory(dao);
@@ -294,6 +294,12 @@ public class PlayListService extends Service {
         // set prefs & active object
         PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, moniker);
         mActiveStage = activeDao;
+
+        // create new stage model, view, controller
+        mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+        mRepoProvider.getStageModelRing().buildModel(activeDao);
+        Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+
     }
     public Boolean updateActiveStage(DaoStage dao) {
         // if no active object & this object matches prefs or no prefs
@@ -346,7 +352,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveActor(DaoActor dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
-        if (getActiveActor() == null &&
+        if (getActiveActor() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveActor(dao);
@@ -388,7 +394,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveAction(DaoAction dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTION_KEY);
-        if (getActiveAction() == null &&
+        if (getActiveAction() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveAction(dao);
@@ -430,7 +436,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveOutcome(DaoOutcome dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_OUTCOME_KEY);
-        if (getActiveOutcome() == null &&
+        if (getActiveOutcome() == null ||
                 (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveOutcome(dao);

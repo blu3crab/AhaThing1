@@ -41,7 +41,7 @@ public class DaoStage extends DaoBase {
 	@SerializedName("locusList")		// locus list
 	private DaoLocusList locusList;
 
-	@SerializedName("actorList")			// actor list mirrors locusList
+	@SerializedName("actorList")		// actor list mirrors locusList
 	private List<String> actorList;
 
 	@SerializedName("propList")			// props list
@@ -53,7 +53,7 @@ public class DaoStage extends DaoBase {
 	///////////////////////////////////////////////////////////////////////////
 	public DaoStage() {
 		super();
-		this.stageType = DaoDefs.INIT_STRING_MARKER;
+		this.stageType = STAGE_TYPE_RING;
 		this.ringSize = STAGE_TYPE_RING_SIZE_DEFAULT;
 		this.locusList = new DaoLocusList();
 		this.actorList = new ArrayList<>();

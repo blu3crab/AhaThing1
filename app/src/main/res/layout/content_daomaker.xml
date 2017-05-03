@@ -180,7 +180,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/ll_stages"
+            android:id="@+id/ll_stagelist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -207,7 +207,7 @@
             </Spinner>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ll_actors"
+            android:id="@+id/ll_actorlist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
@@ -236,7 +236,7 @@
             </Spinner>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ll_actions"
+            android:id="@+id/ll_actionlist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
@@ -265,7 +265,7 @@
             </Spinner>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ll_outcomes"
+            android:id="@+id/ll_outcomelist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
@@ -445,6 +445,90 @@
             android:textColor="@color/colorNewAccent"
             android:background="@color/colorNew"
             android:text="secondary color"/>
+    </LinearLayout>
+
+    <!-- action -->
+    <LinearLayout
+        android:id="@+id/ll_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_actiontype"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Action Type:" />
+
+            <Spinner
+                android:id="@+id/spinner_actiontype"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorTagListNotSelected"
+                android:textColor="@color/colorBrightGreen"
+                >
+            </Spinner>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- outcome -->
+    <LinearLayout
+        android:id="@+id/ll_outcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_outcometype"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Outcome Type:" />
+
+            <Spinner
+                android:id="@+id/spinner_outcometype"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorTagListNotSelected"
+                android:textColor="@color/colorBrightGreen"
+                >
+            </Spinner>
+        </LinearLayout>
     </LinearLayout>
 
     <!--

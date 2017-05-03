@@ -20,6 +20,8 @@ package com.adaptivehandyapps.ahathing.dao;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -27,23 +29,14 @@ public class DaoAction extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	@SerializedName("stage")
-	private String stage;
+	public static final String ACTION_TYPE_NONE = "None";
+	public static final String ACTION_TYPE_SINGLE_TAP = "SingleTap";
+	public static final String ACTION_TYPE_DOUBLE_TAP = "DoubleTap";
+	public static final String ACTION_TYPE_LONG_PRESS = "LongPress";
+	public static final String ACTION_TYPE_FLING = "Fling";
 
-	@SerializedName("prereq")
-	private String prereq;
-
-	@SerializedName("actor")
-	private String actor;
-
-	@SerializedName("action")
-	private String action;
-
-	@SerializedName("outcome")
-	private String outcome;
-
-	@SerializedName("trigger")
-	private String trigger;
+	@SerializedName("actionType")		// action type
+	private String actionType;
 
 	@SerializedName("reserve2")
 	private String reserve2;
@@ -51,12 +44,7 @@ public class DaoAction extends DaoBase {
 	///////////////////////////////////////////////////////////////////////////
 	public DaoAction() {
 		super();
-		this.stage = DaoDefs.INIT_STRING_MARKER;
-		this.prereq = DaoDefs.INIT_STRING_MARKER;
-		this.actor = DaoDefs.INIT_STRING_MARKER;
-		this.action = DaoDefs.INIT_STRING_MARKER;
-		this.outcome = DaoDefs.INIT_STRING_MARKER;
-		this.trigger = DaoDefs.INIT_STRING_MARKER;
+		this.actionType = ACTION_TYPE_NONE;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
@@ -66,21 +54,11 @@ public class DaoAction extends DaoBase {
 			Long timestamp,
 			List<String> tagList,
 			String reserve1,
-			String stage,
-			String prereq,
-			String actor,
-			String action,
-			String outcome,
-			String trigger,
+			String actionType,
 			String reserve2
 	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
-		this.stage = stage;
-		this.prereq = prereq;
-		this.actor = actor;
-		this.action = action;
-		this.outcome = outcome;
-		this.trigger = trigger;
+		this.actionType = actionType;
 		this.reserve2 = reserve2;
 	}
 
@@ -89,53 +67,24 @@ public class DaoAction extends DaoBase {
 		return serialVersionUID;
 	}
 
-    public String getStage() {
-        return stage;
+	public static List<String> getActionTypeList() {
+		List<String> actionTypeList = new ArrayList<>(Arrays.asList(
+				ACTION_TYPE_NONE,
+				ACTION_TYPE_SINGLE_TAP,
+				ACTION_TYPE_DOUBLE_TAP,
+				ACTION_TYPE_LONG_PRESS,
+				ACTION_TYPE_FLING
+		));
+		return actionTypeList;
+	}
+
+    public String getActionType() {
+        return actionType;
     }
 
-    public void setStage(String stage) {
-        this.stage = stage;
+    public void setActionType(String actionType) {
+        this.actionType = actionType;
     }
-
-    public String getPrereq() {
-		return prereq;
-	}
-
-	public void setPrereq(String prereq) {
-		this.prereq = prereq;
-	}
-
-	public String getActor() {
-		return actor;
-	}
-
-	public void setActor(String actor) {
-		this.actor = actor;
-	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public String getOutcome() {
-		return outcome;
-	}
-
-	public void setOutcome(String outcome) {
-		this.outcome = outcome;
-	}
-
-	public String getTrigger() {
-		return trigger;
-	}
-
-	public void setTrigger(String trigger) {
-		this.trigger = trigger;
-	}
 
 	public String getReserve2() {
 		return reserve2;

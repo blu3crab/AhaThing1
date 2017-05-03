@@ -22,6 +22,7 @@ package com.adaptivehandyapps.ahathing;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -60,6 +61,10 @@ public class DaoMakerViewXfer {
 
     private ArrayAdapter<String> mRingTypeListAdapter = null;
     private Spinner mSpinnerRingType;
+    private ArrayAdapter<String> mActionTypeListAdapter = null;
+    private Spinner mSpinnerActionType;
+    private ArrayAdapter<String> mOutcomeTypeListAdapter = null;
+    private Spinner mSpinnerOutcomeType;
 
     private Boolean mIsForeColor;
     private Integer mForeColor = DaoDefs.INIT_INTEGER_MARKER;
@@ -313,11 +318,9 @@ public class DaoMakerViewXfer {
         ll.setVisibility(View.VISIBLE);
 
         // establish fore color button visibility & click listener
-//        final Button buttonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
         mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
         mButtonForeColor.setVisibility(View.VISIBLE);
         setForeColor(daoActor.getForeColor());
-//        mButtonForeColor.setBackgroundColor(getForeColor());
 //        Log.d(TAG, "fore color rgb " + getForeColor());
 
         mButtonForeColor.setOnClickListener(new View.OnClickListener() {
@@ -330,11 +333,9 @@ public class DaoMakerViewXfer {
             }
         });
         // establish back color button visibility & click listener
-//        final Button buttonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
         mButtonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
         mButtonBackColor.setVisibility(View.VISIBLE);
         setBackColor(daoActor.getBackColor());
-//        mButtonBackColor.setBackgroundColor(getBackColor());
 //        Log.d(TAG, "Back color rgb " + getBackColor());
 
         mButtonBackColor.setOnClickListener(new View.OnClickListener() {
@@ -353,16 +354,92 @@ public class DaoMakerViewXfer {
     public Boolean fromAction(DaoAction daoAction) {
 
         // set Action views visible
-        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_actions);
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_action);
         ll.setVisibility(View.VISIBLE);
+
+        // action spinner
+        final List<String> actionTypeList = DaoAction.getActionTypeList();
+        mActionTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                actionTypeList);
+
+        mSpinnerActionType = (Spinner) mRootView.findViewById(R.id.spinner_actiontype);
+        if (mActionTypeListAdapter != null && mSpinnerActionType != null) {
+            mSpinnerActionType.setAdapter(mActionTypeListAdapter);
+            // set current selection
+            if (actionTypeList.contains(daoAction.getActionType())) {
+                int i = actionTypeList.indexOf(daoAction.getActionType());
+                mSpinnerActionType.setSelection(i);
+            }
+            // establish listener
+            mSpinnerActionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                    List<String> actionTypeList = DaoAction.getActionTypeList();
+                    String actionType = actionTypeList.get(position);
+                    Log.d(TAG,"ActionType " + actionType + " at position " + position);
+                    EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
+                    etMoniker.setText(actionType);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parentView) {
+                    // your code here
+                }
+
+            });
+
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mActionTypeListAdapter? " + mActionTypeListAdapter + ", R.id.spinner_actiontype? " + mSpinnerActionType);
+            return false;
+        }
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromOutcome(DaoOutcome daoOutcome) {
-
         // set Outcome views visible
-        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_outcomes);
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_outcome);
         ll.setVisibility(View.VISIBLE);
+
+        // outcome spinner
+        final List<String> outcomeTypeList = DaoOutcome.getOutcomeTypeList();
+        mOutcomeTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                outcomeTypeList);
+
+        mSpinnerOutcomeType = (Spinner) mRootView.findViewById(R.id.spinner_outcometype);
+        if (mOutcomeTypeListAdapter != null && mSpinnerOutcomeType != null) {
+            mSpinnerOutcomeType.setAdapter(mOutcomeTypeListAdapter);
+            // set current selection
+            if (outcomeTypeList.contains(daoOutcome.getOutcomeType())) {
+                int i = outcomeTypeList.indexOf(daoOutcome.getOutcomeType());
+                mSpinnerOutcomeType.setSelection(i);
+            }
+            // establish listener
+            mSpinnerOutcomeType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                    String outcomeType = outcomeTypeList.get(position);
+                    Log.d(TAG,"OutcomeType " + outcomeType + " at position " + position);
+                    EditText etMoniker = (EditText) mRootView.findViewById(R.id.et_moniker);
+                    etMoniker.setText(outcomeType);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parentView) {
+                    // your code here
+                }
+
+            });
+
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mOutcomeTypeListAdapter? " + mOutcomeTypeListAdapter + ", R.id.spinner_outcometype? " + mSpinnerOutcomeType);
+            return false;
+        }
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -483,15 +560,8 @@ public class DaoMakerViewXfer {
         EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
         Integer ringSize = Integer.parseInt(etRingSize.getText().toString());;
         activeStage.setRingSize(ringSize);
-
-//        if (mParent.getRepoProvider().getStageModelRing() == null) {
-//            // TODO: single stage model - build stage model per stage
-//            mParent.getRepoProvider().setStageModelRing(new StageModelRing(mParent.getPlayListService()));
-//            Integer ringMax = 4;
-//            mParent.getRepoProvider().getStageModelRing().buildModel(activeStage, ringMax);
-//            Log.d(TAG, "NEW StageModelRing for repo " + mParent.getRepoProvider().toString() + " at " + mParent.getRepoProvider().getStageModelRing().toString());
-//        }
-        mParent.getPlayListService().setActiveStage(activeStage);        // update repo
+        // update repo
+        mParent.getPlayListService().setActiveStage(activeStage);
         mParent.getRepoProvider().getDalStage().update(activeStage, true);
         return true;
     }
@@ -548,6 +618,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeAction.setMoniker(editedMoniker);
         activeAction.setHeadline(headline);
+        Log.d(TAG, "toAction selected action type " + mSpinnerActionType.getSelectedItem().toString());
+        activeAction.setActionType(mSpinnerActionType.getSelectedItem().toString());
         mParent.getPlayListService().setActiveAction(activeAction);
         // update repo
         mParent.getRepoProvider().getDalAction().update(activeAction, true);
@@ -581,6 +653,8 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeOutcome.setMoniker(editedMoniker);
         activeOutcome.setHeadline(headline);
+        Log.d(TAG, "toOutcome selected action type " + mSpinnerOutcomeType.getSelectedItem().toString());
+        activeOutcome.setOutcomeType(mSpinnerOutcomeType.getSelectedItem().toString());
         mParent.getPlayListService().setActiveOutcome(activeOutcome);
         // update repo
         mParent.getRepoProvider().getDalOutcome().update(activeOutcome, true);

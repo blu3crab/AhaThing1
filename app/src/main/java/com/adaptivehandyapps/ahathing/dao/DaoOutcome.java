@@ -20,6 +20,8 @@ package com.adaptivehandyapps.ahathing.dao;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -27,12 +29,21 @@ public class DaoOutcome extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String OUTCOME_TYPE_NONE = "None";
+	public static final String OUTCOME_TYPE_TOGGLE = "Toggle";
+	public static final String OUTCOME_TYPE_TOGGLE_PLUS = "TogglePlus";
+	public static final String OUTCOME_TYPE_TOGGLE_PATH = "TogglePath";
+
+	@SerializedName("outcomeType")		// type
+	private String outcomeType;
+
 	@SerializedName("reserve2")
 	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
 	public DaoOutcome() {
 		super();
+		this.outcomeType = OUTCOME_TYPE_NONE;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
@@ -41,14 +52,36 @@ public class DaoOutcome extends DaoBase {
 			String headline,
 			Long timestamp,
 			List<String> tagList,
-            String reserve1
-    ) {
+            String reserve1,
+			String outcomeType,
+			String reserve2
+	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
+		this.outcomeType = outcomeType;
+		this.reserve2 = reserve2;
 	}
 
 	/////////////////////////////helpers//////////////////////////////////
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
+	}
+
+	public static List<String> getOutcomeTypeList() {
+		List<String> outcomeTypeList = new ArrayList<>(Arrays.asList(
+				OUTCOME_TYPE_NONE,
+				OUTCOME_TYPE_TOGGLE,
+				OUTCOME_TYPE_TOGGLE_PLUS,
+				OUTCOME_TYPE_TOGGLE_PATH
+		));
+		return outcomeTypeList;
+	}
+
+	public String getOutcomeType() {
+		return outcomeType;
+	}
+
+	public void setOutcomeType(String outcomeType) {
+		this.outcomeType = outcomeType;
 	}
 
 	public String getReserve2() {

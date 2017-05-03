@@ -41,6 +41,12 @@ public class DaoStory extends DaoBase {
 	@SerializedName("outcome")
 	private String outcome;
 
+//	@SerializedName("prereq")
+//	private String prereq;
+//
+//	@SerializedName("trigger")
+//	private String trigger;
+//
 	@SerializedName("reserve2")
 	private String reserve2;
 

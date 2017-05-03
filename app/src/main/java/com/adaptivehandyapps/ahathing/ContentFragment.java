@@ -177,8 +177,8 @@ public class ContentFragment extends Fragment {
             mContentMoniker = getArguments().getString(ARG_CONTENT_KEY_MONIKER);
         }
         Log.v(TAG, "onCreate: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
-//        mRootView = mInflater.inflate(mContentId, mContainer, false);
-        mRootView = refresh();
+        mRootView = mInflater.inflate(mContentId, mContainer, false);
+//        mRootView = refresh();
 
 //        // if services bound refresh the view
 //        if (mPlayListBound && mRepoProviderBound) refresh();
@@ -188,12 +188,16 @@ public class ContentFragment extends Fragment {
     }
     private View refresh() {
         // inflate to refresh
-        mRootView = mInflater.inflate(mContentId, mContainer, false);
-        Log.v(TAG, "refresh inflating " + mContentId + ", Moniker = " + mContentMoniker);
-        if (mContentId == R.layout.content_daomaker) {
-            // create new handler & callback
-            mDaoMakerUiHandler = new DaoMakerUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
-            mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
+//        mRootView = mInflater.inflate(mContentId, mContainer, false);
+//        Log.v(TAG, "refresh inflating " + mContentId + ", Moniker = " + mContentMoniker);
+        mRootView.invalidate();
+        Log.v(TAG, "refresh invalidating " + mContentId + ", Moniker = " + mContentMoniker);
+        if (mPlayListBound && mRepoProviderBound) {
+            if (mContentId == R.layout.content_daomaker) {
+                // create new handler & callback
+                mDaoMakerUiHandler = new DaoMakerUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
+                mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
+            }
         }
         return mRootView;
     }

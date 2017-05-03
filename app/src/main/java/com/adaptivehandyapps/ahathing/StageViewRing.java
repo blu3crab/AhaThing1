@@ -108,16 +108,15 @@ public class StageViewRing {
         mCanvasHeight = mParentViewController.getCanvasHeight();
         mDensity = mParentViewController.getDensity();
 
-        // ensure RepoProvider ready
-//        mRepoProvider = parentViewController.getRepoProvider();
-        if (getPlayListService().getActiveStory() != null) {
-            Log.v(TAG, "RepoProvider ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+        // ensure stage ready
+        if (getPlayListService().getActiveStage() != null) {
+            Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
             DaoStage daoStage = getPlayListService().getActiveStage();
             if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.e(TAG, "RepoProvider UNKNOWN stage type: " + daoStage.getStageType());
+                Log.e(TAG, "UNKNOWN stage type: " + daoStage.getStageType());
             }
         } else {
-            Log.e(TAG, "RepoProvider NULL or NOT ready!");
+            Log.e(TAG, "Active stage NULL or NOT ready!");
         }
         init(context);
     }
@@ -158,7 +157,7 @@ public class StageViewRing {
         return mScaleFactor;
     }
 
-    public int getRingColor(DaoLocus daoLocus) {
+    private int getRingColor(DaoLocus daoLocus) {
         String ring = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("R"));
         ring = ring.substring(1, 2);
         int color;
@@ -186,7 +185,7 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public float vertToDeviceX(Long vertX, float scaleFactor) {
+    private float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -199,7 +198,7 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public float vertToDeviceY(Long vertY, float scaleFactor) {
+    private float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -211,16 +210,8 @@ public class StageViewRing {
         return y;
     }
 
-//    ///////////////////////////////////////////////////////////////////////////
-//    public List<Boolean> setSelectLocus(DaoLocusList daoLocusList, Boolean select) {
-//        // create select list
-//        mSelectList = new ArrayList<>();
-//        // for each locus
-//        for (DaoLocus daoLocus : daoLocusList.locii) {
-//            mSelectList.add(select);
-//        }
-//        return mSelectList;
-//    }
+    ///////////////////////////////////////////////////////////////////////////
+    // tranform locus list to device coords
     ///////////////////////////////////////////////////////////////////////////
     // TODO: add pan support
     public List<RectF> transformLocus(DaoLocusList daoLocusList, float scaleFactor) {
@@ -264,18 +255,18 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (getPlayListService().getActiveStory() != null) {
-            Log.v(TAG, "getPlayListService().getActiveStory() ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+        if (getPlayListService().getActiveStage() != null) {
+            Log.v(TAG, "getPlayListService().getActiveStage() ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
         }
         else {
-            Log.e(TAG, "getPlayListService().getActiveStory() NOT ready...");
+            Log.e(TAG, "getPlayListService().getActiveStage() NOT ready...");
             return false;
         }
 
         DaoStage daoStage = getPlayListService().getActiveStage();
         DaoLocusList daoLocusList = daoStage.getLocusList();
 
-        Log.v(TAG, daoStage.getActorList().toString());
+        Log.v(TAG, "stage actor list -> " + daoStage.getActorList().toString());
 
         int color;
         // for each locus
@@ -285,21 +276,22 @@ public class StageViewRing {
             mPaintMapRect.setStyle(Paint.Style.FILL);
             // find index of locus
             int i = daoLocusList.locii.indexOf(daoLocus);
-            if (!daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+            if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
                 // if actor present, set selected color & fill
                 DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                 if (daoActor != null) {
                     color = daoActor.getForeColor();
                 }
-//            if (mSelectList.get(i)) {
-//                // if selected, set selected color & fill
-//                color = mContext.getResources().getColor(R.color.colorStageAccent);
                 mPaintMapRect.setStyle(Paint.Style.FILL);
+            }
+            else if (i >= daoStage.getActorList().size()) {
+                Log.e(TAG, "invalid locii index " + i + " for stage actor list size = " + daoStage.getActorList().size());
             }
             else {
                 // set unselected color & no fill
                 color = getRingColor(daoLocus);
                 mPaintMapRect.setStyle(Paint.Style.STROKE);
+
             }
             mPaintMapRect.setColor(color);
 
@@ -333,38 +325,6 @@ public class StageViewRing {
         canvas.drawText(greeting, x, y, paint);
         return true;
     }
-//    ///////////////////////////////////////////////////////////////////////////
-//    // gesture handlers
-//    public int toggleSelection(float touchX, float touchY, float z, Boolean plus) {
-//        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
-//        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
-//
-//        DaoStage daoStage = getPlayListService().getActiveStage();
-//        List<String> daoActorList = daoStage.getActorList();
-//
-//        // for each rect
-//        for (RectF r : mRectList) {
-//            // if rect touched
-//            if (r.contains(touchX, touchY)) {
-//                selectIndex = mRectList.indexOf(r);
-//                mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
-//                // if selecting plus ring
-//                if (plus) {
-//                    if (mRepoProvider.getStageModelRing() != null) {
-//                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
-//                        // toggle each rect in ring list
-//                        for (Integer i : ringIndexList) {
-//                            mSelectList.set(i, !mSelectList.get(i));
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
-//                    }
-//                }
-//            }
-//        }
-//        return selectIndex;
-//    }
     ///////////////////////////////////////////////////////////////////////////
 
 }

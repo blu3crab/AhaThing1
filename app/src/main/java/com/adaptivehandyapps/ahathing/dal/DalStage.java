@@ -129,11 +129,13 @@ public class DalStage {
 
     ///////////////////////////////////////////////////////////////////////////
     public Boolean update(DaoStage dao, Boolean updateDatabase) {
-        Log.d(TAG, "update(updateDatabase = " + updateDatabase + "): dao " + dao.toString());
+        Log.d(TAG, "update(updateDatabase = " + updateDatabase + ") " + dao.toString());
         // add or update repo with object
         getDaoRepo().set(dao);
         // post audit trail
         mRepoProvider.getDaoAuditRepo().postAudit(getActorUpdateResId(), R.string.action_set, dao.getMoniker());
+
+        Log.v(TAG, "stage actor list -> " + dao.getActorList().toString());
 
         if (updateDatabase) {
             // post audit trail
@@ -146,14 +148,13 @@ public class DalStage {
         if (mRepoProvider.getPlayListService() != null) {
             // test for update active stage
             mRepoProvider.getPlayListService().updateActiveStage(dao);
-            // if stage model undefined, build model
-            if (mRepoProvider.getStageModelRing() == null) {
-//                if (mRepoProvider.getPlayListService().updateActiveStage(dao)) {
-                // TODO: single stage model - build stage model per stage
-                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-                mRepoProvider.getStageModelRing().buildModel(dao);
-                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
-            }
+//            // if stage model undefined, build model
+//            if (mRepoProvider.getStageModelRing() == null) {
+//                // TODO: single stage model - build stage model per stage
+//                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+//                mRepoProvider.getStageModelRing().buildModel(dao);
+//                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+//            }
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
         }
         else {
@@ -216,7 +217,7 @@ public class DalStage {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "childEventListener onChildChanged key = " + dataSnapshot.getKey());
-                String snapshotKey = dataSnapshot.getKey();
+//                String snapshotKey = dataSnapshot.getKey();
                 if (dataSnapshot.getKey() != null && getDaoRepo().contains(dataSnapshot.getKey())) {
                     snapshotUpdate(dataSnapshot);
                 } else {
@@ -259,16 +260,18 @@ public class DalStage {
     private Boolean snapshotUpdate(DataSnapshot dataSnapshot) {
         DaoStage daoStage = dataSnapshot.getValue(DaoStage.class);
         if (daoStage != null) {
-            // if no recent local activity
-            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoStage.getMoniker());
-            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
-                Log.d(TAG, "snapshotUpdate daoStage (remote trigger): " + daoStage.toString());
-                // update repo but not db
-                update(daoStage, false);
-            }
-            else {
-                Log.d(TAG, "snapshotUpdate: daoStage (ignore local|multiple trigger): " + daoStage.toString());
-            }
+            update(daoStage, false);
+            // TODO: validate recency check in all objects
+//            // if no recent local activity
+//            DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoStage.getMoniker());
+//            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+//                Log.d(TAG, "snapshotUpdate daoStage (remote trigger): " + daoStage.toString());
+//                // update repo but not db
+//                update(daoStage, false);
+//            }
+//            else {
+//                Log.d(TAG, "snapshotUpdate: daoStage (ignore local|multiple trigger): " + daoStage.toString());
+//            }
         }
         else {
             Log.e(TAG, "snapshotUpdate: NULL daoStage?");

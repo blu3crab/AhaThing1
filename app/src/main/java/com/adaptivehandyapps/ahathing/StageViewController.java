@@ -36,9 +36,11 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,10 +202,6 @@ public class StageViewController extends View implements
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
-//    public RepoProvider getRepoProvider() { return mRepoProvider; }
-//
-//    public Boolean setRepoProvider(RepoProvider repoProvider) { mRepoProvider = repoProvider; return true; }
-//
     public int getCanvasWidth() {
         return mCanvasWidth;
     }
@@ -315,33 +313,14 @@ public class StageViewController extends View implements
                 // if rect touched
                 if (r.contains(touchX, touchY)) {
                     selectIndex = mStageViewRing.getRectList().indexOf(r);
-//                        mSelectList.set(selectIndex, !mSelectList.get(selectIndex));
-                    // TODO: refactor if stage actor list empty then set active actor
-                    // if stage actor list empty
-                    if (daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
-                        // set stage to active actor at selected location
-                        daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
-                    }
-                    else {
-                        // clear stage active actor at selected location
-                        daoStage.getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
-                    }
+                    toggleActorList(daoStage, selectIndex);
                     // if selecting plus ring
                     if (plus) {
                         if (mRepoProvider.getStageModelRing() != null) {
                             List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
                             // toggle each rect in ring list
                             for (Integer i : ringIndexList) {
-                                // TODO: refactor if stage actor list empty then set active actor
-                                // if stage actor list empty at ring location
-                                if (daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
-                                    // set stage to active actor at selected location
-                                    daoStage.getActorList().set(i, getPlayListService().getActiveActor().getMoniker());
-                                }
-                                else {
-                                    // clear stage active actor at selected location
-                                    daoStage.getActorList().set(i, DaoDefs.INIT_STRING_MARKER);
-                                }
+                                toggleActorList(daoStage, i);
                             }
                         }
                         else {
@@ -353,15 +332,23 @@ public class StageViewController extends View implements
                 }
 
             }
-//            if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
-//                DaoLocus daoLocus = daoStage.getLocusList().locii.get(selectIndex);
-//                Log.v(TAG, "toggleSelection stage type: " + daoStage.getStageType() + " toggle at " + daoLocus.getNickname());
-//            }
-//            else Log.e(TAG, "Oops touch not found in area?");
         }
         else {
             Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
             return false;
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean toggleActorList(DaoStage daoStage, Integer selectIndex) {
+        // if stage actor list empty at ring location
+        if (daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+            // set stage to active actor at selected location
+            daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
+        }
+        else {
+            // clear stage active actor at selected location
+            daoStage.getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
         }
         return true;
     }
@@ -496,12 +483,38 @@ public class StageViewController extends View implements
         Log.d(TAG, "onSingleTapConfirmed(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onSingleTapConfirmed: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // toggle selection but not adjacent
-        mTouchX = event.getX();
-        mTouchY = event.getY();
-        toggleSelection(mTouchX, mTouchY, 0.0f, false);
-        invalidate();
+        // is there a story including the actor (or any actor) & the action
+        isOutcome();
+            // set story, actor, action, outcome active
+
+            // toggle selection but not adjacent
+            mTouchX = event.getX();
+            mTouchY = event.getY();
+            toggleSelection(mTouchX, mTouchY, 0.0f, false);
+            invalidate();
+
         return true;
+    }
+
+    private String isOutcome() {
+        String outcome = DaoDefs.INIT_STRING_MARKER;
+        DaoEpic activeEpic = mPlayListService.getActiveEpic();
+        if (activeEpic != null) {
+            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
+                String storyMoniker = activeEpic.getTagList().get(i);
+                DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(activeEpic.getTagList().get(i));
+                if (daoStory != null) {
+                    Log.v(TAG, "test story " + daoStory);
+                }
+                else {
+                    Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
+                }
+            }
+        }
+        else {
+            Log.e(TAG, "oops! no active epic...");
+        }
+        return outcome;
     }
 
     @Override

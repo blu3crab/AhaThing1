@@ -61,14 +61,8 @@ public class StageModelRing {
     public static final Long RING_CENTER_Y = (RING_MAX_Y - RING_MIN_Y)/2;
     public static final Long RING_CENTER_Z = 0L;
 
-//    private Integer mRingSize = 1;
-//    public Integer getRingSize() {
-//        return mRingSize;
-//    }
-//    public void setRingSize(Integer ringMax) {
-//        this.mRingSize = ringMax;
-//    }
-
+    ///////////////////////////////////////////////////////////////////////////
+    // getters, setters, helpers
     private PlayListService mPlayListService;
     public PlayListService getPlayListService() {
         return mPlayListService;
@@ -77,24 +71,16 @@ public class StageModelRing {
         mPlayListService = playListService;
     }
 
+    private String setLocusName(Integer ring, Integer id) { return "R" + ring + "L" + id; }
+
     ///////////////////////////////////////////////////////////////////////////
     // constructor
     public StageModelRing(PlayListService playListService) { setPlayListService(playListService); }
 
     ///////////////////////////////////////////////////////////////////////////
-    // getters, setters, helpers
-    private String setLocusName(Integer ring, Integer id) { return "R" + ring + "L" + id; }
-
-    ///////////////////////////////////////////////////////////////////////////
     // builder
     // create a collection of locus & assign to active stage
-//    public Boolean buildModel(Integer ringMax) {
     public Boolean buildModel(DaoStage activeStage) {
-//        mRingSize = ringMax;
-
-//        DaoStage activeStage = mRepoProvider.getActiveStage();
-//        activeStage.setMoniker(DaoStage.STAGE_TYPE_RING + mRepoProvider.getDaoStageRepo().size());
-//        activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
 
         // if no previous model, create locus, actor, prop lists
         if (activeStage.getLocusList().locii.size() == 0) {
@@ -116,7 +102,6 @@ public class StageModelRing {
 
             // seed 1st locus at 0,0
             DaoLocus origin = new DaoLocus();
-//        daoLocusList.locii.add(origin);
             // mirror locus list add with actor & prop
             mirrorLociiAdd(origin, daoLocusList, actorList, propList);
             // TODO:
@@ -162,7 +147,6 @@ public class StageModelRing {
             if (findLocus(daoLocusList, x, y, z) == null) {
                 ++locusId;
                 DaoLocus locus = new DaoLocus();
-//                daoLocusList.locii.add(locus);
                 // mirror locus list add with actor & prop
                 mirrorLociiAdd(locus, daoLocusList, actorList, propList);
                 locus.setNickname(setLocusName(ring, locusId));
@@ -171,9 +155,6 @@ public class StageModelRing {
                 locus.setVertZ(z);
                 Log.d(TAG, locus.toString() + " at " + rad + " radians from origin.");
             }
-//            else {
-//                Log.d(TAG, " non-unique at " + rad + " radians from origin.");
-//            }
             // bump rad
             rad += RADIAN_DELTA;
             ++angleCount;
@@ -204,7 +185,6 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
         // get active stage
-//        DaoStage daoStage = MainActivity.getPlayListInstance().getActiveStage();
         DaoStage daoStage = getPlayListService().getActiveStage();
         // get locus list
         DaoLocusList daoLocusList = daoStage.getLocusList();
