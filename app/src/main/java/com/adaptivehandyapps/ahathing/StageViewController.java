@@ -35,10 +35,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
+import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
+import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 
@@ -353,6 +355,33 @@ public class StageViewController extends View implements
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
+    private DaoStory isStory(String action) {
+        DaoEpic activeEpic = mPlayListService.getActiveEpic();
+        if (activeEpic != null) {
+            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
+                String storyMoniker = activeEpic.getTagList().get(i);
+                DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(storyMoniker);
+                if (daoStory != null) {
+                    Log.v(TAG, "test story " + daoStory);
+                    // if any actor or active actor  &&  action match
+                    if ((daoStory.getActor().contains("*") ||
+                            daoStory.getActor().equals(getPlayListService().getActiveActor().getMoniker())) &&
+                            daoStory.getAction().equals(action)) {
+                        Log.v(TAG, "returning outcome " + daoStory.getOutcome());
+                        return daoStory;
+                    }
+                }
+                else {
+                    Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
+                }
+            }
+        }
+        else {
+            Log.e(TAG, "oops! no active epic...");
+        }
+        return null;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // gesture detectors
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -431,7 +460,11 @@ public class StageViewController extends View implements
 //        Log.d(TAG, "onFling event1: " + event1.toString() + "\nevent2: "+ event1.toString() +
 //                "\nvelocity X,Y " + velocityX + ", " + velocityY);
         Log.d(TAG, "onFling(" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
-                "\nvelocity X,Y " + velocityX + ", " + velocityY);
+                "\nvelocity X,Y " + velocityX + ", " + velocityY +
+                ", \n(1) raw X,Y " + event1.getRawX() + ", " + event1.getRawY() +
+                ", \n(2) raw X,Y " + event2.getRawX() + ", " + event2.getRawY() +
+                ", \ndelta raw X,Y " + (event2.getRawX() - event1.getRawX()) + ", " + (event2.getRawY() - event1.getRawY())
+        );
         return true;
     }
 
@@ -441,11 +474,21 @@ public class StageViewController extends View implements
         Log.d(TAG, "onLongPress(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "LongPress: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // toggle selection plus adjacent
-        mTouchX = event.getX();
-        mTouchY = event.getY();
-        toggleSelection(mTouchX, mTouchY, 0.0f, true);
-        invalidate();
+        // if story exists including the actor (or any actor) & the action
+        DaoStory daoStory = isStory(DaoAction.ACTION_TYPE_LONG_PRESS);
+        if (daoStory != null) {
+            // set story, action, outcome active (actor is already active)
+            getPlayListService().setActiveStory(daoStory);
+            DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
+            getPlayListService().setActiveAction(daoAction);
+            DaoOutcome daoOutcome = (DaoOutcome) getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
+            getPlayListService().setActiveOutcome(daoOutcome);
+            // toggle selection plus adjacent
+            mTouchX = event.getX();
+            mTouchY = event.getY();
+            toggleSelection(mTouchX, mTouchY, 0.0f, true);
+            invalidate();
+        }
     }
 
     @Override
@@ -483,38 +526,23 @@ public class StageViewController extends View implements
         Log.d(TAG, "onSingleTapConfirmed(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onSingleTapConfirmed: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // is there a story including the actor (or any actor) & the action
-        isOutcome();
-            // set story, actor, action, outcome active
+        // if story exists including the actor (or any actor) & the action
+        DaoStory daoStory = isStory(DaoAction.ACTION_TYPE_SINGLE_TAP);
+        if (daoStory != null) {
+            // set story, action, outcome active (actor is already active)
+            getPlayListService().setActiveStory(daoStory);
+            DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
+            getPlayListService().setActiveAction(daoAction);
+            DaoOutcome daoOutcome = (DaoOutcome) getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
+            getPlayListService().setActiveOutcome(daoOutcome);
 
             // toggle selection but not adjacent
             mTouchX = event.getX();
             mTouchY = event.getY();
             toggleSelection(mTouchX, mTouchY, 0.0f, false);
             invalidate();
-
+        }
         return true;
-    }
-
-    private String isOutcome() {
-        String outcome = DaoDefs.INIT_STRING_MARKER;
-        DaoEpic activeEpic = mPlayListService.getActiveEpic();
-        if (activeEpic != null) {
-            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
-                String storyMoniker = activeEpic.getTagList().get(i);
-                DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(activeEpic.getTagList().get(i));
-                if (daoStory != null) {
-                    Log.v(TAG, "test story " + daoStory);
-                }
-                else {
-                    Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
-                }
-            }
-        }
-        else {
-            Log.e(TAG, "oops! no active epic...");
-        }
-        return outcome;
     }
 
     @Override

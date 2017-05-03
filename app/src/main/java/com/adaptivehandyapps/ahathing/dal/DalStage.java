@@ -148,13 +148,6 @@ public class DalStage {
         if (mRepoProvider.getPlayListService() != null) {
             // test for update active stage
             mRepoProvider.getPlayListService().updateActiveStage(dao);
-//            // if stage model undefined, build model
-//            if (mRepoProvider.getStageModelRing() == null) {
-//                // TODO: single stage model - build stage model per stage
-//                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-//                mRepoProvider.getStageModelRing().buildModel(dao);
-//                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
-//            }
             Log.d(TAG, mRepoProvider.getPlayListService().hierarchyToString());
         }
         else {

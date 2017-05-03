@@ -213,6 +213,10 @@ public class DaoMakerViewXfer {
         mSpinnerActors = (Spinner) mRootView.findViewById(R.id.spinner_actors);
         if (mActorListAdapter != null && mSpinnerActors != null) {
             mSpinnerActors.setAdapter(mActorListAdapter);
+            if (actorNameList.contains(daoStory.getActor())) {
+                int i = actorNameList.indexOf(daoStory.getActor());
+                mSpinnerActors.setSelection(i);
+            }
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mActorListAdapter? " + mActorListAdapter + ", R.id.spinner_Prereqs? " + mSpinnerActors);
@@ -237,6 +241,10 @@ public class DaoMakerViewXfer {
         mSpinnerActions = (Spinner) mRootView.findViewById(R.id.spinner_actions);
         if (mActionListAdapter != null && mSpinnerActions != null) {
             mSpinnerActions.setAdapter(mActionListAdapter);
+            if (actionNameList.contains(daoStory.getAction())) {
+                int i = actionNameList.indexOf(daoStory.getAction());
+                mSpinnerActions.setSelection(i);
+            }
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mActionListAdapter? " + mActionListAdapter + ", R.id.spinner_Action? " + mSpinnerActions);
@@ -261,6 +269,10 @@ public class DaoMakerViewXfer {
         mSpinnerOutcomes = (Spinner) mRootView.findViewById(R.id.spinner_outcomes);
         if (mOutcomeListAdapter != null && mSpinnerOutcomes != null) {
             mSpinnerOutcomes.setAdapter(mOutcomeListAdapter);
+            if (outcomeNameList.contains(daoStory.getOutcome())) {
+                int i = outcomeNameList.indexOf(daoStory.getOutcome());
+                mSpinnerOutcomes.setSelection(i);
+            }
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mOutcomeListAdapter? " + mOutcomeListAdapter + ", R.id.spinner_Outcomes? " + mSpinnerOutcomes);
@@ -524,9 +536,15 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeStory.setMoniker(editedMoniker);
         activeStory.setHeadline(headline);
-        String stagename = mSpinnerStages.getSelectedItem().toString();
-        Log.d(TAG, "toStory selected stage " + stagename);
+        Log.d(TAG, "toStory selected stage " + mSpinnerStages.getSelectedItem().toString());
         activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
+        Log.d(TAG, "toStory selected actor " + mSpinnerActors.getSelectedItem().toString());
+        activeStory.setActor(mSpinnerActors.getSelectedItem().toString());
+        Log.d(TAG, "toStory selected action " + mSpinnerActions.getSelectedItem().toString());
+        activeStory.setAction(mSpinnerActions.getSelectedItem().toString());
+        Log.d(TAG, "toStory selected outcome " + mSpinnerOutcomes.getSelectedItem().toString());
+        activeStory.setOutcome(mSpinnerOutcomes.getSelectedItem().toString());
+
         mParent.getPlayListService().setActiveStory(activeStory);
         // update repo
         mParent.getRepoProvider().getDalStory().update(activeStory, true);
