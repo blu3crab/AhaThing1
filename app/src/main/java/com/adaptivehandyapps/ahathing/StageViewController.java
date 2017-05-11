@@ -310,30 +310,52 @@ public class StageViewController extends View implements
         int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            // for each rect
-            for (RectF r : mStageViewRing.getRectList()) {
-                // if rect touched
-                if (r.contains(touchX, touchY)) {
-                    selectIndex = mStageViewRing.getRectList().indexOf(r);
-                    toggleActorList(daoStage, selectIndex);
-                    // if selecting plus ring
-                    if (plus) {
-                        if (mRepoProvider.getStageModelRing() != null) {
-                            List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
-                            // toggle each rect in ring list
-                            for (Integer i : ringIndexList) {
-                                toggleActorList(daoStage, i);
-                            }
-                        }
-                        else {
-                            Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
+            // get ring index
+            selectIndex = mStageViewRing.getRingIndex(touchX, touchY, z);
+            // if touch found
+            if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
+                Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
+                toggleActorList(daoStage, selectIndex);
+                // if selecting plus ring
+                if (plus) {
+                    if (mRepoProvider.getStageModelRing() != null) {
+                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
+                        // toggle each rect in ring list
+                        for (Integer i : ringIndexList) {
+                            toggleActorList(daoStage, i);
                         }
                     }
-                    // update object
-                    getRepoProvider().getDalStage().update(daoStage, true);
+                    else {
+                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
+                    }
                 }
-
+                // update object
+                getRepoProvider().getDalStage().update(daoStage, true);
             }
+//            // for each rect
+//            for (RectF r : mStageViewRing.getRectList()) {
+//                // if rect touched
+//                if (r.contains(touchX, touchY)) {
+//                    selectIndex = mStageViewRing.getRectList().indexOf(r);
+//                    Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
+//                    toggleActorList(daoStage, selectIndex);
+//                    // if selecting plus ring
+//                    if (plus) {
+//                        if (mRepoProvider.getStageModelRing() != null) {
+//                            List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
+//                            // toggle each rect in ring list
+//                            for (Integer i : ringIndexList) {
+//                                toggleActorList(daoStage, i);
+//                            }
+//                        }
+//                        else {
+//                            Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
+//                        }
+//                    }
+//                    // update object
+//                    getRepoProvider().getDalStage().update(daoStage, true);
+//                }
+//            }
         }
         else {
             Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
@@ -380,6 +402,53 @@ public class StageViewController extends View implements
             Log.e(TAG, "oops! no active epic...");
         }
         return null;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean plotPath(float velocityX, float velocityY,
+                             float event1X, float event1Y, float event2X, float event2Y) {
+        // sum velocity ignoring direction (sign)
+        float velocity = Math.abs(velocityX) + Math.abs(velocityY);
+        Log.d(TAG, "plotPath velocity sum = " + velocity);
+        // set # intervals based on velocity
+        float intervalCount = velocity / 1000.0f;
+        Log.d(TAG, "plotPath intervalCount = " + intervalCount);
+        // find angle of fling
+        double deltaX = event2X - event1X;
+        double deltaY =  -(event2Y - event1Y);
+        double thetaRad = Math.atan2(deltaY, deltaX);
+        double angle = thetaRad * (180.0f/Math.PI);
+        Log.d(TAG, "plotPath thetaRad = " + thetaRad + ", angle = " + angle);
+
+        // toggle initial position
+        DaoStage daoStage = getPlayListService().getActiveStage();
+        Log.d(TAG, "plotPath origin X, Y " + event1X + ", " + event1Y);
+        // get ring index
+        int ringIndex = mStageViewRing.getRingIndex(event1X, event1Y, 0.0f);
+        if (ringIndex != DaoDefs.INIT_INTEGER_MARKER) {
+            toggleActorList(daoStage, ringIndex);
+            // for each interval, generate point along angle
+            for (int i = 1; i < intervalCount; i++) {
+                int prevRingIndex = ringIndex;
+                float x = (float) (event1X + ((StageModelRing.LOCUS_DIST * i) * Math.cos(thetaRad)));
+                float y = (float) (event1Y - ((StageModelRing.LOCUS_DIST * i) * Math.sin(thetaRad)));
+                Log.d(TAG, "plotPath toggle for interval " + i + " at X, Y " + x + ", " + y);
+                // find ring index at interval position
+                ringIndex = mStageViewRing.getRingIndex(x, y, 0.0f);
+                // if not previously toggled
+                if (ringIndex != DaoDefs.INIT_INTEGER_MARKER && ringIndex != prevRingIndex) {
+                    // toggle at interval position
+                    toggleActorList(daoStage, ringIndex);
+                }
+            }
+            // update object
+            getRepoProvider().getDalStage().update(daoStage, true);
+
+            invalidate();
+        }
+        else {
+            Log.e(TAG, "plotPath touch out of bounds...");
+        }
+        return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     // gesture detectors
@@ -459,12 +528,18 @@ public class StageViewController extends View implements
     public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
 //        Log.d(TAG, "onFling event1: " + event1.toString() + "\nevent2: "+ event1.toString() +
 //                "\nvelocity X,Y " + velocityX + ", " + velocityY);
-        Log.d(TAG, "onFling(" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
+//        Log.d(TAG, "onFling(" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
+//                "\nvelocity X,Y " + velocityX + ", " + velocityY +
+//                ", \n(1) raw X,Y " + event1.getRawX() + ", " + event1.getRawY() +
+//                ", \n(2) raw X,Y " + event2.getRawX() + ", " + event2.getRawY() +
+//                ", \ndelta raw X,Y " + (event2.getRawX() - event1.getRawX()) + ", " + (event2.getRawY() - event1.getRawY()) );
+//        plotPath(velocityX, velocityY, event1.getRawX(), event1.getRawY(), event2.getRawX(), event2.getRawY());
+        Log.d(TAG, "onFling plotpath (" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
                 "\nvelocity X,Y " + velocityX + ", " + velocityY +
-                ", \n(1) raw X,Y " + event1.getRawX() + ", " + event1.getRawY() +
-                ", \n(2) raw X,Y " + event2.getRawX() + ", " + event2.getRawY() +
-                ", \ndelta raw X,Y " + (event2.getRawX() - event1.getRawX()) + ", " + (event2.getRawY() - event1.getRawY())
-        );
+                ", \n(1) raw X,Y " + event1.getX() + ", " + event1.getY() +
+                ", \n(2) raw X,Y " + event2.getX() + ", " + event2.getY() +
+                ", \ndelta raw X,Y " + (event2.getX() - event1.getX()) + ", " + (event2.getY() - event1.getY()) );
+        plotPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
         return true;
     }
 

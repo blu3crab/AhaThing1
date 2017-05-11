@@ -170,10 +170,11 @@ public class PlayListService extends Service {
         mActiveTheatre = activeDao;
     }
     public Boolean updateActiveTheatre(DaoTheatre dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_THEATRE_KEY);
-        if (getActiveTheatre() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
+//            if (getActiveTheatre() == null &&
+//                    (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
             // set active to updated object
             setActiveTheatre(dao);
             return true;
@@ -212,10 +213,9 @@ public class PlayListService extends Service {
         mActiveEpic = activeDao;
     }
     public Boolean updateActiveEpic(DaoEpic dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
-        if (getActiveEpic() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
             setActiveEpic(dao);
             return true;
@@ -254,10 +254,9 @@ public class PlayListService extends Service {
         mActiveStory = activeDao;
     }
     public Boolean updateActiveStory(DaoStory dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STORY_KEY);
-        if (getActiveStory() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
             setActiveStory(dao);
             return true;
@@ -302,14 +301,15 @@ public class PlayListService extends Service {
 
     }
     public Boolean updateActiveStage(DaoStage dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
-        if (getActiveStage() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
+            // setActiveStage creates stage model & triggers refresh - remote updates are displayed
             setActiveStage(dao);
             return true;
         }
+        // if no active object & this object matches prefs or no prefs
 //        if (getActiveStage() == null &&
 //                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
 //            // set active to updated object
@@ -350,10 +350,9 @@ public class PlayListService extends Service {
         mActiveActor = activeDao;
     }
     public Boolean updateActiveActor(DaoActor dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
-        if (getActiveActor() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
             setActiveActor(dao);
             return true;
@@ -394,8 +393,7 @@ public class PlayListService extends Service {
     public Boolean updateActiveAction(DaoAction dao) {
         // if no active object & this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTION_KEY);
-        if (getActiveAction() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
             setActiveAction(dao);
             return true;
@@ -434,10 +432,9 @@ public class PlayListService extends Service {
         mActiveOutcome = activeDao;
     }
     public Boolean updateActiveOutcome(DaoOutcome dao) {
-        // if no active object & this object matches prefs or no prefs
+        // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_OUTCOME_KEY);
-        if (getActiveOutcome() == null &&
-                (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER))) {
+        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
             // set active to updated object
             setActiveOutcome(dao);
             return true;

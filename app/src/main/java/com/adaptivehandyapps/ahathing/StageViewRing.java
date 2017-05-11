@@ -185,7 +185,20 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private float vertToDeviceX(Long vertX, float scaleFactor) {
+    public Integer getRingIndex(float touchX, float touchY, float z) {
+        Integer ringIndex = DaoDefs.INIT_INTEGER_MARKER;
+        for (RectF r : getRectList()) {
+            // if rect touched
+            if (r.contains(touchX, touchY)) {
+                ringIndex = getRectList().indexOf(r);
+                Log.d(TAG, "getRingIndex (" + ringIndex + ") for X,Y " + touchX + ", " + touchY);
+                return ringIndex;
+            }
+        }
+        return ringIndex;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -194,11 +207,29 @@ public class StageViewRing {
         dx = (x - (mCanvasWidth / 2));
         dx = (dx * scaleFactor) - dx;
         x = x + dx;
+        // test inverse transform
+        float inverseX = deviceToVertX(x, scaleFactor);
+//        Log.d(TAG,"X delta (" + (vertX - inverseX) + ") virtual -> device -> inverse " + vertX + "->" + x +"->" + inverseX);
         return x;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Long deviceToVertX(float x, float scaleFactor) {
+        float dx;
+        Long vertX;
+        // scale by applying dist from dev center by scale factor
+        dx = (x - (mCanvasWidth / 2));
+        dx = (dx * scaleFactor) - dx;
+        x = x - dx;
+        // derive delta x,y to shift from abstract locus center to device screen center
+        dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
+        // shift x,y from device screen center to abstract locus center
+        x = x - dx;
+        vertX = (long) x;
+        return vertX;
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private float vertToDeviceY(Long vertY, float scaleFactor) {
+    public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
         float dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
         // shift x,y from abstract locus center to device screen center
@@ -207,7 +238,24 @@ public class StageViewRing {
         dy = (y - (mCanvasHeight / 2));
         dy = (dy * scaleFactor) - dy;
         y = y + dy;
+        float inverseY = deviceToVertY(y, scaleFactor);
+//        Log.d(TAG,"Y delta (" + (vertY - inverseY) + ") virtual -> device -> inverse " + vertY + "->" + y +"->" + inverseY);
         return y;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Long deviceToVertY(float y, float scaleFactor) {
+        float dy;
+        Long vertY;
+        // scale by applying dist from dev center by scale factor
+        dy = (y - (mCanvasHeight / 2));
+        dy = (dy * scaleFactor) - dy;
+        y = y - dy;
+        // derive delta x,y to shift from abstract locus center to device screen center
+        dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+        // shift x,y from device screen center to abstract locus center
+        y = y - dy;
+        vertY = (long) y;
+        return vertY;
     }
 
     ///////////////////////////////////////////////////////////////////////////

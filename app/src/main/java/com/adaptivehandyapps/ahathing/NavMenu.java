@@ -145,7 +145,8 @@ public class NavMenu {
 //            final SpannableString textToShow = new SpannableString("Hello stackOverflow");
 //            textToShow.setSpan(new RelativeSizeSpan(1.5f), textToShow.length() - "stackOverflow".length(),textToShow.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 //            textView.setText(textToShow);
-            Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
+
+//            Log.d(TAG, "setNavMenu  add menu item:" + menuItem.getItemId() + ", itemname: " + menuItem.toString());
 
         }
         // add theatres
@@ -215,11 +216,11 @@ public class NavMenu {
         for (String moniker : monikerList) {
             subMenuItem = subMenu.add(moniker);
             subMenuItem.setIcon(iconId);
-            Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+//            Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
         }
         subMenuItem = subMenu.add("New " + title);
         subMenuItem.setIcon(iconId);
-        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
+//        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
         return subMenu;
     }
     ///////////////////////////////////////////////////////////////////////////

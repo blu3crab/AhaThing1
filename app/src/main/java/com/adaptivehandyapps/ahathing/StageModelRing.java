@@ -35,7 +35,7 @@ import java.util.List;
 public class StageModelRing {
     private static final String TAG = "StageModelRing";
 
-    public static  final Double LOCUS_DIST = 64.0;
+    public static final Double LOCUS_DIST = 64.0;
 //    public static  final Double LOCUS_DIST = 32.0;
 //    public static  final Double LOCUS_DIST = 128.0;
     private final Integer FUDGE_DIST = 2;
