@@ -18,6 +18,8 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -142,5 +144,35 @@ public class DaoStage extends DaoBase {
 	public void setReserve2(String reserve1) {
 		this.reserve2 = reserve1;
 	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public Boolean toggleActorList(String actorMoniker, Integer selectIndex) {
+		// if stage actor list empty at ring location
+		if (getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+			// set stage to active actor at selected location
+			getActorList().set(selectIndex, actorMoniker);
+		}
+		else {
+			// clear stage active actor at selected location
+			getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+		}
+		return true;
+	}
+	public Boolean setActorList(String moniker) {
+		// clear actors on stage
+		if (getStageType().equals(moniker)) {
+			// clear actors on stage
+			for (int i = 0; i < getActorList().size(); i++) {
+				// clear stage active actor at selected location
+				getActorList().set(i, moniker);
+			}
+		}
+		else {
+//			Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
+			return false;
+		}
+		return true;
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 }

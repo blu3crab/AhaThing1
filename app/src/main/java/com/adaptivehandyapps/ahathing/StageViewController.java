@@ -315,14 +315,20 @@ public class StageViewController extends View implements
             // if touch found
             if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
                 Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
-                toggleActorList(daoStage, selectIndex);
+//                toggleActorList(daoStage, selectIndex);
+                if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), selectIndex)) {
+                    Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
+                }
                 // if selecting plus ring
                 if (plus) {
                     if (mRepoProvider.getStageModelRing() != null) {
                         List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
                         // toggle each rect in ring list
                         for (Integer i : ringIndexList) {
-                            toggleActorList(daoStage, i);
+//                            toggleActorList(daoStage, i);
+                            if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), i)) {
+                                Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
+                            }
                         }
                     }
                     else {
@@ -332,30 +338,6 @@ public class StageViewController extends View implements
                 // update object
                 getRepoProvider().getDalStage().update(daoStage, true);
             }
-//            // for each rect
-//            for (RectF r : mStageViewRing.getRectList()) {
-//                // if rect touched
-//                if (r.contains(touchX, touchY)) {
-//                    selectIndex = mStageViewRing.getRectList().indexOf(r);
-//                    Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
-//                    toggleActorList(daoStage, selectIndex);
-//                    // if selecting plus ring
-//                    if (plus) {
-//                        if (mRepoProvider.getStageModelRing() != null) {
-//                            List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
-//                            // toggle each rect in ring list
-//                            for (Integer i : ringIndexList) {
-//                                toggleActorList(daoStage, i);
-//                            }
-//                        }
-//                        else {
-//                            Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
-//                        }
-//                    }
-//                    // update object
-//                    getRepoProvider().getDalStage().update(daoStage, true);
-//                }
-//            }
         }
         else {
             Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
@@ -363,23 +345,41 @@ public class StageViewController extends View implements
         }
         return true;
     }
+//    ///////////////////////////////////////////////////////////////////////////
+//    private Boolean toggleActorList(DaoStage daoStage, Integer selectIndex) {
+//        // if stage actor list empty at ring location
+//        if (daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+//            // set stage to active actor at selected location
+//            daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
+//        }
+//        else {
+//            // clear stage active actor at selected location
+//            daoStage.getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+//        }
+//        return true;
+//    }
+
+//    private Boolean clearActorList(DaoStage daoStage) {
+//        // clear actors on stage
+//        if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+//            // clear actors on stage
+//            for (int i = 0; i < daoStage.getActorList().size(); i++) {
+//                // clear stage active actor at selected location
+//                daoStage.getActorList().set(i, DaoDefs.INIT_STRING_MARKER);
+//            }
+//        }
+//        else {
+//            Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
+//            return false;
+//        }
+//        return true;
+//    }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean toggleActorList(DaoStage daoStage, Integer selectIndex) {
-        // if stage actor list empty at ring location
-        if (daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
-            // set stage to active actor at selected location
-            daoStage.getActorList().set(selectIndex, getPlayListService().getActiveActor().getMoniker());
-        }
-        else {
-            // clear stage active actor at selected location
-            daoStage.getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
-        }
-        return true;
-    }
-    ///////////////////////////////////////////////////////////////////////////
+    // if active actor is associated with incoming action - return story
     private DaoStory isStory(String action) {
         DaoEpic activeEpic = mPlayListService.getActiveEpic();
         if (activeEpic != null) {
+            // for each story in epic
             for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
                 String storyMoniker = activeEpic.getTagList().get(i);
                 DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(storyMoniker);
@@ -425,7 +425,10 @@ public class StageViewController extends View implements
         // get ring index
         int ringIndex = mStageViewRing.getRingIndex(event1X, event1Y, 0.0f);
         if (ringIndex != DaoDefs.INIT_INTEGER_MARKER) {
-            toggleActorList(daoStage, ringIndex);
+//            toggleActorList(daoStage, ringIndex);
+            if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
+                Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
+            }
             // for each interval, generate point along angle
             for (int i = 1; i < intervalCount; i++) {
                 int prevRingIndex = ringIndex;
@@ -437,7 +440,10 @@ public class StageViewController extends View implements
                 // if not previously toggled
                 if (ringIndex != DaoDefs.INIT_INTEGER_MARKER && ringIndex != prevRingIndex) {
                     // toggle at interval position
-                    toggleActorList(daoStage, ringIndex);
+//                    toggleActorList(daoStage, ringIndex);
+                    if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
+                        Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
+                    }
                 }
             }
             // update object
@@ -626,8 +632,25 @@ public class StageViewController extends View implements
         Log.d(TAG, "onDoubleTap(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onDoubleTap: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-//        doubleVerts();
-        invalidate();
+        // if story exists including the actor (or any actor) & the action
+        DaoStory daoStory = isStory(DaoAction.ACTION_TYPE_SINGLE_TAP);
+        if (daoStory != null) {
+            // set story, action, outcome active (actor is already active)
+            getPlayListService().setActiveStory(daoStory);
+            DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
+            getPlayListService().setActiveAction(daoAction);
+            DaoOutcome daoOutcome = (DaoOutcome) getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
+            getPlayListService().setActiveOutcome(daoOutcome);
+            // clear actors on stage
+            DaoStage daoStage = getPlayListService().getActiveStage();
+//            clearActorList(daoStage);
+            if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+                Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
+            }
+            // update object
+            getRepoProvider().getDalStage().update(daoStage, true);
+            invalidate();
+        }
         return true;
     }
 
