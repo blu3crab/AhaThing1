@@ -160,7 +160,7 @@ public class DaoStage extends DaoBase {
 	}
 	public Boolean setActorList(String moniker) {
 		// clear actors on stage
-		if (getStageType().equals(moniker)) {
+		if (getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
 			// clear actors on stage
 			for (int i = 0; i < getActorList().size(); i++) {
 				// clear stage active actor at selected location
