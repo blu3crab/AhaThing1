@@ -93,6 +93,10 @@ public class StageViewController extends View implements
     // touch position
     private float mTouchX = 0.0f;
     private float mTouchY = 0.0f;
+    private float mVelocityX = 0.0f;
+    private float mVelocityY = 0.0f;
+    private MotionEvent mEvent1;
+    private MotionEvent mEvent2;
 
     private List<String> mHint = new ArrayList<String>(Arrays.asList(
             "Pinch or Zoom.",
@@ -104,6 +108,7 @@ public class StageViewController extends View implements
 
 //    private int mVertResizeFactor = 1;
     ///////////////////////////////////////////////////////////////////////////
+    // setters/getters
     private PlayListService mPlayListService;
     public PlayListService getPlayListService() {
         return mPlayListService;
@@ -135,6 +140,49 @@ public class StageViewController extends View implements
     }
     public void setStageManager(StageManager stageManager) {
         mStageManager = stageManager;
+    }
+
+    public float getTouchX() {
+        return mTouchX;
+    }
+    public void setTouchX(float touchX) {
+        this.mTouchX = touchX;
+    }
+
+    public float getTouchY() {
+        return mTouchY;
+    }
+    public void setTouchY(float touchY) {
+        this.mTouchY = touchY;
+    }
+
+    public float getVelocityX() {
+        return mVelocityX;
+    }
+    public void setVelocityX(float velocityX) {
+        this.mVelocityX = velocityX;
+    }
+
+    public float getVelocityY() {
+        return mVelocityY;
+    }
+
+    public void setVelocityY(float mVelocityY) {
+        this.mVelocityY = mVelocityY;
+    }
+
+    public MotionEvent getmEvent1() {
+        return mEvent1;
+    }
+    public void setmEvent1(MotionEvent event1) {
+        this.mEvent1 = event1;
+    }
+
+    public MotionEvent getmEvent2() {
+        return mEvent2;
+    }
+    public void setmEvent2(MotionEvent event2) {
+        this.mEvent2 = event2;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -322,130 +370,6 @@ public class StageViewController extends View implements
         if (mode == MeasureSpec.AT_MOST) return "MeasureSpec.AT_MOST";
         return "MeasureSpec.UNSPECIFIED";
     }
-//    ///////////////////////////////////////////////////////////////////////////
-//    // gesture handlers
-//    public Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
-//        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
-//        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
-//        DaoStage daoStage = getPlayListService().getActiveStage();
-//        if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-//            // get ring index
-//            selectIndex = mStageViewRing.getRingIndex(touchX, touchY, z);
-//            // if touch found
-//            if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
-//                Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
-////                toggleActorList(daoStage, selectIndex);
-//                if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), selectIndex)) {
-//                    Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
-//                }
-//                // if selecting plus ring
-//                if (plus) {
-//                    if (mRepoProvider.getStageModelRing() != null) {
-//                        List<Integer> ringIndexList = mRepoProvider.getStageModelRing().findRing(selectIndex);
-//                        // toggle each rect in ring list
-//                        for (Integer i : ringIndexList) {
-////                            toggleActorList(daoStage, i);
-//                            if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), i)) {
-//                                Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
-//                            }
-//                        }
-//                    }
-//                    else {
-//                        Log.e(TAG, "Oops! for repo " + mRepoProvider.toString() + " NULL getStageModelRing()...");
-//                    }
-//                }
-//                // update object
-//                getRepoProvider().getDalStage().update(daoStage, true);
-//            }
-//        }
-//        else {
-//            Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
-//            return false;
-//        }
-//        return true;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    // if active actor is associated with incoming action - return story
-//    private DaoStory isStory(String action) {
-//        DaoEpic activeEpic = mPlayListService.getActiveEpic();
-//        if (activeEpic != null) {
-//            // for each story in epic
-//            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
-//                String storyMoniker = activeEpic.getTagList().get(i);
-//                DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(storyMoniker);
-//                if (daoStory != null) {
-//                    Log.v(TAG, "test story " + daoStory);
-//                    // if any actor or active actor  &&  action match
-//                    if ((daoStory.getActor().contains("*") ||
-//                            daoStory.getActor().equals(getPlayListService().getActiveActor().getMoniker())) &&
-//                            daoStory.getAction().equals(action)) {
-//                        Log.v(TAG, "returning outcome " + daoStory.getOutcome());
-//                        return daoStory;
-//                    }
-//                }
-//                else {
-//                    Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
-//                }
-//            }
-//        }
-//        else {
-//            Log.e(TAG, "oops! no active epic...");
-//        }
-//        return null;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    private Boolean plotPath(float velocityX, float velocityY,
-//                             float event1X, float event1Y, float event2X, float event2Y) {
-//        // sum velocity ignoring direction (sign)
-//        float velocity = Math.abs(velocityX) + Math.abs(velocityY);
-//        Log.d(TAG, "plotPath velocity sum = " + velocity);
-//        // set # intervals based on velocity
-//        float intervalCount = velocity / 1000.0f;
-//        Log.d(TAG, "plotPath intervalCount = " + intervalCount);
-//        // find angle of fling
-//        double deltaX = event2X - event1X;
-//        double deltaY =  -(event2Y - event1Y);
-//        double thetaRad = Math.atan2(deltaY, deltaX);
-//        double angle = thetaRad * (180.0f/Math.PI);
-//        Log.d(TAG, "plotPath thetaRad = " + thetaRad + ", angle = " + angle);
-//
-//        // toggle initial position
-//        DaoStage daoStage = getPlayListService().getActiveStage();
-//        Log.d(TAG, "plotPath origin X, Y " + event1X + ", " + event1Y);
-//        // get ring index
-//        int ringIndex = mStageViewRing.getRingIndex(event1X, event1Y, 0.0f);
-//        if (ringIndex != DaoDefs.INIT_INTEGER_MARKER) {
-////            toggleActorList(daoStage, ringIndex);
-//            if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
-//                Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
-//            }
-//            // for each interval, generate point along angle
-//            for (int i = 1; i < intervalCount; i++) {
-//                int prevRingIndex = ringIndex;
-//                float x = (float) (event1X + ((StageModelRing.LOCUS_DIST * i) * Math.cos(thetaRad)));
-//                float y = (float) (event1Y - ((StageModelRing.LOCUS_DIST * i) * Math.sin(thetaRad)));
-//                Log.d(TAG, "plotPath toggle for interval " + i + " at X, Y " + x + ", " + y);
-//                // find ring index at interval position
-//                ringIndex = mStageViewRing.getRingIndex(x, y, 0.0f);
-//                // if not previously toggled
-//                if (ringIndex != DaoDefs.INIT_INTEGER_MARKER && ringIndex != prevRingIndex) {
-//                    // toggle at interval position
-////                    toggleActorList(daoStage, ringIndex);
-//                    if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
-//                        Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
-//                    }
-//                }
-//            }
-//            // update object
-//            getRepoProvider().getDalStage().update(daoStage, true);
-//
-//            invalidate();
-//        }
-//        else {
-//            Log.e(TAG, "plotPath touch out of bounds...");
-//        }
-//        return true;
-//    }
     ///////////////////////////////////////////////////////////////////////////
     // gesture detectors
     @Override
@@ -477,8 +401,10 @@ public class StageViewController extends View implements
             // single touch event
             Log.v(TAG, "onTouchEvent single-touch x, y: " + event.getX(pointerIndex) + ", " + event.getY(pointerIndex));
 
-            mTouchX = event.getX();
-            mTouchY = event.getY();
+//            mTouchX = event.getX();
+//            mTouchY = event.getY();
+            setTouchX(event.getX());
+            setTouchY(event.getY());
 
             // TODO: add pan support
             switch (event.getAction()) {
@@ -499,8 +425,10 @@ public class StageViewController extends View implements
                     // clear any gesture
                     mGestureDetected = false;
                     // clear current touch X,Y
-                    mTouchX = 0.0f;
-                    mTouchY = 0.0f;
+//                    mTouchX = 0.0f;
+//                    mTouchY = 0.0f;
+                    setTouchX(0.0f);
+                    setTouchY(0.0f);
                     break;
                 default:
                     return false;
@@ -535,7 +463,13 @@ public class StageViewController extends View implements
                 ", \n(1) raw X,Y " + event1.getX() + ", " + event1.getY() +
                 ", \n(2) raw X,Y " + event2.getX() + ", " + event2.getY() +
                 ", \ndelta raw X,Y " + (event2.getX() - event1.getX()) + ", " + (event2.getY() - event1.getY()) );
-        getStageManager().plotPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
+//        getStageManager().plotPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
+
+        setVelocityX(velocityX);
+        setVelocityY(velocityY);
+        setmEvent1(event1);
+        setmEvent2(event2);
+        getStageManager().onAction(DaoAction.ACTION_TYPE_FLING);
         invalidate();
 
         return true;
@@ -547,14 +481,18 @@ public class StageViewController extends View implements
         Log.d(TAG, "onLongPress(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "LongPress: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // if story exists associating the active actor (or all actor) with the action
-        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_LONG_PRESS)) {
-            // toggle selection plus adjacent
-            mTouchX = event.getX();
-            mTouchY = event.getY();
-            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, true);
-            invalidate();
-        }
+        setTouchX(event.getX());
+        setTouchY(event.getY());
+        getStageManager().onAction(DaoAction.ACTION_TYPE_LONG_PRESS);
+        invalidate();
+//        // if story exists associating the active actor (or all actor) with the action
+//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_LONG_PRESS)) {
+//            // toggle selection plus adjacent
+//            mTouchX = event.getX();
+//            mTouchY = event.getY();
+//            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, true);
+//            invalidate();
+//        }
     }
 
     @Override
@@ -592,14 +530,19 @@ public class StageViewController extends View implements
         Log.d(TAG, "onSingleTapConfirmed(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onSingleTapConfirmed: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // if story exists associating the active actor (or all actor) with the action
-        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_SINGLE_TAP)) {
-            // toggle selection but not adjacent
-            mTouchX = event.getX();
-            mTouchY = event.getY();
-            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, false);
-            invalidate();
-        }
+        setTouchX(event.getX());
+        setTouchY(event.getY());
+        getStageManager().onAction(DaoAction.ACTION_TYPE_SINGLE_TAP);
+        invalidate();
+
+//        // if story exists associating the active actor (or all actor) with the action
+//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_SINGLE_TAP)) {
+//            // toggle selection but not adjacent
+//            mTouchX = event.getX();
+//            mTouchY = event.getY();
+//            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, false);
+//            invalidate();
+//        }
         return true;
     }
 
@@ -609,17 +552,19 @@ public class StageViewController extends View implements
         Log.d(TAG, "onDoubleTap(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onDoubleTap: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        // if story exists associating the active actor (or all actor) with the action
-        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_DOUBLE_TAP)) {
-            // clear actors on stage
-            DaoStage daoStage = getPlayListService().getActiveStage();
-            if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-                Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
-            }
-            // update object
-            getRepoProvider().getDalStage().update(daoStage, true);
-            invalidate();
-        }
+        getStageManager().onAction(DaoAction.ACTION_TYPE_DOUBLE_TAP);
+        invalidate();
+//        // if story exists associating the active actor (or all actor) with the action
+//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_DOUBLE_TAP)) {
+//            // clear actors on stage
+//            DaoStage daoStage = getPlayListService().getActiveStage();
+//            if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+//                Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
+//            }
+//            // update object
+//            getRepoProvider().getDalStage().update(daoStage, true);
+//            invalidate();
+//        }
         return true;
     }
 

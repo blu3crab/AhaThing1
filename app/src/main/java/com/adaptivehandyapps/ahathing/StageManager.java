@@ -40,6 +40,65 @@ public class StageManager {
         mStageViewController = stageViewController;
     }
     ///////////////////////////////////////////////////////////////////////////
+    // Actions
+    public Boolean onAction(String action) {
+        Log.d(TAG, "onAction action " + action);
+        // if story exists associating the active actor (or all actor) with the action
+        if (updateForAction(action)) {
+            // execute outcome
+            switch (action) {
+                case DaoAction.ACTION_TYPE_SINGLE_TAP:
+                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, false);
+                    return true;
+                case DaoAction.ACTION_TYPE_LONG_PRESS:
+                    // toggle selection plus adjacent
+                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, true);
+                    return true;
+                case DaoAction.ACTION_TYPE_FLING:
+                    // toggle path along fling vector
+                    plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
+                            mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
+                            mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
+                    return true;
+                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+                    // clear actors on stage
+                    DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
+                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+                        Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
+                    }
+                    // update object
+                    mStageViewController.getRepoProvider().getDalStage().update(daoStage, true);
+                    return true;
+                default:
+                    Log.e(TAG, "Oops! Unknown action? " + action);
+                    return false;
+            }
+        }
+
+        return false;
+    }
+
+    public Boolean updateForAction(String action) {
+        Log.d(TAG, "updateForAction action " + action);
+//        if (action.equals(DaoAction.ACTION_TYPE_SINGLE_TAP) ||
+//                action.equals(DaoAction.ACTION_TYPE_LONG_PRESS) ||
+//                        action.equals(DaoAction.ACTION_TYPE_DOUBLE_TAP) ||
+//                                action.equals(DaoAction.ACTION_TYPE_FLING)) {
+            // if story exists associating the active actor (or all actor) with the action
+            DaoStory daoStory = isStory(action);
+            if (daoStory != null) {
+                // set active: story, action, outcome  (actor is already active)
+                mStageViewController.getPlayListService().setActiveStory(daoStory);
+                DaoAction daoAction = (DaoAction) mStageViewController.getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
+                mStageViewController.getPlayListService().setActiveAction(daoAction);
+                DaoOutcome daoOutcome = (DaoOutcome) mStageViewController.getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
+                mStageViewController.getPlayListService().setActiveOutcome(daoOutcome);
+                return true;
+            }
+//        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // if active actor is associated with incoming action - return story
     public DaoStory isStory(String action) {
         DaoEpic activeEpic = mStageViewController.getPlayListService().getActiveEpic();
@@ -69,29 +128,7 @@ public class StageManager {
         return null;
     }
     ///////////////////////////////////////////////////////////////////////////
-    // gesture handlers
-    public Boolean updateForAction(String action) {
-        Log.d(TAG, "updateForAction action " + action);
-//        if (action.equals(DaoAction.ACTION_TYPE_SINGLE_TAP) ||
-//                action.equals(DaoAction.ACTION_TYPE_LONG_PRESS) ||
-//                        action.equals(DaoAction.ACTION_TYPE_DOUBLE_TAP) ||
-//                                action.equals(DaoAction.ACTION_TYPE_FLING)) {
-            // if story exists associating the active actor (or all actor) with the action
-            DaoStory daoStory = isStory(action);
-            if (daoStory != null) {
-                // set active: story, action, outcome  (actor is already active)
-                mStageViewController.getPlayListService().setActiveStory(daoStory);
-                DaoAction daoAction = (DaoAction) mStageViewController.getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
-                mStageViewController.getPlayListService().setActiveAction(daoAction);
-                DaoOutcome daoOutcome = (DaoOutcome) mStageViewController.getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
-                mStageViewController.getPlayListService().setActiveOutcome(daoOutcome);
-                return true;
-            }
-//        }
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    // gesture handlers
+    // Outcomes
     public Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
         Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
         int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
