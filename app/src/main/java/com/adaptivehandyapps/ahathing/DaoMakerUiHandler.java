@@ -275,6 +275,7 @@ public class DaoMakerUiHandler {
                 tagImageResIdList.add(imageResId);
                 // story is in tag list - set selected color
                 bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+                // TODO: tag list may contain invalid entries!
                 if (mTagList.contains(story.getMoniker())) {
                     // highlight list item
                     bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
@@ -455,6 +456,10 @@ public class DaoMakerUiHandler {
                     Log.e(TAG, "buttonDestroy.setOnClickListener unknown object - callback...");
                     if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
                 }
+                // ensure playlist is coherent - any undefined objects?
+                Boolean removeIfUndefined = true;
+                Boolean forceToActiveStage = true;
+                mParent.getPlayListService().repair(removeIfUndefined, forceToActiveStage);
             }
         });
 

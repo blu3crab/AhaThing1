@@ -118,14 +118,6 @@ public class DaoBase implements Serializable {
 		this.tagList = tagList;
 	}
 
-	//	public DaoLocale getDaoLocale() {
-//		return daoLocale;
-//	}
-//
-//	public void setDaoLocale(DaoLocale daoLocale) {
-//		this.daoLocale = daoLocale;
-//	}
-
 	public String getReserve1() {
 		return reserve1;
 	}

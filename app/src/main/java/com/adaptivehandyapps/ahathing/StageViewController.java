@@ -485,14 +485,6 @@ public class StageViewController extends View implements
         setTouchY(event.getY());
         getStageManager().onAction(DaoAction.ACTION_TYPE_LONG_PRESS);
         invalidate();
-//        // if story exists associating the active actor (or all actor) with the action
-//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_LONG_PRESS)) {
-//            // toggle selection plus adjacent
-//            mTouchX = event.getX();
-//            mTouchY = event.getY();
-//            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, true);
-//            invalidate();
-//        }
     }
 
     @Override
@@ -534,15 +526,6 @@ public class StageViewController extends View implements
         setTouchY(event.getY());
         getStageManager().onAction(DaoAction.ACTION_TYPE_SINGLE_TAP);
         invalidate();
-
-//        // if story exists associating the active actor (or all actor) with the action
-//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_SINGLE_TAP)) {
-//            // toggle selection but not adjacent
-//            mTouchX = event.getX();
-//            mTouchY = event.getY();
-//            getStageManager().toggleSelection(mTouchX, mTouchY, 0.0f, false);
-//            invalidate();
-//        }
         return true;
     }
 
@@ -554,17 +537,6 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         getStageManager().onAction(DaoAction.ACTION_TYPE_DOUBLE_TAP);
         invalidate();
-//        // if story exists associating the active actor (or all actor) with the action
-//        if (getStageManager().updateForAction(DaoAction.ACTION_TYPE_DOUBLE_TAP)) {
-//            // clear actors on stage
-//            DaoStage daoStage = getPlayListService().getActiveStage();
-//            if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-//                Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
-//            }
-//            // update object
-//            getRepoProvider().getDalStage().update(daoStage, true);
-//            invalidate();
-//        }
         return true;
     }
 

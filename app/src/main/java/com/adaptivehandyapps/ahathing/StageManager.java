@@ -44,31 +44,39 @@ public class StageManager {
     public Boolean onAction(String action) {
         Log.d(TAG, "onAction action " + action);
         // if story exists associating the active actor (or all actor) with the action
-        if (updateForAction(action)) {
+        if (updatePlaylist(action)) {
             // execute outcome
             switch (action) {
                 case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, false);
-                    return true;
                 case DaoAction.ACTION_TYPE_LONG_PRESS:
-                    // toggle selection plus adjacent
-                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, true);
-                    return true;
                 case DaoAction.ACTION_TYPE_FLING:
-                    // toggle path along fling vector
-                    plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
-                            mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
-                            mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
-                    return true;
                 case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                    // clear actors on stage
-                    DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
-                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-                        Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
-                    }
-                    // update object
-                    mStageViewController.getRepoProvider().getDalStage().update(daoStage, true);
+                    DaoOutcome daoOutcome = mStageViewController.getPlayListService().getActiveOutcome();
+                    onOutcome(daoOutcome.getMoniker());
                     return true;
+
+//                case DaoAction.ACTION_TYPE_SINGLE_TAP:
+//                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, false);
+//                    return true;
+//                case DaoAction.ACTION_TYPE_LONG_PRESS:
+//                    // toggle selection plus adjacent
+//                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, true);
+//                    return true;
+//                case DaoAction.ACTION_TYPE_FLING:
+//                    // toggle path along fling vector
+//                    plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
+//                            mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
+//                            mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
+//                    return true;
+//                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+//                    // clear actors on stage
+//                    DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
+//                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+//                        Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
+//                    }
+//                    // update object
+//                    mStageViewController.getRepoProvider().getDalStage().update(daoStage, true);
+//                    return true;
                 default:
                     Log.e(TAG, "Oops! Unknown action? " + action);
                     return false;
@@ -78,12 +86,9 @@ public class StageManager {
         return false;
     }
 
-    public Boolean updateForAction(String action) {
-        Log.d(TAG, "updateForAction action " + action);
-//        if (action.equals(DaoAction.ACTION_TYPE_SINGLE_TAP) ||
-//                action.equals(DaoAction.ACTION_TYPE_LONG_PRESS) ||
-//                        action.equals(DaoAction.ACTION_TYPE_DOUBLE_TAP) ||
-//                                action.equals(DaoAction.ACTION_TYPE_FLING)) {
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean updatePlaylist(String action) {
+        Log.d(TAG, "updatePlaylist action " + action);
             // if story exists associating the active actor (or all actor) with the action
             DaoStory daoStory = isStory(action);
             if (daoStory != null) {
@@ -129,6 +134,36 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // Outcomes
+    ///////////////////////////////////////////////////////////////////////////
+    // Actions
+    public Boolean onOutcome(String outcome) {
+        Log.d(TAG, "onOutcome action " + outcome);
+        // execute outcome
+        switch (outcome) {
+            case DaoOutcome.OUTCOME_TYPE_TOGGLE:
+                toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, false);
+                return true;
+            case DaoOutcome.OUTCOME_TYPE_TOGGLE_PLUS:
+                // toggle selection plus adjacent
+                toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, true);
+                return true;
+            case DaoOutcome.OUTCOME_TYPE_TOGGLE_PATH:
+                // toggle path along fling vector
+                plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
+                        mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
+                        mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
+                return true;
+            case DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS:
+                // clear actors on stage
+                clearActors();
+                return true;
+            default:
+                Log.e(TAG, "Oops! Unknown outcome? " + outcome);
+        }
+
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     public Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
         Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
         int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
@@ -220,6 +255,17 @@ public class StageManager {
         else {
             Log.e(TAG, "plotPath touch out of bounds...");
         }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean clearActors() {
+        DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
+        if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+            Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
+            return false;
+        }
+        // update object
+        mStageViewController.getRepoProvider().getDalStage().update(daoStage, true);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

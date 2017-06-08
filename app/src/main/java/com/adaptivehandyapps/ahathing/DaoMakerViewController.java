@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: rationalize STUB for touch view inside DaoMakerUiHandler
 public class DaoMakerViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 

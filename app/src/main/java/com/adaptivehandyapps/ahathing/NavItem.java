@@ -170,6 +170,11 @@ public class NavItem {
             }
         }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
+            // ensure playlist is coherent - any undefined objects?
+            Boolean removeIfUndefined = true;
+            Boolean forceToActiveStage = true;
+            mPlayListService.repair(removeIfUndefined, forceToActiveStage);
+
             // launch audit
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER;

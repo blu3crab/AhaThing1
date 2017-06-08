@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity
         // setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // TODO: rationalize fab stub!
         // setup fab
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabmap);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -491,8 +492,12 @@ public class MainActivity extends AppCompatActivity
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Unbind from services
         if (mPlayListBound) {
+            Log.d(TAG, "onStop unbinding PlayList service" + mPlayListConnection.toString());
             unbindService(mPlayListConnection);
             mPlayListBound = false;
+        }
+        if (mRepoProviderBound) {
+            Log.d(TAG, "onStop unbinding RepoProvider service" + mRepoProviderConnection.toString());
             unbindService(mRepoProviderConnection);
             mRepoProviderBound = false;
         }
@@ -527,9 +532,10 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
-                    // ensure object hierarchy is coherent
-                    // TODO: ensure object hierarchy coherence
-//                    setActiveHierarchy();
+//                    // ensure playlist is coherent - any undefined objects?
+//                    Boolean removeIfUndefined = true;
+//                    Boolean forceToActiveStage = true;
+//                    mPlayListService.repair(removeIfUndefined, forceToActiveStage);
                     // set navigation menu
                     buildNavMenu();
                     // if op has been assigned

@@ -531,7 +531,7 @@ public class DaoMakerViewXfer {
         if (activeStory == null) {
             // new op or error: never should edit NULL object!  create a placeholder & carry on
             activeStory = new DaoStory();
-            Log.e(TAG, "toStory: new object....");
+            Log.d(TAG, "toStory: new object....");
         }
         // update with edited values
         activeStory.setMoniker(editedMoniker);

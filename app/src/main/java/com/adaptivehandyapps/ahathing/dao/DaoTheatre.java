@@ -35,11 +35,6 @@ public class DaoTheatre extends DaoBase {
 	///////////////////////////////////////////////////////////////////////////
 	public DaoTheatre() {
 		super();
-//		this.moniker = DaoDefs.INIT_STRING_MARKER;
-//		this.headline = DaoDefs.INIT_STRING_MARKER;
-//		this.tagList = new ArrayList<>();
-////		this.daoLocale = new DaoLocale();
-//		this.reserve1 = DaoDefs.INIT_STRING_MARKER;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
@@ -48,61 +43,12 @@ public class DaoTheatre extends DaoBase {
 			String headline,
 			Long timestamp,
 			List<String> tagList,
-//			DaoLocale daoLocale,
             String reserve1
     ) {
 		super(moniker, headline, timestamp, tagList, reserve1);
-//		this.moniker = moniker;
-//		this.headline = headline;
-//		this.tagList = tagList;
-////		this.daoLocale = daoLocale;
-//		this.reserve1 = reserve1;
 	}
 
-	/////////////////////////////helpers//////////////////////////////////
-//	public String toString() {
-//		return moniker + ", " + headline + ", " +
-//				tagList + ", " +
-////				daoLocale.toString() +
-//                reserve1;
-//	}
-//
-//	public static long getSerialVersionUID() {
-//		return serialVersionUID;
-//	}
-//
-//	public String getMoniker() {
-//		return moniker;
-//	}
-//
-//	public void setMoniker(String moniker) {
-//		this.moniker = moniker;
-//	}
-//
-//	public String getHeadline() {
-//		return headline;
-//	}
-//
-//	public void setHeadline(String headline) {
-//		this.headline = headline;
-//	}
-//
-//	public List<String> getTagList() {
-//		return tagList;
-//	}
-//
-//	public void setTagList(List<String> tagList) {
-//		this.tagList = tagList;
-//	}
-//
-//	public DaoLocale getDaoLocale() {
-//		return daoLocale;
-//	}
-//
-//	public void setDaoLocale(DaoLocale daoLocale) {
-//		this.daoLocale = daoLocale;
-//	}
-
+	///////////////////////////////////////////////////////////////////////////
 	public String getReserve2() {
 		return reserve2;
 	}
