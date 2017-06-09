@@ -173,7 +173,7 @@ public class NavItem {
             // ensure playlist is coherent - any undefined objects?
             Boolean removeIfUndefined = true;
             Boolean forceToActiveStage = true;
-            mPlayListService.repair(removeIfUndefined, forceToActiveStage);
+            mPlayListService.repairAll(removeIfUndefined, forceToActiveStage);
 
             // launch audit
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST;

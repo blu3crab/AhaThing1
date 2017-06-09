@@ -29,6 +29,7 @@
         android:textColor="@color/colorNewAccent"
         android:text="Create a new thing!" />
 
+    <!-- moniker -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -65,7 +66,7 @@
             />
 
     </LinearLayout>
-
+    <!-- headline -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -103,7 +104,7 @@
             />
 
     </LinearLayout>
-
+    <!-- last update -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -135,7 +136,61 @@
             android:text="ddMMMyy HH:mm:ss z" />
 
     </LinearLayout>
+    <!-- buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
 
+        <!-- create/destroy/cancel buttons -->
+        <Button style="@style/Widget.AppCompat.Button.Colored"
+            android:id="@+id/button_daomaker_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_padding"
+            android:paddingRight="@dimen/activity_horizontal_padding"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorNewAccent"
+            android:background="@color/colorNew"
+            android:text="Create"/>
+        <Button
+            android:id="@+id/button_daomaker_destroy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_padding"
+            android:paddingRight="@dimen/activity_horizontal_padding"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorNewAccent"
+            android:background="@color/colorNew"
+            android:text="Destroy"/>
+        <Button
+            android:id="@+id/button_daomaker_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_padding"
+            android:paddingRight="@dimen/activity_horizontal_padding"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorNewAccent"
+            android:background="@color/colorNew"
+            android:text="Cancel"/>
+
+    </LinearLayout>
+
+    <!-- tag list -->
     <LinearLayout
         android:id="@+id/ll_tags"
         android:layout_width="match_parent"
@@ -566,56 +621,4 @@
         android:visibility="gone"
         />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
-
-        <!-- create/destroy/cancel buttons -->
-        <Button style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/button_daomaker_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="invisible"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text="Create"/>
-        <Button
-            android:id="@+id/button_daomaker_destroy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="invisible"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text="Destroy"/>
-        <Button
-            android:id="@+id/button_daomaker_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="invisible"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text="Cancel"/>
-
-    </LinearLayout>
 </LinearLayout>

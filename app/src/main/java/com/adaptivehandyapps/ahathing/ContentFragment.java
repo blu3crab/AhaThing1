@@ -67,28 +67,28 @@ public class ContentFragment extends Fragment {
     // playlist service
     PlayListService mPlayListService;
     boolean mPlayListBound = false;
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    public ServiceConnection mPlayListConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
-            mPlayListService = binder.getService();
-            mPlayListBound = true;
-            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-            // if services bound refresh the view
-            if (mPlayListBound && mRepoProviderBound) refresh();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mPlayListBound = false;
-        }
-    };
-
+//
+//    /** Defines callbacks for service binding, passed to bindService() */
+//    public ServiceConnection mPlayListConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
+//            mPlayListService = binder.getService();
+//            mPlayListBound = true;
+//            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+//            // if services bound refresh the view
+//            if (mPlayListBound && mRepoProviderBound) refresh();
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mPlayListBound = false;
+//        }
+//    };
+//
     public PlayListService getPlayListService() {
         return mPlayListService;
     }
@@ -100,28 +100,28 @@ public class ContentFragment extends Fragment {
     // repo provider service
     RepoProvider mRepoProvider;
     boolean mRepoProviderBound = false;
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    public ServiceConnection mRepoProviderConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            RepoProvider.LocalBinder binder = (RepoProvider.LocalBinder) service;
-            mRepoProvider = binder.getService();
-            mRepoProviderBound = true;
-            Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
-            // if services bound refresh the view
-            if (mPlayListBound && mRepoProviderBound) refresh();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mRepoProviderBound = false;
-        }
-    };
-
+//
+//    /** Defines callbacks for service binding, passed to bindService() */
+//    public ServiceConnection mRepoProviderConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            RepoProvider.LocalBinder binder = (RepoProvider.LocalBinder) service;
+//            mRepoProvider = binder.getService();
+//            mRepoProviderBound = true;
+//            Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
+//            // if services bound refresh the view
+//            if (mPlayListBound && mRepoProviderBound) refresh();
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mRepoProviderBound = false;
+//        }
+//    };
+//
     public RepoProvider getRepoProvider() {
         return mRepoProvider;
     }
@@ -137,16 +137,40 @@ public class ContentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        // binding to services results in much thrashing & unbinding conumdrums
         // bind to playlist service
+//        Intent intentPlayListService = new Intent(getActivity(), PlayListService.class);
+//        getActivity().bindService(intentPlayListService, mPlayListConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+//
+//        // bind to repo provider service
+//        Intent intentRepoProviderService = new Intent(getActivity(), RepoProvider.class);
+//        getActivity().bindService(intentRepoProviderService, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(TAG, "onCreateView: mRepoProviderBound " + mRepoProviderBound + ", mRepoProvider " + mRepoProvider);
+        // de-reference parent activity
+        MainActivity mParent = (MainActivity) getActivity();
 
-        Intent intent = new Intent(getActivity(), PlayListService.class);
-        getActivity().bindService(intent, mPlayListConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
+        // attempt to access the PlayListService
+        mPlayListService = mParent.getPlayListService();
+        if (mPlayListService != null) {
+            Log.d(TAG, "onCreateView: mPlayListService " + mPlayListService.toString() + " bound...");
+            mPlayListBound = true;
+        }
+        else {
+            Log.d(TAG, "onCreateView: mPlayListService " + " NOT bound...");
+            mPlayListBound = false;
+        }
 
-        // bind to repo provider service
-        Intent intentRepoProvider = new Intent(getActivity(), RepoProvider.class);
-        getActivity().bindService(intentRepoProvider, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "onCreateView: mRepoProviderBound " + mRepoProviderBound + ", mRepoProvider " + mRepoProvider);
+        mRepoProvider = mParent.getRepoProvider();
+        if (mRepoProvider != null) {
+            Log.d(TAG, "onCreateView: mRepoProvider " + mRepoProvider.toString() + " bound...");
+            mRepoProviderBound = true;
+        }
+        else {
+            Log.d(TAG, "onCreateView: mRepoProvider " + " NOT bound...");
+            mRepoProviderBound = false;
+        }
+
 
         Log.v(TAG, "onCreate...");
         mInflater = inflater;
@@ -163,9 +187,11 @@ public class ContentFragment extends Fragment {
             mContentOp = getArguments().getString(ARG_CONTENT_KEY_OP);
             if (mContentOp.equals(ARG_CONTENT_VALUE_OP_PLAY)) {
                 mContentId = R.layout.content_stage;
+                mParent.setStageViewActive(true);
             }
             else {
                 mContentId = R.layout.content_daomaker;
+                mParent.setStageViewActive(false);
             }
         }
         if (getArguments().containsKey(ARG_CONTENT_KEY_OBJTYPE)) {
@@ -178,11 +204,11 @@ public class ContentFragment extends Fragment {
         }
         Log.v(TAG, "onCreate: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
         mRootView = mInflater.inflate(mContentId, mContainer, false);
-//        mRootView = refresh();
 
-//        // if services bound refresh the view
-//        if (mPlayListBound && mRepoProviderBound) refresh();
-//        Log.v(TAG, "onCreate: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
+//        mRootView = refresh();
+        // if services bound refresh the view
+        if (mPlayListBound && mRepoProviderBound) refresh();
+        Log.v(TAG, "onCreate: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
 
         return mRootView;
     }
@@ -190,8 +216,6 @@ public class ContentFragment extends Fragment {
         // inflate to refresh
 //        mRootView = mInflater.inflate(mContentId, mContainer, false);
 //        Log.v(TAG, "refresh inflating " + mContentId + ", Moniker = " + mContentMoniker);
-        mRootView.invalidate();
-        Log.v(TAG, "refresh invalidating " + mContentId + ", Moniker = " + mContentMoniker);
         if (mPlayListBound && mRepoProviderBound) {
             if (mContentId == R.layout.content_daomaker) {
                 // create new handler & callback
@@ -199,10 +223,49 @@ public class ContentFragment extends Fragment {
                 mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
             }
         }
+        Log.v(TAG, "refresh invalidating " + mContentId + ", Moniker = " + mContentMoniker);
+        mRootView.invalidate();
         return mRootView;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v(TAG, "onStop");
+//        ///////////////////////////////////////////////////////////////////////////////////////////
+//        // Unbind from services
+//        if (mPlayListBound) {
+//            Log.d(TAG, "onStop unbinding PlayList service" + mPlayListConnection.toString());
+//            getActivity().unbindService(mPlayListConnection);
+//            mPlayListBound = false;
+//        }
+//        if (mRepoProviderBound) {
+//            Log.d(TAG, "onStop unbinding RepoProvider service" + mRepoProviderConnection.toString());
+//            getActivity().unbindService(mRepoProviderConnection);
+//            mRepoProviderBound = false;
+//        }
+//        ///////////////////////////////////////////////////////////////////////////////////////////
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(TAG, "onDestroy");
+//        ///////////////////////////////////////////////////////////////////////////////////////////
+//        // Unbind from services
+//        if (mPlayListBound) {
+//            Log.d(TAG, "onDestroy unbinding PlayList service" + mPlayListConnection.toString());
+//            getActivity().unbindService(mPlayListConnection);
+//            mPlayListBound = false;
+//        }
+//        if (mRepoProviderBound) {
+//            Log.d(TAG, "onDestroy unbinding RepoProvider service" + mRepoProviderConnection.toString());
+//            getActivity().unbindService(mRepoProviderConnection);
+//            mRepoProviderBound = false;
+//        }
+//        ///////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+        ///////////////////////////////////////////////////////////////////////////
     private DaoMakerUiHandler.OnContentHandlerResult getOnContentHandlerResultCallback() {
         // instantiate callback
         DaoMakerUiHandler.OnContentHandlerResult callback = new DaoMakerUiHandler.OnContentHandlerResult() {

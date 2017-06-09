@@ -459,7 +459,7 @@ public class DaoMakerUiHandler {
                 // ensure playlist is coherent - any undefined objects?
                 Boolean removeIfUndefined = true;
                 Boolean forceToActiveStage = true;
-                mParent.getPlayListService().repair(removeIfUndefined, forceToActiveStage);
+                mParent.getPlayListService().repairAll(removeIfUndefined, forceToActiveStage);
             }
         });
 
