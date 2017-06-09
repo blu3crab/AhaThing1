@@ -215,6 +215,25 @@ public class DaoMakerUiHandler {
 
     }
 
+//    ///////////////////////////////////////////////////////////////////////////
+//    private Boolean isOrphanInSubList(List<String> completeList, List<String> subList, Boolean repair) {
+//        Integer testIndex = 0;
+//        Integer orphanCount = 0;
+//        List<Integer> orphanList = new ArrayList<>();
+//        for (String sub : subList) {
+//            if (!completeList.contains(sub)) {
+//                ++orphanCount;
+//                orphanList.add(testIndex);
+//            }
+//            ++testIndex;
+//        }
+//        if (repair && orphanCount > 0) {
+//            for (Integer i = 0; i < orphanCount; ++i) {
+//                subList.remove(orphanList.get(i));
+//            }
+//        }
+//        return false;
+//    }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean handleTagList(final String objType) {
 
@@ -232,6 +251,11 @@ public class DaoMakerUiHandler {
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // dereference epic repo dao list
             List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
+            List<String> daoEpicMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getMonikerList();
+            if (!daoEpicMonikerList.containsAll(mTagList)) {
+                Log.e(TAG, "Oops!  Orphan Epic in Theatre, repairing...");
+                mParent.getPlayListService().repairAll(true, true);
+            }
             // for each epic in repo
             for (DaoEpic epic : daoEpicList) {
                 // build list of epic names, labels & images
@@ -261,6 +285,11 @@ public class DaoMakerUiHandler {
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             // dereference story repo dao list
             List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
+            List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
+            if (!daoStoryMonikerList.containsAll(mTagList)) {
+                Log.e(TAG, "Oops!  Orphan Story in Epic...");
+                mParent.getPlayListService().repairAll(true, true);
+            }
             // for each story in repo
             for (DaoStory story : daoStoryList) {
                 // build list of story names, labels & images
@@ -275,7 +304,6 @@ public class DaoMakerUiHandler {
                 tagImageResIdList.add(imageResId);
                 // story is in tag list - set selected color
                 bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-                // TODO: tag list may contain invalid entries!
                 if (mTagList.contains(story.getMoniker())) {
                     // highlight list item
                     bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);

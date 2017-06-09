@@ -226,46 +226,61 @@ public class NavItem {
                 else if (mContentObjType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                     mContentMoniker = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER + mRepoProvider.getDalStage().getDaoRepo().size();
                 }
+                else {
+                    Log.e(TAG, "Oops!  Unknown (new) object type " + mContentObjType);
+                }
             }
             else {
                 // existing object - set active based on find object type
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 if (mRepoProvider.getDalTheatre().getDaoRepo().get(itemname) != null) {
                     // theatre - set active
                     getPlayListService().setActiveTheatre((DaoTheatre) mRepoProvider.getDalTheatre().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveTheatre().getMoniker();
                 }
                 else if (mRepoProvider.getDalEpic().getDaoRepo().get(itemname) != null) {
                     // Epic - set active
                     getPlayListService().setActiveEpic((DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveEpic().getMoniker();
                 }
                 else if (mRepoProvider.getDalStory().getDaoRepo().get(itemname) != null) {
                     // story - set active
                     getPlayListService().setActiveStory((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
                 else if (mRepoProvider.getDalStage().getDaoRepo().get(itemname) != null) {
                     // stage - set active
                     getPlayListService().setActiveStage((DaoStage) mRepoProvider.getDalStage().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveStage().getMoniker();
                 }
                 else if (mRepoProvider.getDalActor().getDaoRepo().get(itemname) != null) {
                     // Actor - set active
                     getPlayListService().setActiveActor((DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveActor().getMoniker();
                 }
                 else if (mRepoProvider.getDalAction().getDaoRepo().get(itemname) != null) {
                     // Action - set active
                     getPlayListService().setActiveAction((DaoAction) mRepoProvider.getDalAction().getDaoRepo().get(itemname));
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveAction().getMoniker();
                 }
                 else if (mRepoProvider.getDalOutcome().getDaoRepo().get(itemname) != null) {
                     // Outcome - set active
                     getPlayListService().setActiveOutcome((DaoOutcome) mRepoProvider.getDalOutcome().getDaoRepo().get(itemname));
+                    // launch dao maker
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveOutcome().getMoniker();
+                }
+                else {
+                    Log.e(TAG, "Oops!  Unknown (sub) object type " + mContentObjType);
                 }
                 // update nav menu
                 triggerUpdate = true;
-                // TODO: consolidate Play launch
-                if (getPlayListService().getActiveStory() != null) {
-                    // launch active story
-                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
-                }
             }
         }
 

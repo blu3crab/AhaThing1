@@ -32,16 +32,5 @@ public class DaoLocusList {
 
 	public DaoLocusList(){locii = new ArrayList<>();}
 
-//	///////////////////////////////////////////////////////////////////////////
-//	// returns DAO if found in list or null if not found
-//	// TODO: use hashmap rather than serial scan
-//	public DaoLocus getDao(String ahaId) {
-//		for (DaoLocus daoVert : verts) {
-//			if (daoVert.getDaoInfo().getAhaId().equals(ahaId)) {
-//				return daoVert;
-//			}
-//		}
-//		return null;
-//	}
 }
 ///////////////////////////////////////////////////////////////////////////

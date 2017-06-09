@@ -370,57 +370,21 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             if (isStageViewActive()) {
-                Log.d(TAG,"Stage view active!");
+                Log.d(TAG,"Stage view active! allow change of focus...");
+                super.onBackPressed();
             }
             else {
-                Log.d(TAG,"Stage view NOT active!");
-                // restore stage view
+                Log.d(TAG,"Stage view NOT active! restore stage focus...");
+                // if story available
+                if (getPlayListService().getActiveStory() != null) {
+                    // launch PLAY story
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+                    ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
+                }
             }
-            super.onBackPressed();
         }
-
-//            Integer idStage = R.id.content_stage;
-//            Integer idMain = R.id.content_main;
-//            Integer idAppBar = R.id.appbar_main;
-//            Integer id = 0;
-//
-//    //        View rootView = null;
-//    //        View currentFocus = getWindow().getCurrentFocus();
-//    ////        View currentFocus = getCurrentFocus();
-//    //        if (currentFocus != null) {
-//    //            rootView = currentFocus.getRootView();
-//    //            id = rootView.getId();
-//    //        }
-//            View currentFocus = this.findViewById(android.R.id.content);
-////            View currentFocus = this.getWindow().getDecorView();
-//
-//            currentFocus.get
-//            id = currentFocus.getId();
-//            if (id == R.id.content_stage) {
-//                Log.d(TAG, "onBackPressed view id stage");
-//            }
-//            else if (id == R.id.content_main) {
-//                Log.d(TAG, "onBackPressed view id main");
-//            }
-//            else {
-//                Log.d(TAG, "onBackPressed view id other");
-//            }
-//
-//    //        View v = this.findViewById(android.R.id.content);
-//            View v = this.getCurrentFocus();
-//
-//            id = v.getId();
-//            if (id == R.id.content_stage) {
-//                Log.d(TAG, "onBackPressed view id stage");
-//            }
-//            else if (id == R.id.content_main) {
-//                Log.d(TAG, "onBackPressed view id main");
-//            }
-//            else {
-//                Log.d(TAG, "onBackPressed view id other");
-//            }
-//            super.onBackPressed();
-//        }
     }
 
     @Override

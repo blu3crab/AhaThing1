@@ -232,37 +232,11 @@ public class ContentFragment extends Fragment {
     public void onStop() {
         super.onStop();
         Log.v(TAG, "onStop");
-//        ///////////////////////////////////////////////////////////////////////////////////////////
-//        // Unbind from services
-//        if (mPlayListBound) {
-//            Log.d(TAG, "onStop unbinding PlayList service" + mPlayListConnection.toString());
-//            getActivity().unbindService(mPlayListConnection);
-//            mPlayListBound = false;
-//        }
-//        if (mRepoProviderBound) {
-//            Log.d(TAG, "onStop unbinding RepoProvider service" + mRepoProviderConnection.toString());
-//            getActivity().unbindService(mRepoProviderConnection);
-//            mRepoProviderBound = false;
-//        }
-//        ///////////////////////////////////////////////////////////////////////////////////////////
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "onDestroy");
-//        ///////////////////////////////////////////////////////////////////////////////////////////
-//        // Unbind from services
-//        if (mPlayListBound) {
-//            Log.d(TAG, "onDestroy unbinding PlayList service" + mPlayListConnection.toString());
-//            getActivity().unbindService(mPlayListConnection);
-//            mPlayListBound = false;
-//        }
-//        if (mRepoProviderBound) {
-//            Log.d(TAG, "onDestroy unbinding RepoProvider service" + mRepoProviderConnection.toString());
-//            getActivity().unbindService(mRepoProviderConnection);
-//            mRepoProviderBound = false;
-//        }
-//        ///////////////////////////////////////////////////////////////////////////////////////////
     }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -273,40 +247,15 @@ public class ContentFragment extends Fragment {
             @Override
             public void onContentHandlerResult(String op, String objType, String moniker) {
                 Log.v(TAG, "onContentHandlerResult: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
-//                // update the main content by replacing fragments
-//                Fragment fragment = new ContentFragment();
-//
-//                ContentFragment cf = (ContentFragment)fragment;
-//                cf.setRepoProvider(mRepoProvider);
-
-//                // TODO: consolidate Play launch
-//                // update the main content with stage
-//                if (getPlayListService().getActiveStory() != null) {
-//                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
-//                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-//                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
-//                }
-//                else {
-//                    // TODO: determine next step based on just completed operation
-//                }
-
+                // if story available
                 if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+                    // DaoMakerUiHandler completes - launch PLAY story
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                     mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
-
+                // replace fragment with PLAY story
                 replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);
-
-//                Bundle args = new Bundle();
-//                args.putString(ContentFragment.ARG_CONTENT_KEY_OP, mContentOp);
-//                args.putString(ContentFragment.ARG_CONTENT_KEY_OBJTYPE, mContentObjType);
-//                args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, mContentMoniker);
-//                fragment.setArguments(args);
-//
-//                FragmentManager fragmentManager = getFragmentManager();
-////                fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
-//                fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
             }
         };
         return callback;

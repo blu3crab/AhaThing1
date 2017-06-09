@@ -104,7 +104,7 @@ public class StageModelRing {
             DaoLocus origin = new DaoLocus();
             // mirror locus list add with actor & prop
             mirrorLociiAdd(origin, daoLocusList, actorList, propList);
-            // TODO:
+            // set nickname, seed vert
             origin.setNickname(setLocusName(ring, ringMaxId.get(ring)));
             origin.setVertX(RING_CENTER_X);
             origin.setVertY(RING_CENTER_Y);
