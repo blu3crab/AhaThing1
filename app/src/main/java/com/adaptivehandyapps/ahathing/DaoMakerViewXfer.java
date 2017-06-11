@@ -52,12 +52,16 @@ public class DaoMakerViewXfer {
 
     private ArrayAdapter<String> mStageListAdapter = null;
     private Spinner mSpinnerStages;
+    private ArrayAdapter<String> mPreReqListAdapter = null;
+    private Spinner mSpinnerPreReqs;
     private ArrayAdapter<String> mActorListAdapter = null;
     private Spinner mSpinnerActors;
     private ArrayAdapter<String> mActionListAdapter = null;
     private Spinner mSpinnerActions;
     private ArrayAdapter<String> mOutcomeListAdapter = null;
     private Spinner mSpinnerOutcomes;
+    private ArrayAdapter<String> mPostOpListAdapter = null;
+    private Spinner mSpinnerPostOps;
 
     private ArrayAdapter<String> mRingTypeListAdapter = null;
     private Spinner mSpinnerRingType;
@@ -194,6 +198,24 @@ public class DaoMakerViewXfer {
             Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
             return false;
         }
+        // prereq spinner
+        List<String> prereqList = new ArrayList<>();
+        prereqList.add(DaoStory.STORY_PREREQ_NONE);
+        prereqList.add(DaoStory.STORY_PREREQ_VERT_OWNED);
+        prereqList.add(DaoStory.STORY_PREREQ_VERT_BLOCKED);
+        prereqList.add(DaoStory.STORY_PREREQ_VERT_EMPTY);
+        mPreReqListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                prereqList);
+
+        mSpinnerPreReqs = (Spinner) mRootView.findViewById(R.id.spinner_prereqs);
+        if (mPreReqListAdapter != null && mSpinnerPreReqs != null) {
+            mSpinnerPreReqs.setAdapter(mPreReqListAdapter);
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mPreReqListAdapter? " + mPreReqListAdapter + ", spinner PreReq? " + mSpinnerPreReqs);
+            return false;
+        }
         // Actor spinner
         // dereference repo dao list
         List<DaoActor> daoActorList = (List<DaoActor>)(List<?>) mParent.getRepoProvider().getDalActor().getDaoRepo().getDaoList();
@@ -279,6 +301,23 @@ public class DaoMakerViewXfer {
             return false;
         }
 
+        // postop spinner
+        List<String> postopList = new ArrayList<>();
+        postopList.add(DaoStory.STORY_POSTOP_NONE);
+        postopList.add(DaoStory.STORY_POSTOP_TALLY);
+        mPostOpListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                postopList);
+
+        mSpinnerPostOps = (Spinner) mRootView.findViewById(R.id.spinner_postops);
+        if (mPostOpListAdapter != null && mSpinnerPostOps != null) {
+            mSpinnerPostOps.setAdapter(mPostOpListAdapter);
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mPostOpListAdapter? " + mPostOpListAdapter + ", spinner PostOp? " + mSpinnerPostOps);
+            return false;
+        }
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -291,14 +330,6 @@ public class DaoMakerViewXfer {
         // ring type spinner
         List<String> ringTypeList = new ArrayList<>();
         ringTypeList.add(DaoStage.STAGE_TYPE_RING);
-//        // for each stage in repo
-//        for (DaoActor actor : daoActorList) {
-//            // build list of names
-//            actorNameList.add(actor.getMoniker());
-//        }
-//        if (actorNameList.isEmpty()) {
-//            actorNameList.add("actors!  where are the actors?");
-//        }
         mRingTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
                 android.R.layout.simple_list_item_1,
                 ringTypeList);
@@ -538,12 +569,16 @@ public class DaoMakerViewXfer {
         activeStory.setHeadline(headline);
         Log.d(TAG, "toStory selected stage " + mSpinnerStages.getSelectedItem().toString());
         activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
+        Log.d(TAG, "toStory selected prereq " + mSpinnerPreReqs.getSelectedItem().toString());
+        activeStory.setPreReq(mSpinnerPreReqs.getSelectedItem().toString());
         Log.d(TAG, "toStory selected actor " + mSpinnerActors.getSelectedItem().toString());
         activeStory.setActor(mSpinnerActors.getSelectedItem().toString());
         Log.d(TAG, "toStory selected action " + mSpinnerActions.getSelectedItem().toString());
         activeStory.setAction(mSpinnerActions.getSelectedItem().toString());
         Log.d(TAG, "toStory selected outcome " + mSpinnerOutcomes.getSelectedItem().toString());
         activeStory.setOutcome(mSpinnerOutcomes.getSelectedItem().toString());
+        Log.d(TAG, "toStory selected postop " + mSpinnerPostOps.getSelectedItem().toString());
+        activeStory.setPostOp(mSpinnerPostOps.getSelectedItem().toString());
 
         mParent.getPlayListService().setActiveStory(activeStory);
         // update repo

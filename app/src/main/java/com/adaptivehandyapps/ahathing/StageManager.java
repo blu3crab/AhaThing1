@@ -51,32 +51,15 @@ public class StageManager {
                 case DaoAction.ACTION_TYPE_LONG_PRESS:
                 case DaoAction.ACTION_TYPE_FLING:
                 case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+                    // if prereq satisfied
+
                     DaoOutcome daoOutcome = mStageViewController.getPlayListService().getActiveOutcome();
                     onOutcome(daoOutcome.getMoniker());
+
+                    // if post-operation indicated
+
                     return true;
 
-//                case DaoAction.ACTION_TYPE_SINGLE_TAP:
-//                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, false);
-//                    return true;
-//                case DaoAction.ACTION_TYPE_LONG_PRESS:
-//                    // toggle selection plus adjacent
-//                    toggleSelection(mStageViewController.getTouchX(), mStageViewController.getTouchY(), 0.0f, true);
-//                    return true;
-//                case DaoAction.ACTION_TYPE_FLING:
-//                    // toggle path along fling vector
-//                    plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
-//                            mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
-//                            mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
-//                    return true;
-//                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-//                    // clear actors on stage
-//                    DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
-//                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-//                        Log.e(TAG, "Ooops! onDoubleTap UNKNOWN stage type? " + daoStage.getStageType());
-//                    }
-//                    // update object
-//                    mStageViewController.getRepoProvider().getDalStage().update(daoStage, true);
-//                    return true;
                 default:
                     Log.e(TAG, "Oops! Unknown action? " + action);
                     return false;

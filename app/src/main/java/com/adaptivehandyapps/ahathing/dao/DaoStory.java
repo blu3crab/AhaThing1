@@ -29,8 +29,19 @@ public class DaoStory extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String STORY_PREREQ_NONE = "None";
+	public static final String STORY_PREREQ_VERT_OWNED = "Owned";
+	public static final String STORY_PREREQ_VERT_BLOCKED = "Blocked";
+	public static final String STORY_PREREQ_VERT_EMPTY = "Empty";
+
+	public static final String STORY_POSTOP_NONE = "NOP";
+	public static final String STORY_POSTOP_TALLY = "TallyGameOverCheck";
+
 	@SerializedName("stage")
 	private String stage;
+
+	@SerializedName("prereq")
+	private String prereq;
 
 	@SerializedName("actor")
 	private String actor;
@@ -41,12 +52,9 @@ public class DaoStory extends DaoBase {
 	@SerializedName("outcome")
 	private String outcome;
 
-//	@SerializedName("prereq")
-//	private String prereq;
-//
-//	@SerializedName("trigger")
-//	private String trigger;
-//
+	@SerializedName("postop")
+	private String postop;
+
 	@SerializedName("reserve2")
 	private String reserve2;
 
@@ -54,9 +62,11 @@ public class DaoStory extends DaoBase {
 	public DaoStory() {
 		super();
 		this.stage = DaoDefs.INIT_STRING_MARKER;
+		this.prereq = DaoDefs.INIT_STRING_MARKER;
 		this.actor = DaoDefs.INIT_STRING_MARKER;
 		this.action = DaoDefs.INIT_STRING_MARKER;
 		this.outcome = DaoDefs.INIT_STRING_MARKER;
+		this.postop = DaoDefs.INIT_STRING_MARKER;
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
@@ -67,16 +77,20 @@ public class DaoStory extends DaoBase {
 			List<String> tagList,
 			String reserve1,
 			String stage,
+			String prereq,
 			String actor,
 			String action,
 			String outcome,
+			String postop,
 			String reserve2
 	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
 		this.stage = stage;
+		this.prereq = prereq;
 		this.actor = actor;
 		this.action = action;
 		this.outcome = outcome;
+		this.postop = postop;
 		this.reserve2 = reserve2;
 	}
 
@@ -85,13 +99,21 @@ public class DaoStory extends DaoBase {
 		return serialVersionUID;
 	}
 
-    public String getStage() {
+	public String getStage() {
         return stage;
     }
 
     public void setStage(String stage) {
         this.stage = stage;
     }
+
+	public String getPreReq() {
+		return prereq;
+	}
+
+	public void setPreReq(String prereq) {
+		this.prereq = prereq;
+	}
 
 	public String getActor() {
 		return actor;
@@ -115,6 +137,14 @@ public class DaoStory extends DaoBase {
 
 	public void setOutcome(String outcome) {
 		this.outcome = outcome;
+	}
+
+	public String getPostOp() {
+		return postop;
+	}
+
+	public void setPostOp(String postop) {
+		this.postop = postop;
 	}
 
 	public String getReserve2() {
