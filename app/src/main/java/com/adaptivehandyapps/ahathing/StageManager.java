@@ -52,11 +52,13 @@ public class StageManager {
                 case DaoAction.ACTION_TYPE_FLING:
                 case DaoAction.ACTION_TYPE_DOUBLE_TAP:
                     // if prereq satisfied
+                    if (isPreReqSatisfied()) {
+                        DaoOutcome daoOutcome = mStageViewController.getPlayListService().getActiveOutcome();
+                        onOutcome(daoOutcome.getMoniker());
 
-                    DaoOutcome daoOutcome = mStageViewController.getPlayListService().getActiveOutcome();
-                    onOutcome(daoOutcome.getMoniker());
-
-                    // if post-operation indicated
+                        // if post-operation indicated
+                        onPostOp();
+                    }
 
                     return true;
 
@@ -66,6 +68,46 @@ public class StageManager {
             }
         }
 
+        return false;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean isPreReqSatisfied() {
+        DaoStory activeStory = mStageViewController.getPlayListService().getActiveStory();
+        // return true if no pre-req defined
+        if (activeStory.getPreReq().equals(DaoDefs.INIT_STRING_MARKER) ||
+                activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_NONE)) {
+            Log.d(TAG,"isPreReqSatisfied-> no pre-req defined...");
+            return true;
+        }
+        else {
+            DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
+            if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                // get ring index of touch to determine actor at vert
+                float touchX = mStageViewController.getTouchX();
+                float touchY = mStageViewController.getTouchY();
+                float z = 0.0f;
+                int selectIndex = mStageViewController.getStageViewRing().getRingIndex(touchX, touchY, z);
+                String vertActor = daoStage.getActorList().get(selectIndex);
+                // get active actor
+                String activeActor = mStageViewController.getPlayListService().getActiveActor().getMoniker();
+                Log.d(TAG,"isPreReqSatisfied(" + activeStory.getPreReq() + ")-> vertActor, activeActor= " + vertActor + ", " + activeActor);
+                if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_OWNED)) {
+                    // if vert is owned by active player, return true
+                    if (vertActor.equals(activeActor)) return true;
+                } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_BLOCKED)) {
+                    // if vert is blocked by another player, return true
+                    if (!vertActor.equals(activeActor) && !vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
+                } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_EMPTY)) {
+                    // if vert is empty, return true
+                    if (vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
+                }
+            }
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean onPostOp() {
         return false;
     }
 
@@ -133,8 +175,8 @@ public class StageManager {
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_PATH:
                 // toggle path along fling vector
                 plotPath(mStageViewController.getVelocityX(), mStageViewController.getVelocityY(),
-                        mStageViewController.getmEvent1().getX(), mStageViewController.getmEvent1().getY(),
-                        mStageViewController.getmEvent2().getX(), mStageViewController.getmEvent2().getY());
+                        mStageViewController.getEvent1().getX(), mStageViewController.getEvent1().getY(),
+                        mStageViewController.getEvent2().getX(), mStageViewController.getEvent2().getY());
                 return true;
             case DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS:
                 // clear actors on stage
@@ -149,15 +191,14 @@ public class StageManager {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean toggleSelection(float touchX, float touchY, float z, Boolean plus) {
         Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
-        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
+//        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
         DaoStage daoStage = mStageViewController.getPlayListService().getActiveStage();
         if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             // get ring index
-            selectIndex = mStageViewController.getStageViewRing().getRingIndex(touchX, touchY, z);
+            int selectIndex = mStageViewController.getStageViewRing().getRingIndex(touchX, touchY, z);
             // if touch found
             if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
                 Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
-//                toggleActorList(daoStage, selectIndex);
                 if (!daoStage.toggleActorList(mStageViewController.getPlayListService().getActiveActor().getMoniker(), selectIndex)) {
                     Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
                 }
@@ -167,7 +208,6 @@ public class StageManager {
                         List<Integer> ringIndexList = mStageViewController.getRepoProvider().getStageModelRing().findRing(selectIndex);
                         // toggle each rect in ring list
                         for (Integer i : ringIndexList) {
-//                            toggleActorList(daoStage, i);
                             if (!daoStage.toggleActorList(mStageViewController.getPlayListService().getActiveActor().getMoniker(), i)) {
                                 Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
                             }

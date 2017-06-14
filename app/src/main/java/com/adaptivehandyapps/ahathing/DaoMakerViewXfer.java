@@ -211,6 +211,13 @@ public class DaoMakerViewXfer {
         mSpinnerPreReqs = (Spinner) mRootView.findViewById(R.id.spinner_prereqs);
         if (mPreReqListAdapter != null && mSpinnerPreReqs != null) {
             mSpinnerPreReqs.setAdapter(mPreReqListAdapter);
+            // TODO: ugh! refactor prereq list!
+            // set current selection
+            int selectInx = 0; // none
+            if (daoStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_OWNED)) selectInx = 1;
+            else if (daoStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_BLOCKED)) selectInx = 2;
+            else if (daoStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_EMPTY)) selectInx = 3;
+            mSpinnerPreReqs.setSelection(selectInx);
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mPreReqListAdapter? " + mPreReqListAdapter + ", spinner PreReq? " + mSpinnerPreReqs);
@@ -312,6 +319,10 @@ public class DaoMakerViewXfer {
         mSpinnerPostOps = (Spinner) mRootView.findViewById(R.id.spinner_postops);
         if (mPostOpListAdapter != null && mSpinnerPostOps != null) {
             mSpinnerPostOps.setAdapter(mPostOpListAdapter);
+            // set current selection
+            int selectInx = 0; // none
+            if (daoStory.getPostOp().equals(DaoStory.STORY_POSTOP_TALLY)) selectInx = 1;
+            mSpinnerPostOps.setSelection(selectInx);
         } else {
             // null list adapter or spinner
             Log.e(TAG, "NULL mPostOpListAdapter? " + mPostOpListAdapter + ", spinner PostOp? " + mSpinnerPostOps);
@@ -643,6 +654,7 @@ public class DaoMakerViewXfer {
         activeActor.setHeadline(headline);
         if (getForeColor() != activeActor.getForeColor()) activeActor.setForeColor(getForeColor());
         if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
+        // TODO: setActiveActor on create/update?
         mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
         mParent.getRepoProvider().getDalActor().update(activeActor, true);

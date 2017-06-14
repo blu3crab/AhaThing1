@@ -172,7 +172,7 @@ public class ContentFragment extends Fragment {
         }
 
 
-        Log.v(TAG, "onCreate...");
+        Log.v(TAG, "onCreateView...");
         mInflater = inflater;
         mContainer = container;
 
@@ -202,13 +202,13 @@ public class ContentFragment extends Fragment {
             // set the content moniker
             mContentMoniker = getArguments().getString(ARG_CONTENT_KEY_MONIKER);
         }
-        Log.v(TAG, "onCreate: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
+        Log.v(TAG, "onCreateView: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
         mRootView = mInflater.inflate(mContentId, mContainer, false);
 
 //        mRootView = refresh();
         // if services bound refresh the view
         if (mPlayListBound && mRepoProviderBound) refresh();
-        Log.v(TAG, "onCreate: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
+        Log.v(TAG, "onCreateView: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
 
         return mRootView;
     }

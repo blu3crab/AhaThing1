@@ -325,6 +325,7 @@ public class StageViewRing {
             // find index of locus
             int i = daoLocusList.locii.indexOf(daoLocus);
             if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                // TODO: update actor appears to lose attrs(fore color) - invalid actor moniker after update?
                 // if actor present, set selected color & fill
                 DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                 if (daoActor != null) {

@@ -351,6 +351,7 @@ public class PlayListService extends Service {
         // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_ACTOR_KEY);
         if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
+            // TODO: setActiveActor on update?
             // set active to updated object
             setActiveActor(dao);
             return true;
@@ -365,6 +366,7 @@ public class PlayListService extends Service {
             if (mRepoProvider.getDalActor().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(0);
             }
+            // TODO: setActiveActor to an existing actor on remove?
             // set or clear active object
             setActiveActor(daoReplacement);
             return true;

@@ -259,6 +259,7 @@ public class NavItem {
                 }
                 else if (mRepoProvider.getDalActor().getDaoRepo().get(itemname) != null) {
                     // Actor - set active
+                    // TODO: setActiveActor on nav submenu select?
                     getPlayListService().setActiveActor((DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(itemname));
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
                     mContentMoniker = getPlayListService().getActiveActor().getMoniker();

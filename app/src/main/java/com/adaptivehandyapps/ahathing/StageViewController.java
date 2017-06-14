@@ -171,17 +171,17 @@ public class StageViewController extends View implements
         this.mVelocityY = mVelocityY;
     }
 
-    public MotionEvent getmEvent1() {
+    public MotionEvent getEvent1() {
         return mEvent1;
     }
-    public void setmEvent1(MotionEvent event1) {
+    public void setEvent1(MotionEvent event1) {
         this.mEvent1 = event1;
     }
 
-    public MotionEvent getmEvent2() {
+    public MotionEvent getEvent2() {
         return mEvent2;
     }
-    public void setmEvent2(MotionEvent event2) {
+    public void setEvent2(MotionEvent event2) {
         this.mEvent2 = event2;
     }
 
@@ -189,11 +189,13 @@ public class StageViewController extends View implements
     // constructors
     public StageViewController(Context context) {
         super(context);
+        Log.d(TAG, "constructor init context...");
         init(context);
     }
 
     public StageViewController(Context context, AttributeSet attrs) {
         super(context, attrs);
+        Log.d(TAG, "constructor init context/attrs...");
         init(context);
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -208,7 +210,7 @@ public class StageViewController extends View implements
             }
             else {
                 Log.e(TAG, "Story NULL or NOT ready!");
-                return false;
+//                return false;
             }
             setRepoProvider(parent.getRepoProvider());
             if (getRepoProvider() != null) {
@@ -216,12 +218,12 @@ public class StageViewController extends View implements
             }
             else {
                 Log.e(TAG, "Repo Provider NULL!");
-                return false;
+//                return false;
             }
         }
         else {
             Log.e(TAG, "Parent context (MainActivity) NULL!");
-            return false;
+//            return false;
         }
 
         // adjust text size
@@ -467,8 +469,10 @@ public class StageViewController extends View implements
 
         setVelocityX(velocityX);
         setVelocityY(velocityY);
-        setmEvent1(event1);
-        setmEvent2(event2);
+        setEvent1(event1);
+        setEvent2(event2);
+        setTouchX(event1.getX());
+        setTouchY(event1.getY());
         getStageManager().onAction(DaoAction.ACTION_TYPE_FLING);
         invalidate();
 
