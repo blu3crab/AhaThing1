@@ -18,6 +18,8 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.List;
 ///////////////////////////////////////////////////////////////////////////
 public class DaoEpic extends DaoBase {
 
+	private static final String TAG = "DaoEpic";
 	private static final long serialVersionUID = 1L;
 
 	public static final String EPIC_TYPE_NONE = "None";
@@ -38,8 +41,10 @@ public class DaoEpic extends DaoBase {
 	@SerializedName("epicType")			// determines how to tally
 	private String epicType;
 
-	@SerializedName("actorList")		// actors in epic
-	private List<String> actorList;
+	@SerializedName("starList")			// stars are active actors on a particular device
+	private List<String> starList;
+	@SerializedName("deviceList")		// device where stars are active
+	private List<String> deviceList;
 
 	@SerializedName("tallyLimit")		// tally limit (aka max score)
 	private Integer tallyLimit;
@@ -59,7 +64,8 @@ public class DaoEpic extends DaoBase {
 		super();
 
 		this.epicType = DaoDefs.INIT_STRING_MARKER;
-		this.actorList = new ArrayList<>();
+		this.starList = new ArrayList<>();
+		this.deviceList = new ArrayList<>();
 		this.tallyLimit = EPIC_TALLY_LIMIT_DEFAULT;
 		this.tallyList = new ArrayList<>();
 		this.ticLimit = EPIC_TIC_LIMIT_DEFAULT;
@@ -75,7 +81,8 @@ public class DaoEpic extends DaoBase {
 			List<String> tagList,
 			String reserve1,
 			String epicType,
-			List<String> actorList,
+			List<String> starList,
+			List<String> deviceList,
 			Integer tallyLimit,
 			List<Integer> tallyList,
 			Integer ticLimit,
@@ -85,7 +92,8 @@ public class DaoEpic extends DaoBase {
 		super(moniker, headline, timestamp, tagList, reserve1);
 
 		this.epicType = epicType;
-		this.actorList = actorList;
+		this.starList = starList;
+		this.deviceList = deviceList;
 		this.tallyLimit = tallyLimit;
 		this.tallyList = tallyList;
 		this.ticLimit = ticLimit;
@@ -95,6 +103,74 @@ public class DaoEpic extends DaoBase {
 
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	public Boolean setStar(DaoActor daoActor, String deviceName) {
+		// add star, device name, with initial tally & tics
+		if (getStarList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
+			// if star present on same device
+			if (getStarList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
+				Log.d(TAG,"setStar TRUE for existing star " + daoActor.getMoniker() + ".");
+				return true;
+			}
+			else {
+				// if star present but on different device, remove both star & device stale entries
+				int staleStarInx = getDeviceList().indexOf(deviceName);
+				Log.d(TAG,"setStar removing star " + starList.get(staleStarInx) + " at inx " + staleStarInx);
+				removeStar(staleStarInx);
+//				starList.remove(staleStarInx);
+//				deviceList.remove(staleStarInx);
+//				tallyList.remove(staleStarInx);
+//				ticList.remove(staleStarInx);
+				int staleDeviceInx = getDeviceList().indexOf(deviceName);
+				Log.d(TAG,"setStar removing device " + deviceList.get(staleDeviceInx) + " at inx " + staleDeviceInx);
+				removeStar(staleDeviceInx);
+//				starList.remove(staleDeviceInx);
+//				deviceList.remove(staleDeviceInx);
+//				tallyList.remove(staleDeviceInx);
+//				ticList.remove(staleDeviceInx);
+			}
+		}
+		else if (getDeviceList().contains(deviceName)) {
+			// if new star but device is allocated, remove stale device entry
+			int staleDeviceInx = getDeviceList().indexOf(deviceName);
+			Log.d(TAG,"setStar removing device " + deviceList.get(staleDeviceInx) + " at inx " + staleDeviceInx);
+			removeStar(staleDeviceInx);
+//			starList.remove(staleDeviceInx);
+//			deviceList.remove(staleDeviceInx);
+//			tallyList.remove(staleDeviceInx);
+//			ticList.remove(staleDeviceInx);
+		}
+		// create star, device with init tally, tic
+		Log.d(TAG,"setStar adding star device " + daoActor.getMoniker() + " on device " + deviceName);
+		starList.add(daoActor.getMoniker());
+		deviceList.add(deviceName);
+		tallyList.add(0);
+		ticList.add(0);
+		return true;
+	}
+	///////////////////////////////////////////////////////////////////////////
+	public Boolean isStar(DaoActor daoActor, String deviceName) {
+		// if star & device are present
+		if (getStarList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
+			// if star present on same device
+			if (getStarList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
+				Log.d(TAG, "isStar TRUE for existing star " + daoActor.getMoniker() + ".");
+				return true;
+			}
+		}
+		return false;
+	}
+	///////////////////////////////////////////////////////////////////////////
+	public Boolean removeStar(int staleInx) {
+		if (staleInx < starList.size()) {
+			starList.remove(staleInx);
+			deviceList.remove(staleInx);
+			tallyList.remove(staleInx);
+			ticList.remove(staleInx);
+			return true;
+		}
+		return false;
+	}
 	/////////////////////////////helpers//////////////////////////////////
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -107,11 +183,18 @@ public class DaoEpic extends DaoBase {
 		this.epicType = epicType;
 	}
 
-	public List<String> getActorList() {
-		return actorList;
+	public List<String> getStarList() {
+		return starList;
 	}
-	public void setActorList(List<String> actorList) {
-		this.actorList = actorList;
+	public void setStarList(List<String> starList) {
+		this.starList = starList;
+	}
+
+	public List<String> getDeviceList() {
+		return deviceList;
+	}
+	public void setDeviceList(List<String> deviceList) {
+		this.deviceList = deviceList;
 	}
 
 	public Integer getTallyLimit() {

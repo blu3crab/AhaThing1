@@ -536,35 +536,59 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <!-- fore/back color buttons -->
-        <Button style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/button_daomaker_forecolor"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="invisible"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text=" primary color  "/>
-        <Button
-            android:id="@+id/button_daomaker_backcolor"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox android:id="@+id/cb_star"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNew"
+                android:text="Starring on this device"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="invisible"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text="secondary color"/>
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <!-- fore/back color buttons -->
+            <Button style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/button_daomaker_forecolor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:visibility="invisible"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNewAccent"
+                android:background="@color/colorNew"
+                android:text=" primary color  "/>
+            <Button
+                android:id="@+id/button_daomaker_backcolor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:visibility="invisible"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNewAccent"
+                android:background="@color/colorNew"
+                android:text="secondary color"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- action -->

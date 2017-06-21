@@ -20,6 +20,7 @@ package com.adaptivehandyapps.ahathing.ahautils;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -91,4 +92,18 @@ public class DevUtils {
         return displayMetrics.density;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        String deviceName;
+        if (model.startsWith(manufacturer)) {
+            deviceName = model.toUpperCase();
+        } else {
+            deviceName = manufacturer.toUpperCase() + " " + model.toUpperCase();
+        }
+        Log.d(TAG, "getDeviceName " + deviceName);
+        return deviceName;
+    }
+    ///////////////////////////////////////////////////////////////////////////
 }

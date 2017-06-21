@@ -180,18 +180,28 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, PrefsUtils.toString(this));
         // set content to main
         setContentView(R.layout.activity_main);
+
+        // TODO: determine landscape or portrait & set image source accordingly
+        View iv_splash = findViewById(R.id.iv_splash);
+        if (iv_splash != null) {
+            Log.d(TAG, "ready to splash!");
+        }
+        else {
+            Log.e(TAG,"Oops!  where's the splash view?");
+        }
         // setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // setup fab
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabmap);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_map);
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_run);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
         // setup drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         final DrawerLayout drawer = mDrawerLayout;
@@ -550,10 +560,11 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
-//                    // ensure playlist is coherent - any undefined objects?
-//                    Boolean removeIfUndefined = true;
-//                    Boolean forceToActiveStage = true;
-//                    mPlayListService.repair(removeIfUndefined, forceToActiveStage);
+                    // ensure playlist is not bound to repo
+                    if (!getPlayListService().isRepoProviderBound()) {
+                        // bind playlist to repo
+                        getPlayListService().bindRepoProvider();
+                    }
                     // set navigation menu
                     buildNavMenu();
                     // if op has been assigned
@@ -672,5 +683,6 @@ public class MainActivity extends AppCompatActivity
         cursor.moveToFirst();
 
         return cursor.getString(column_index);
-    }///////////////////////////////////////////////////////////////////////////
+    }
+    ///////////////////////////////////////////////////////////////////////////
 }

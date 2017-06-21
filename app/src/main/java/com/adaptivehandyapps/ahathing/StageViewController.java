@@ -147,6 +147,7 @@ public class StageViewController extends View implements
     }
     public void setTouchX(float touchX) {
         this.mTouchX = touchX;
+        if (getStageManager() != null) getStageManager().setTouchX(touchX);
     }
 
     public float getTouchY() {
@@ -154,6 +155,7 @@ public class StageViewController extends View implements
     }
     public void setTouchY(float touchY) {
         this.mTouchY = touchY;
+        if (getStageManager() != null) getStageManager().setTouchY(touchY);
     }
 
     public float getVelocityX() {
@@ -161,14 +163,15 @@ public class StageViewController extends View implements
     }
     public void setVelocityX(float velocityX) {
         this.mVelocityX = velocityX;
+        if (getStageManager() != null) getStageManager().setVelocityX(velocityX);
     }
 
     public float getVelocityY() {
         return mVelocityY;
     }
-
-    public void setVelocityY(float mVelocityY) {
-        this.mVelocityY = mVelocityY;
+    public void setVelocityY(float velocityY) {
+        this.mVelocityY = velocityY;
+        if (getStageManager() != null) getStageManager().setVelocityY(velocityY);
     }
 
     public MotionEvent getEvent1() {
@@ -176,6 +179,7 @@ public class StageViewController extends View implements
     }
     public void setEvent1(MotionEvent event1) {
         this.mEvent1 = event1;
+        if (getStageManager() != null) getStageManager().setEvent1(event1);
     }
 
     public MotionEvent getEvent2() {
@@ -183,6 +187,7 @@ public class StageViewController extends View implements
     }
     public void setEvent2(MotionEvent event2) {
         this.mEvent2 = event2;
+        if (getStageManager() != null) getStageManager().setEvent2(event2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -267,7 +272,8 @@ public class StageViewController extends View implements
         mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
 
         // stage manager
-        mStageManager = new StageManager(this);
+//        mStageManager = new StageManager(this, getPlayListService(), getRepoProvider());
+        mStageManager = new StageManager(getPlayListService(), getRepoProvider());
 
         return true;
     }
@@ -403,8 +409,6 @@ public class StageViewController extends View implements
             // single touch event
             Log.v(TAG, "onTouchEvent single-touch x, y: " + event.getX(pointerIndex) + ", " + event.getY(pointerIndex));
 
-//            mTouchX = event.getX();
-//            mTouchY = event.getY();
             setTouchX(event.getX());
             setTouchY(event.getY());
 
@@ -427,8 +431,6 @@ public class StageViewController extends View implements
                     // clear any gesture
                     mGestureDetected = false;
                     // clear current touch X,Y
-//                    mTouchX = 0.0f;
-//                    mTouchY = 0.0f;
                     setTouchX(0.0f);
                     setTouchY(0.0f);
                     break;
@@ -473,7 +475,7 @@ public class StageViewController extends View implements
         setEvent2(event2);
         setTouchX(event1.getX());
         setTouchY(event1.getY());
-        getStageManager().onAction(DaoAction.ACTION_TYPE_FLING);
+        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_FLING);
         invalidate();
 
         return true;
@@ -487,7 +489,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(DaoAction.ACTION_TYPE_LONG_PRESS);
+        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
         invalidate();
     }
 
@@ -528,7 +530,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(DaoAction.ACTION_TYPE_SINGLE_TAP);
+        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
         invalidate();
         return true;
     }
@@ -539,7 +541,7 @@ public class StageViewController extends View implements
         Log.d(TAG, "onDoubleTap(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onDoubleTap: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        getStageManager().onAction(DaoAction.ACTION_TYPE_DOUBLE_TAP);
+        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
         invalidate();
         return true;
     }

@@ -95,6 +95,9 @@ public class PlayListService extends Service {
         }
     };
 
+    public Boolean isRepoProviderBound() {
+        return mRepoProviderBound;
+    }
     public RepoProvider getRepoProvider() {
         return mRepoProvider;
     }
@@ -183,7 +186,7 @@ public class PlayListService extends Service {
         if (getActiveTheatre().getMoniker().equals(dao.getMoniker())) {
             DaoTheatre daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalTheatre().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalTheatre().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoTheatre) mRepoProvider.getDalTheatre().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -226,7 +229,7 @@ public class PlayListService extends Service {
         if (getActiveEpic().getMoniker().equals(dao.getMoniker())) {
             DaoEpic daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalEpic().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalEpic().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -269,7 +272,7 @@ public class PlayListService extends Service {
         if (getActiveStory().getMoniker().equals(dao.getMoniker())) {
             DaoStory daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalStory().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalStory().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -287,20 +290,25 @@ public class PlayListService extends Service {
     }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeDao) {
-        String moniker = DaoDefs.INIT_STRING_MARKER;
-        // if object defined
-        if (activeDao != null) {
-            // extract moniker
-            moniker = activeDao.getMoniker();
-        }
-        // set prefs & active object
-        PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, moniker);
-        mActiveStage = activeDao;
+//        if (mRepoProviderBound) {
+            String moniker = DaoDefs.INIT_STRING_MARKER;
+            // if object defined
+            if (activeDao != null) {
+                // extract moniker
+                moniker = activeDao.getMoniker();
+            }
+            // set prefs & active object
+            PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, moniker);
+            mActiveStage = activeDao;
 
-        // create new stage model, view, controller
-        mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-        mRepoProvider.getStageModelRing().buildModel(activeDao);
-        Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+            // create new stage model, view, controller
+            mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+            mRepoProvider.getStageModelRing().buildModel(activeDao);
+            Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+//        }
+//        else {
+//            Log.e(TAG, "Oops! mRepoProviderBound " + mRepoProviderBound);
+//        }
 
     }
     public Boolean updateActiveStage(DaoStage dao) {
@@ -319,7 +327,7 @@ public class PlayListService extends Service {
         if (getActiveStage().getMoniker().equals(dao.getMoniker())) {
             DaoStage daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalStage().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalStage().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoStage) mRepoProvider.getDalStage().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -363,7 +371,7 @@ public class PlayListService extends Service {
         if (getActiveActor().getMoniker().equals(dao.getMoniker())) {
             DaoActor daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalActor().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalActor().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(0);
             }
             // TODO: setActiveActor to an existing actor on remove?
@@ -407,7 +415,7 @@ public class PlayListService extends Service {
         if (getActiveAction().getMoniker().equals(dao.getMoniker())) {
             DaoAction daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalAction().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalAction().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoAction) mRepoProvider.getDalAction().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -450,7 +458,7 @@ public class PlayListService extends Service {
         if (getActiveOutcome().getMoniker().equals(dao.getMoniker())) {
             DaoOutcome daoReplacement = null;
             // if an object is defined, set as replacement
-            if (mRepoProvider.getDalOutcome().getDaoRepo().size() > 0) {
+            if (mRepoProviderBound && mRepoProvider.getDalOutcome().getDaoRepo().size() > 0) {
                 daoReplacement = (DaoOutcome) mRepoProvider.getDalOutcome().getDaoRepo().get(0);
             }
             // set or clear active object
@@ -483,7 +491,7 @@ public class PlayListService extends Service {
     // repair playlist - if repair required (first repair triggers return TRUE)
     private Boolean repair(Boolean removeIfUndefined, Boolean forceToActiveStage) {
         // if active theatre
-        if (isActiveTheatre()) {
+        if (mRepoProviderBound && isActiveTheatre()) {
             // for each epic in theatre tag list
             for (String monikerEpic : getActiveTheatre().getTagList()) {
                 Log.d(TAG, "testing for Undefined Epic " + monikerEpic + " in Theatre " + getActiveTheatre().getMoniker() + " (remove " + removeIfUndefined + ")");

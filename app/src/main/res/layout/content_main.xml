@@ -5,6 +5,7 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorStageDark"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:mContext="com.adaptivehandyapps.ahathing.MainActivity"
     tools:showIn="@layout/app_bar_main">
@@ -13,4 +14,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="...content_main..." />
+    <ImageView
+        android:id="@+id/iv_splash"
+        android:src="@drawable/splash50portrait"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

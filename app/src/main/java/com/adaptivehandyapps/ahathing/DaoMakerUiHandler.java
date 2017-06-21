@@ -20,6 +20,8 @@ package com.adaptivehandyapps.ahathing;
 // Created by mat on 1/6/2017.
 //
 
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -88,6 +90,40 @@ public class DaoMakerUiHandler {
 
         Log.d(TAG, "DaoMakerUiHandler: op " + op + ", objtype" + objType + ", moniker " + moniker);
         mRootView = v;
+
+        // TODO: rationalize FAB
+        // if story outcome is ClearActors, launch run FAB to run the story
+        DaoStory daoStory = mParent.getPlayListService().getActiveStory();
+        if (daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS)) {
+            final DaoStage daoStage = mParent.getPlayListService().getActiveStage();
+
+            FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    Log.d(TAG, "execute fab operation...");
+//                DaoStory daoStory = mParent.getPlayListService().getActiveStory();
+//                if (daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS)) {
+//                    DaoStage daoStage = mParent.getPlayListService().getActiveStage();
+                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+                        Log.e(TAG, "Ooops! FAB onClick UNKNOWN stage type? " + daoStage.getStageType());
+                        return;
+                    }
+                    // update object
+                    mParent.getRepoProvider().getDalStage().update(daoStage, true);
+                    // banish fab
+                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                    fab.setVisibility(View.GONE);
+                    // refresh content view
+                    Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
+                    if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
+//                }
+                }
+            });
+        }
 
         // create view xfer to transfer between view & objects
         mDaoMakerViewXfer = new DaoMakerViewXfer(mParent, mRootView);
@@ -435,6 +471,9 @@ public class DaoMakerUiHandler {
                     mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline);
                 }
                 else {
+                    // banish fab
+                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                    fab.setVisibility(View.GONE);
                     // refresh content view
                     Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
                     if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
@@ -592,6 +631,10 @@ public class DaoMakerUiHandler {
 
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // banish fab
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                fab.setVisibility(View.GONE);
+
                 Log.v(TAG, "buttonCancel.setOnClickListener: ");
                 Toast.makeText(mRootView.getContext(), "Canceling thing...", Toast.LENGTH_SHORT).show();
                 if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);

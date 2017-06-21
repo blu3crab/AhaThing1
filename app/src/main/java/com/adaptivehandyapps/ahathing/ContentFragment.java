@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -241,6 +243,17 @@ public class ContentFragment extends Fragment {
 
         ///////////////////////////////////////////////////////////////////////////
     private DaoMakerUiHandler.OnContentHandlerResult getOnContentHandlerResultCallback() {
+//        // show fab
+//        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_run);
+//        fab.setVisibility(View.VISIBLE);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+
         // instantiate callback
         DaoMakerUiHandler.OnContentHandlerResult callback = new DaoMakerUiHandler.OnContentHandlerResult() {
 
@@ -254,6 +267,10 @@ public class ContentFragment extends Fragment {
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                     mContentMoniker = getPlayListService().getActiveStory().getMoniker();
                 }
+//                // banish fab
+//                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_run);
+//                fab.setVisibility(View.GONE);
+
                 // replace fragment with PLAY story
                 replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);
             }

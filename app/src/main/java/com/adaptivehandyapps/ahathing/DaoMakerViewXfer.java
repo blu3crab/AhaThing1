@@ -25,12 +25,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.ahautils.DevUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -371,6 +373,15 @@ public class DaoMakerViewXfer {
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_actor);
         ll.setVisibility(View.VISIBLE);
 
+        // if actor is a star, check star checkbox
+        DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
+        if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
+            Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
+            CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
+            cbStar.setChecked(true);
+        }
+
+
         // establish fore color button visibility & click listener
         mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
         mButtonForeColor.setVisibility(View.VISIBLE);
@@ -654,6 +665,17 @@ public class DaoMakerViewXfer {
         activeActor.setHeadline(headline);
         if (getForeColor() != activeActor.getForeColor()) activeActor.setForeColor(getForeColor());
         if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
+        // if starring on device
+        CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
+        if (cbStar != null && cbStar.isChecked()) {
+            // add to epic star list
+            DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
+            daoEpic.setStar(activeActor, DevUtils.getDeviceName());
+            Log.d(TAG, "toActor: new STAR " + activeActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
+            // update repo
+            mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
+        }
+
         // TODO: setActiveActor on create/update?
         mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
