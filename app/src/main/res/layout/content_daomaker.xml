@@ -549,7 +549,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/colorNew"
-                android:text="Starring on this device"/>
+                android:text="Starring on this deviceId"/>
 
         </LinearLayout>
 

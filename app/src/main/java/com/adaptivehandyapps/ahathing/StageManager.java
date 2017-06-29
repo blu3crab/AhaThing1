@@ -19,12 +19,16 @@
 // Created by mat on 5/24/2017.
 //
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
@@ -35,6 +39,8 @@ public class StageManager {
     private static final String TAG = StageManager.class.getSimpleName();
 
 //    private StageViewController mStageViewController;
+
+    private Context mContext;
 
     ///////////////////////////////////////////////////////////////////////////
     private PlayListService mPlayListService;
@@ -108,9 +114,10 @@ public class StageManager {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public StageManager(PlayListService playListService, RepoProvider repoProvider) {
+    public StageManager(Context context, PlayListService playListService, RepoProvider repoProvider) {
 //    public StageManager(StageViewController stageViewController, PlayListService playListService, RepoProvider repoProvider) {
 //        mStageViewController = stageViewController;
+        mContext = context;
         setPlayListService(playListService);
         setRepoProvider(repoProvider);
     }
@@ -129,6 +136,21 @@ public class StageManager {
                 case DaoAction.ACTION_TYPE_DOUBLE_TAP:
                     // if prereq satisfied
                     if (isPreReqSatisfied(stageViewRing)) {
+                        // increment active actors star board tic
+                        DaoEpic daoEpic = getPlayListService().getActiveEpic();
+                        DaoStage daoStage = getPlayListService().getActiveStage();
+                        int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                        if (starInx > -1) {
+                            // increment tic for actor
+                            int tic = daoEpic.getStarBoardList().get(starInx).getTic();
+                            daoEpic.getStarBoardList().get(starInx).setTic(++tic);
+                            Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getStarBoardList().get(starInx).getStarMoniker());
+                            // update epic tally based on stage ring locations occupied
+                            daoEpic.updateEpicTally(daoStage);
+                            // update epic repo
+                            getRepoProvider().getDalEpic().update(daoEpic, true);
+                        }
+                        // deliver outcome
                         DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
                         onOutcome(stageViewRing, daoOutcome.getMoniker());
 
@@ -169,19 +191,27 @@ public class StageManager {
                 float touchY = getTouchY();
                 float z = 0.0f;
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
-                String vertActor = daoStage.getActorList().get(selectIndex);
-                // get active actor
-                String activeActor = getPlayListService().getActiveActor().getMoniker();
-                Log.d(TAG,"isPreReqSatisfied(" + activeStory.getPreReq() + ")-> vertActor, activeActor= " + vertActor + ", " + activeActor);
-                if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_OWNED)) {
-                    // if vert is owned by active player, return true
-                    if (vertActor.equals(activeActor)) return true;
-                } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_BLOCKED)) {
-                    // if vert is blocked by another player, return true
-                    if (!vertActor.equals(activeActor) && !vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
-                } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_EMPTY)) {
-                    // if vert is empty, return true
-                    if (vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
+                if (selectIndex < daoStage.getActorList().size()) {
+                    String vertActor = daoStage.getActorList().get(selectIndex);
+                    // get active actor
+                    String activeActor = getPlayListService().getActiveActor().getMoniker();
+                    Log.d(TAG, "isPreReqSatisfied(" + activeStory.getPreReq() + ")-> vertActor, activeActor= " + vertActor + ", " + activeActor);
+                    if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_OWNED)) {
+                        // if vert is owned by active player, return true
+                        if (vertActor.equals(activeActor)) return true;
+                    } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_BLOCKED)) {
+                        // if vert is blocked by another player, return true
+                        if (!vertActor.equals(activeActor) && !vertActor.equals(DaoDefs.INIT_STRING_MARKER))
+                            return true;
+                    } else if (activeStory.getPreReq().equals(DaoStory.STORY_PREREQ_VERT_EMPTY)) {
+                        // if vert is empty, return true
+                        if (vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
+                    }
+                }
+                else {
+                    // ArrayIndexOutOfBoundsException
+                    Log.e(TAG,"Selected ring index (" + selectIndex + ") out of bounds for stage actorList size " + daoStage.getActorList().size());
+                    return false;
                 }
             }
             else {
@@ -202,22 +232,20 @@ public class StageManager {
         else {
             DaoStage daoStage = getPlayListService().getActiveStage();
             if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                if (activeStory.getPostOp().equals(DaoStory.STORY_POSTOP_TALLY)) {
+                if (activeStory.getPostOp().equals(DaoStory.STORY_POSTOP_CURTAIN_CALL)) {
                     DaoEpic daoEpic = getPlayListService().getActiveEpic();
-                    for (String vertActor : daoStage.getActorList()) {
-                        int vertActorInx = daoEpic.getStarList().indexOf(vertActor);
-                        if (vertActorInx > -1) {
-                            int tally = daoEpic.getTallyList().get(vertActorInx);
-                            daoEpic.getTallyList().set(vertActorInx, ++tally);
-                        }
-                        else {
-                            Log.e(TAG, "Oops!  Unknown vert actor " + vertActor);
-                        }
+                    // curtain call
+                    if (daoEpic.isCurtainCall()) {
+                        // bring down the curtain!  prompt for an encore
+                        List<DaoEpicStarBoard> starBoardList = daoEpic.getTallyOrder(false);
+                        String title = starBoardList.get(0).getStarMoniker() + " dominates the universe of Marbles!";
+                        postCurtainCloseDialog(mContext, title);
                     }
-                    for (String star : daoEpic.getStarList()) {
-                        int starInx = daoEpic.getStarList().indexOf(star);
-                        Log.d(TAG, " star " + star + " has tally " + daoEpic.getTallyList().get(starInx));
-                    }
+
+//                    for (String star : daoEpic.getStarList()) {
+//                        int starInx = daoEpic.getStarList().indexOf(star);
+//                        Log.d(TAG, " star " + star + "(" + starInx + ") has tally " + daoEpic.getStarBoardList().get(starInx).getTally());
+//                    }
                 } else {
                     Log.e(TAG, "Oops!  Unknown postop " + activeStory.getPostOp());
                 }
@@ -227,6 +255,29 @@ public class StageManager {
             }
         }
         return false;
+    }
+    public Boolean postCurtainCloseDialog(Context c, String title) {
+//        public static Boolean postCurtainCloseDialog(Context c, String title) {
+        final Context context = c;
+        // post alert dialog
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage("Play an encore?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "curtain closing dialog - yes...");
+                        // clear stage
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "curtain closing dialog - no...");
+                        // leave it be...
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -301,7 +352,7 @@ public class StageManager {
                         getEvent1().getX(), getEvent1().getY(),
                         getEvent2().getX(), getEvent2().getY());
                 return true;
-            case DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS:
+            case DaoOutcome.OUTCOME_TYPE_CLEAR_STAGE:
                 // clear actors on stage
                 clearActors();
                 return true;
@@ -387,7 +438,6 @@ public class StageManager {
                 // if not previously toggled
                 if (ringIndex != DaoDefs.INIT_INTEGER_MARKER && ringIndex != prevRingIndex) {
                     // toggle at interval position
-//                    toggleActorList(daoStage, ringIndex);
                     if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
                         Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
                     }
@@ -395,8 +445,6 @@ public class StageManager {
             }
             // update object
             getRepoProvider().getDalStage().update(daoStage, true);
-
-//            invalidate();
         }
         else {
             Log.e(TAG, "plotPath touch out of bounds...");
@@ -404,6 +452,7 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
+    // TODO: resetStage (clear actor list, tally, tic, ...)
     public Boolean clearActors() {
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {

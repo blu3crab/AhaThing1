@@ -35,7 +35,7 @@ public class DaoStory extends DaoBase {
 	public static final String STORY_PREREQ_VERT_EMPTY = "Empty";
 
 	public static final String STORY_POSTOP_NONE = "NOP";
-	public static final String STORY_POSTOP_TALLY = "TallyGameOverCheck";
+	public static final String STORY_POSTOP_CURTAIN_CALL = "TallyGameOverCheck";
 
 	@SerializedName("stage")
 	private String stage;

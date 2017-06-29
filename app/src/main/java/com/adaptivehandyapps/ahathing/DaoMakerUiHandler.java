@@ -94,7 +94,8 @@ public class DaoMakerUiHandler {
         // TODO: rationalize FAB
         // if story outcome is ClearActors, launch run FAB to run the story
         DaoStory daoStory = mParent.getPlayListService().getActiveStory();
-        if (daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS)) {
+        if (daoStory != null && daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_STAGE)) {
+            final DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
             final DaoStage daoStage = mParent.getPlayListService().getActiveStage();
 
             FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
@@ -105,15 +106,24 @@ public class DaoMakerUiHandler {
                     Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     Log.d(TAG, "execute fab operation...");
-//                DaoStory daoStory = mParent.getPlayListService().getActiveStory();
-//                if (daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_ACTORS)) {
-//                    DaoStage daoStage = mParent.getPlayListService().getActiveStage();
-                    if (!daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-                        Log.e(TAG, "Ooops! FAB onClick UNKNOWN stage type? " + daoStage.getStageType());
-                        return;
+                    // resetStage by resetting actor list to NADA...)
+                    if (daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
+                        // update object
+                        mParent.getRepoProvider().getDalStage().update(daoStage, true);
                     }
-                    // update object
-                    mParent.getRepoProvider().getDalStage().update(daoStage, true);
+                    else {
+                        Log.e(TAG, "Oops! FAB onClick UNKNOWN stage type? " + daoStage.getStageType());
+//                        return;
+                    }
+                    // reset Epic tally & tic
+                    if (daoEpic.resetEpicTallyTic(true, true)) {
+                        // update object
+                        mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
+                    }
+                    else {
+                        Log.e(TAG, "Oops! FAB onClick resetEpicTallyTic failed? " + daoEpic.toString());
+//                        return;
+                    }
                     // banish fab
                     FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
                     fab.setVisibility(View.GONE);

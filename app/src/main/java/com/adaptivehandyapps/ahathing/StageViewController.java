@@ -273,7 +273,7 @@ public class StageViewController extends View implements
 
         // stage manager
 //        mStageManager = new StageManager(this, getPlayListService(), getRepoProvider());
-        mStageManager = new StageManager(getPlayListService(), getRepoProvider());
+        mStageManager = new StageManager(mContext, getPlayListService(), getRepoProvider());
 
         return true;
     }
@@ -567,21 +567,23 @@ public class StageViewController extends View implements
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
                 mActiveStage = getPlayListService().getActiveStage();
-                if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                    Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
-                    DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                    // transform locus to device coords
-                    if (mStageViewRing != null) {
-                        mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
-                    }
-                    else {
-                        Log.e(TAG, "onScale finds NULL StageViewRing ");
+                if (mActiveStage != null) {
+                    if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                        Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
+                        DaoLocusList daoLocusList = mActiveStage.getLocusList();
+                        // transform locus to device coords
+                        if (mStageViewRing != null) {
+                            mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
+                        } else {
+                            Log.e(TAG, "onScale finds NULL StageViewRing ");
+                        }
+                    } else {
+                        Log.e(TAG, "onScale UNKNOWN stage type: " + mActiveStage.getStageType());
                     }
                 }
                 else {
-                    Log.e(TAG, "onScale UNKNOWN stage type: " + mActiveStage.getStageType());
+                    Log.e(TAG, "Oops!  NULL ACTIVE stage...");
                 }
-
             }
             return true;
         }

@@ -313,7 +313,7 @@ public class DaoMakerViewXfer {
         // postop spinner
         List<String> postopList = new ArrayList<>();
         postopList.add(DaoStory.STORY_POSTOP_NONE);
-        postopList.add(DaoStory.STORY_POSTOP_TALLY);
+        postopList.add(DaoStory.STORY_POSTOP_CURTAIN_CALL);
         mPostOpListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
                 android.R.layout.simple_list_item_1,
                 postopList);
@@ -323,7 +323,7 @@ public class DaoMakerViewXfer {
             mSpinnerPostOps.setAdapter(mPostOpListAdapter);
             // set current selection
             int selectInx = 0; // none
-            if (daoStory.getPostOp().equals(DaoStory.STORY_POSTOP_TALLY)) selectInx = 1;
+            if (daoStory.getPostOp().equals(DaoStory.STORY_POSTOP_CURTAIN_CALL)) selectInx = 1;
             mSpinnerPostOps.setSelection(selectInx);
         } else {
             // null list adapter or spinner

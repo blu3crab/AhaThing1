@@ -33,7 +33,7 @@ public class DaoOutcome extends DaoBase {
 	public static final String OUTCOME_TYPE_TOGGLE = "Toggle";
 	public static final String OUTCOME_TYPE_TOGGLE_PLUS = "TogglePlus";
 	public static final String OUTCOME_TYPE_TOGGLE_PATH = "TogglePath";
-	public static final String OUTCOME_TYPE_CLEAR_ACTORS = "ClearActors";
+	public static final String OUTCOME_TYPE_CLEAR_STAGE = "ClearStage";
 
 	@SerializedName("outcomeType")		// type
 	private String outcomeType;
@@ -73,7 +73,7 @@ public class DaoOutcome extends DaoBase {
 				OUTCOME_TYPE_TOGGLE,
 				OUTCOME_TYPE_TOGGLE_PLUS,
 				OUTCOME_TYPE_TOGGLE_PATH,
-				OUTCOME_TYPE_CLEAR_ACTORS
+                OUTCOME_TYPE_CLEAR_STAGE
 		));
 		return outcomeTypeList;
 	}

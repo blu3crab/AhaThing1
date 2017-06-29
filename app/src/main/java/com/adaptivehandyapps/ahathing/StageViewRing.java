@@ -24,11 +24,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
@@ -96,6 +99,30 @@ public class StageViewRing {
         Log.d(TAG, "setRepoProvider " + mRepoProvider);
     }
     ///////////////////////////////////////////////////////////////////////////
+    // getters/setters
+
+    public int getCanvasWidth() {
+        return mCanvasWidth;
+    }
+    public void setCanvasWidth(int canvasWidth) {
+        this.mCanvasWidth = canvasWidth;
+    }
+
+    public int getCanvasHeight() {
+        return mCanvasHeight;
+    }
+    public void setCanvasHeight(int canvasHeight) {
+        this.mCanvasHeight = canvasHeight;
+    }
+
+    public float getDensity() {
+        return mDensity;
+    }
+    public void setDensity(float density) {
+        this.mDensity = density;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // constructors
     public StageViewRing(Context context, StageViewController parentViewController) {
         mContext = context;
@@ -104,9 +131,9 @@ public class StageViewRing {
         setRepoProvider(mParentViewController.getRepoProvider());
 
         // get screen attributes
-        mCanvasWidth = mParentViewController.getCanvasWidth();
-        mCanvasHeight = mParentViewController.getCanvasHeight();
-        mDensity = mParentViewController.getDensity();
+        setCanvasWidth(mParentViewController.getCanvasWidth());
+        setCanvasHeight(mParentViewController.getCanvasHeight());
+        setDensity(mParentViewController.getDensity());
 
         // ensure stage ready
         if (getPlayListService().getActiveStage() != null) {
@@ -200,11 +227,11 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
-        float dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
+        float dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
         // shift x,y from abstract locus center to device screen center
         float x = vertX.floatValue() + dx;
         // scale by applying dist from dev center by scale factor
-        dx = (x - (mCanvasWidth / 2));
+        dx = (x - (getCanvasWidth() / 2));
         dx = (dx * scaleFactor) - dx;
         x = x + dx;
         // test inverse transform
@@ -217,11 +244,11 @@ public class StageViewRing {
         float dx;
         Long vertX;
         // scale by applying dist from dev center by scale factor
-        dx = (x - (mCanvasWidth / 2));
+        dx = (x - (getCanvasWidth() / 2));
         dx = (dx * scaleFactor) - dx;
         x = x - dx;
         // derive delta x,y to shift from abstract locus center to device screen center
-        dx = (mCanvasWidth / 2) - StageModelRing.RING_CENTER_X.floatValue();
+        dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
         // shift x,y from device screen center to abstract locus center
         x = x - dx;
         vertX = (long) x;
@@ -231,11 +258,11 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
-        float dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+        float dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
         // shift x,y from abstract locus center to device screen center
         float y = vertY.floatValue() + dy;
         // scale by applying dist from dev center by scale factor
-        dy = (y - (mCanvasHeight / 2));
+        dy = (y - (getCanvasHeight() / 2));
         dy = (dy * scaleFactor) - dy;
         y = y + dy;
         float inverseY = deviceToVertY(y, scaleFactor);
@@ -247,11 +274,11 @@ public class StageViewRing {
         float dy;
         Long vertY;
         // scale by applying dist from dev center by scale factor
-        dy = (y - (mCanvasHeight / 2));
+        dy = (y - (getCanvasHeight() / 2));
         dy = (dy * scaleFactor) - dy;
         y = y - dy;
         // derive delta x,y to shift from abstract locus center to device screen center
-        dy = (mCanvasHeight / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+        dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
         // shift x,y from device screen center to abstract locus center
         y = y - dy;
         vertY = (long) y;
@@ -299,6 +326,9 @@ public class StageViewRing {
         // draw locii
         drawLocus(canvas);
 
+        // draw banner
+        drawBanner(canvas);
+
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -316,11 +346,12 @@ public class StageViewRing {
 
         Log.v(TAG, "stage actor list -> " + daoStage.getActorList().toString());
 
-        int color;
+//        int color;
         // for each locus
         for (DaoLocus daoLocus : daoLocusList.locii) {
-            // default color & fill to signal incoherence
-            color = mContext.getResources().getColor(R.color.colorLightGrey);
+            // default color to signal incoherence if null actor
+            int color = mContext.getResources().getColor(R.color.colorLightGrey);
+            // default to fill
             mPaintMapRect.setStyle(Paint.Style.FILL);
             // find index of locus
             int i = daoLocusList.locii.indexOf(daoLocus);
@@ -372,6 +403,119 @@ public class StageViewRing {
         }
 
         canvas.drawText(greeting, x, y, paint);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // draw NowPlaying banner: stars, tally & tic
+    private Boolean drawBanner(Canvas canvas) {
+        // border
+        float xBorder = 32.0f;
+        float yBorder = 64.0f;
+        float xPad = 16.0f;
+        float yPad = 32.0f;
+        // title origin X,Y
+        float xTitle = xBorder;
+        float yTitle = yBorder;
+        // tally origin X,Y
+        float xTally = xBorder;
+        float yTally = yBorder;
+        // tic origin X,Y
+        float xTic = xBorder;
+        float yTic = yBorder;
+
+        // title width (max) title text length (longest actor name)
+        float maxTitleWidth = 0.0f;
+        // default color
+        int color = mContext.getResources().getColor(R.color.colorLightGrey);
+        // dereference active epic & stage
+        DaoEpic daoEpic = getPlayListService().getActiveEpic();
+        DaoStage daoStage = getPlayListService().getActiveStage();
+
+        // set epic tally & tic
+        daoEpic.updateEpicTally(daoStage);
+
+        // for each star in star board, find max star name length
+        for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
+            // format title: moniker, tally, tic
+            String title = daoEpicStarBoard.getStarMoniker() + "  " +
+                    daoEpicStarBoard.getTally().toString() + "  " +
+                    daoEpicStarBoard.getTic().toString();
+            float titleWidth = mPaintMinorText.measureText(title);
+            if (titleWidth > maxTitleWidth) maxTitleWidth = titleWidth;
+        }
+
+        // order starboard by descending (false) tally
+        List<DaoEpicStarBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
+        // for each star in star board
+        for (DaoEpicStarBoard daoEpicStarBoard : orderedStarBoard) {
+//            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
+            // format title: moniker, tally, tic
+            String title = daoEpicStarBoard.getStarMoniker() + "  " +
+                    daoEpicStarBoard.getTally().toString() + "  " +
+                    daoEpicStarBoard.getTic().toString();
+            // find actor color
+            DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicStarBoard.getStarMoniker());
+            if (daoActor != null) {
+                color = daoActor.getForeColor();
+            }
+            mPaintMinorText.setColor(color);
+            drawText(canvas, title, mPaintMinorText, xTitle, yTitle);
+            // get rect bounding title
+            Rect titleBounds = new Rect();
+            mPaintMinorText.getTextBounds(title, 0, title.length(), titleBounds);
+            // set left X horizontal draw cursor to after title text
+            xTally = xTitle + maxTitleWidth;
+            // set lower y vertical draw cursor
+            float titleHeight = titleBounds.bottom - titleBounds.top;
+            // set dims for full tally rect
+            float left = xTally + xPad;
+            float top = yTitle - titleHeight;
+            float right = xTally + maxTitleWidth;
+            float bottom = yTitle;
+            // draw full tally rect w/ neutral color & no fill for border only
+            int colorEdge = mContext.getResources().getColor(R.color.colorBrightBlue);
+            mPaintMinorText.setColor(colorEdge);
+            mPaintMinorText.setStyle(Paint.Style.STROKE);
+            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+
+            // determine percent progress
+            Integer starTally = daoEpicStarBoard.getTally();
+            float percentTally = (float)starTally / (float)daoEpic.getTallyLimit();
+            right = xTally + (maxTitleWidth * percentTally);
+
+            // draw progress tally rect fill for progress bar
+            mPaintMinorText.setColor(color);
+            mPaintMinorText.setStyle(Paint.Style.FILL);
+            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+
+            // set left X horizontal draw cursor to after title text
+            xTic = xTally + maxTitleWidth;
+            // set lower y vertical draw cursor
+            titleHeight = titleBounds.bottom - titleBounds.top;
+            // set dims for full tic rect
+            left = xTic + xPad;
+            top = yTitle - titleHeight;
+            right = xTic + maxTitleWidth;
+            bottom = yTitle;
+            // draw full tic rect w/ actor color
+            mPaintMinorText.setColor(color);
+            mPaintMinorText.setStyle(Paint.Style.FILL);
+            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+
+            // determine percent progress finding remaining tics
+            Integer starTic = daoEpicStarBoard.getTic();
+            float percentTic = ((float)daoEpic.getTicLimit() - (float)starTic) / (float)daoEpic.getTicLimit();
+            right = xTic + (maxTitleWidth * percentTic);
+
+            // draw progress tic rect fill for progress bar
+            mPaintMinorText.setColor(colorEdge);
+            mPaintMinorText.setStyle(Paint.Style.FILL);
+            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+
+
+            // advance draw cursor for next star
+            yTitle = yTitle + yPad;
+        }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

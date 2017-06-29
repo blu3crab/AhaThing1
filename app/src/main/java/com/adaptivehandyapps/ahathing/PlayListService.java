@@ -290,7 +290,7 @@ public class PlayListService extends Service {
     }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeDao) {
-//        if (mRepoProviderBound) {
+        if (mRepoProviderBound && mRepoProvider != null) {
             String moniker = DaoDefs.INIT_STRING_MARKER;
             // if object defined
             if (activeDao != null) {
@@ -305,10 +305,11 @@ public class PlayListService extends Service {
             mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
             mRepoProvider.getStageModelRing().buildModel(activeDao);
             Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
-//        }
-//        else {
-//            Log.e(TAG, "Oops! mRepoProviderBound " + mRepoProviderBound);
-//        }
+        }
+        else {
+            Log.e(TAG, "Oops! setActiveStage finds mRepoProviderBound " + mRepoProviderBound);
+            if (mRepoProvider != null) Log.e(TAG, "Oops! setActiveStage finds mRepoProviderBound " + mRepoProviderBound + " for mRepoProvider " + mRepoProvider.toString());
+        }
 
     }
     public Boolean updateActiveStage(DaoStage dao) {
