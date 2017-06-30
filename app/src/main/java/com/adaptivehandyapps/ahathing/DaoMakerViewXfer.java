@@ -373,46 +373,51 @@ public class DaoMakerViewXfer {
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_actor);
         ll.setVisibility(View.VISIBLE);
 
-        // if actor is a star, check star checkbox
         DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
-        if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
-            Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
-            CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
-            cbStar.setChecked(true);
-        }
+        if (daoEpic != null && daoActor != null) {
+            // if actor is a star, check star checkbox
+            if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
+                Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
+                CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
+                cbStar.setChecked(true);
+            }
 
 
-        // establish fore color button visibility & click listener
-        mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
-        mButtonForeColor.setVisibility(View.VISIBLE);
-        setForeColor(daoActor.getForeColor());
+            // establish fore color button visibility & click listener
+            mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
+            mButtonForeColor.setVisibility(View.VISIBLE);
+            setForeColor(daoActor.getForeColor());
 //        Log.d(TAG, "fore color rgb " + getForeColor());
 
-        mButtonForeColor.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.v(TAG, "buttonForeColor.setOnClickListener: ");
-                Toast.makeText(mRootView.getContext(), "buttonForeColor...", Toast.LENGTH_SHORT).show();
-                // launch color picker
-                isForeColor(true);
-                launchColorPicker(isForeColor(), getForeColor());
-            }
-        });
-        // establish back color button visibility & click listener
-        mButtonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
-        mButtonBackColor.setVisibility(View.VISIBLE);
-        setBackColor(daoActor.getBackColor());
+            mButtonForeColor.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Log.v(TAG, "buttonForeColor.setOnClickListener: ");
+                    Toast.makeText(mRootView.getContext(), "buttonForeColor...", Toast.LENGTH_SHORT).show();
+                    // launch color picker
+                    isForeColor(true);
+                    launchColorPicker(isForeColor(), getForeColor());
+                }
+            });
+            // establish back color button visibility & click listener
+            mButtonBackColor = (Button) mRootView.findViewById(R.id.button_daomaker_backcolor);
+            mButtonBackColor.setVisibility(View.VISIBLE);
+            setBackColor(daoActor.getBackColor());
 //        Log.d(TAG, "Back color rgb " + getBackColor());
 
-        mButtonBackColor.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.v(TAG, "buttonBackColor.setOnClickListener: ");
-                Toast.makeText(mRootView.getContext(), "buttonBackColor...", Toast.LENGTH_SHORT).show();
-                // launch color picker
-                isForeColor(false);
-                launchColorPicker(isForeColor(), getBackColor());
-            }
-        });
-
+            mButtonBackColor.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Log.v(TAG, "buttonBackColor.setOnClickListener: ");
+                    Toast.makeText(mRootView.getContext(), "buttonBackColor...", Toast.LENGTH_SHORT).show();
+                    // launch color picker
+                    isForeColor(false);
+                    launchColorPicker(isForeColor(), getBackColor());
+                }
+            });
+        }
+        else {
+            if (daoEpic == null) Log.e(TAG, "Oops!  no active epic...");
+            else Log.e(TAG, "Oops! actor NULL...");
+        }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -667,9 +672,9 @@ public class DaoMakerViewXfer {
         if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
         // if starring on device
         CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
-        if (cbStar != null && cbStar.isChecked()) {
+        DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
+        if (daoEpic != null && cbStar != null && cbStar.isChecked()) {
             // add to epic star list
-            DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
             daoEpic.setStar(activeActor, DevUtils.getDeviceName());
             Log.d(TAG, "toActor: new STAR " + activeActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
             // update repo

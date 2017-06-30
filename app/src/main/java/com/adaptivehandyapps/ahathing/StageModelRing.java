@@ -184,32 +184,44 @@ public class StageModelRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     public List<Integer> findRing(Integer selectIndex) {
-        // get active stage
-        DaoStage daoStage = getPlayListService().getActiveStage();
-        // get locus list
-        DaoLocusList daoLocusList = daoStage.getLocusList();
         // create ringList
         List<Integer> ringList = new ArrayList<>();
+        // get active stage
+        DaoStage daoStage = getPlayListService().getActiveStage();
 
-        DaoLocus origin = daoLocusList.locii.get(selectIndex);
-        Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
+        if (daoStage != null) {
+            // get locus list
+            DaoLocusList daoLocusList = daoStage.getLocusList();
 
-        Double rad = RADIAN_START;
-        Integer angleCount = 0;
-        Long z = 0l;
-        while (angleCount < ANGLE_COUNT_TOTAL) {
-            Long x = (long)(origin.getVertX() + (LOCUS_DIST*Math.cos(rad)));
-            Long y = (long)(origin.getVertY() + (LOCUS_DIST*Math.sin(rad)));
+            if (daoLocusList != null) {
 
-            DaoLocus locus = findLocus(daoLocusList, x, y, z);
-            if (locus != null) {
-                int locusIndex = daoLocusList.locii.indexOf(locus);
-                Log.d(TAG, locus.getNickname() + " at index " + locusIndex);
-                ringList.add(locusIndex);
+                DaoLocus origin = daoLocusList.locii.get(selectIndex);
+                Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
+
+                Double rad = RADIAN_START;
+                Integer angleCount = 0;
+                Long z = 0l;
+                while (angleCount < ANGLE_COUNT_TOTAL) {
+                    Long x = (long) (origin.getVertX() + (LOCUS_DIST * Math.cos(rad)));
+                    Long y = (long) (origin.getVertY() + (LOCUS_DIST * Math.sin(rad)));
+
+                    DaoLocus locus = findLocus(daoLocusList, x, y, z);
+                    if (locus != null) {
+                        int locusIndex = daoLocusList.locii.indexOf(locus);
+                        Log.d(TAG, locus.getNickname() + " at index " + locusIndex);
+                        ringList.add(locusIndex);
+                    }
+                    // bump rad
+                    rad += RADIAN_DELTA;
+                    ++angleCount;
+                }
             }
-            // bump rad
-            rad += RADIAN_DELTA;
-            ++angleCount;
+            else {
+                Log.e(TAG, "Oops! no locus list...");
+            }
+        }
+        else {
+             Log.e(TAG, "Oops!  no active stage...");
         }
 
         return ringList;

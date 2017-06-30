@@ -363,8 +363,9 @@ public class StageViewController extends View implements
                     mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
                     // clear selection list
 //                    mStageViewRing.setSelectLocus(daoLocusList, false);
-                } else if (mActiveStage != null) {
-                    Log.e(TAG, "RepoProvider UNKNOWN stage type: " + mActiveStage.getStageType());
+                } else {
+                    if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
+                    else Log.e(TAG, "Oops!  UNKNOWN stage type: " + mActiveStage.getStageType());
                 }
             }
         }
@@ -567,22 +568,19 @@ public class StageViewController extends View implements
                 mRawScaleFactor = detector.getScaleFactor();
                 // check stage type to find stage view helper
                 mActiveStage = getPlayListService().getActiveStage();
-                if (mActiveStage != null) {
-                    if (mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                        Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
-                        DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                        // transform locus to device coords
-                        if (mStageViewRing != null) {
-                            mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
-                        } else {
-                            Log.e(TAG, "onScale finds NULL StageViewRing ");
-                        }
+                if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                    Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
+                    DaoLocusList daoLocusList = mActiveStage.getLocusList();
+                    // transform locus to device coords
+                    if (mStageViewRing != null) {
+                        mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
                     } else {
-                        Log.e(TAG, "onScale UNKNOWN stage type: " + mActiveStage.getStageType());
+                        Log.e(TAG, "onScale finds NULL StageViewRing ");
                     }
-                }
-                else {
-                    Log.e(TAG, "Oops!  NULL ACTIVE stage...");
+                } else {
+                    if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
+                    else Log.e(TAG, "onScale UNKNOWN stage type: " + mActiveStage.getStageType());
+                    return false;
                 }
             }
             return true;

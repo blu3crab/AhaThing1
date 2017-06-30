@@ -39,7 +39,7 @@ public class DaoEpic extends DaoBase {
 
 	public static final Integer EPIC_TALLY_LIMIT_DEFAULT = 24;
     public static final Integer EPIC_TIC_LIMIT_DEFAULT = 12;
-    public static final float EPIC_PERCENT_LIMIT_DEFAULT = 0.1f;
+    public static final float EPIC_PERCENT_LIMIT_DEFAULT = 0.2f;
 
 	@SerializedName("epicType")			// determines how to tally: SumWithTic if sum>limit || tic>limit -> true
 	private String epicType;
@@ -167,21 +167,25 @@ public class DaoEpic extends DaoBase {
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// epic runtime
-    public Boolean isCurtainCall() {
+    public Boolean isCurtainClose() {
         if (isEpicTallyAtLimit() || isEpicTicAtLimit()) {
             Log.d(TAG, "Limit tally, tic " + isEpicTallyAtLimit() + ", " + isEpicTicAtLimit());
             return true;
         }
-        // check for high percentage curtain call
+        // if highest tally is 1/2 to total
         List<DaoEpicStarBoard> orderedStarBoardList = getTallyOrder(false);
         Integer highTally = orderedStarBoardList.get(0).getTally();
-        Integer otherTally = 0;
-        for (int i = 1; i < orderedStarBoardList.size(); i++) {
-            otherTally += orderedStarBoardList.get(i).getTally();
-        }
-        float percent = (float)otherTally/(float)highTally;
-        Log.d(TAG, "otherTally/highTally " + otherTally + "/" + highTally);
-        if (percent < EPIC_PERCENT_LIMIT_DEFAULT) return true;
+		if (highTally > (getTallyLimit()/2)) {
+			// tally all others
+			Integer otherTally = 0;
+			for (int i = 1; i < orderedStarBoardList.size(); i++) {
+				otherTally += orderedStarBoardList.get(i).getTally();
+			}
+			float percent = (float) otherTally / (float) highTally;
+			Log.d(TAG, "otherTally/highTally " + otherTally + "/" + highTally);
+			// if highest tally is greater than percentage limit
+			if (percent < EPIC_PERCENT_LIMIT_DEFAULT) return true;
+		}
         return false;
     }
 	public Boolean isEpicTallyAtLimit() {
@@ -230,8 +234,8 @@ public class DaoEpic extends DaoBase {
 	}
     public Boolean updateEpicTally(DaoStage daoStage) {
         // TODO: checkbox for cumulative tally option?
-        // reset epic star board tally but not tic (turn counter)
-        resetEpicTallyTic(true, false);
+        // reset epic star board tally but not stage or tic (turn counter)
+        resetEpicStageTallyTic(null, true, false);
         // for each vert
         for (String vertActor : daoStage.getActorList()) {
             int vertActorInx = getStarList().indexOf(vertActor);
@@ -243,8 +247,11 @@ public class DaoEpic extends DaoBase {
         }
         return true;
     }
-    public Boolean resetEpicTallyTic(Boolean resetTally, Boolean resetTic) {
-        // reset tally & tic list
+    public Boolean resetEpicStageTallyTic(DaoStage daoStage, Boolean resetTally, Boolean resetTic) {
+		// resetStage by resetting actor list to NADA...
+		if (daoStage != null) daoStage.setActorList(DaoDefs.INIT_STRING_MARKER);
+
+		// reset tally & tic list
         for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
             if (resetTally) daoEpicStarBoard.setTally(0);
             if (resetTic) daoEpicStarBoard.setTic(0);

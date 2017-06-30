@@ -136,15 +136,15 @@ public class StageViewRing {
         setDensity(mParentViewController.getDensity());
 
         // ensure stage ready
-        if (getPlayListService().getActiveStage() != null) {
+        DaoStage daoStage = getPlayListService().getActiveStage();
+        if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
-            DaoStage daoStage = getPlayListService().getActiveStage();
-            if (!daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.e(TAG, "UNKNOWN stage type: " + daoStage.getStageType());
-            }
-        } else {
-            Log.e(TAG, "Active stage NULL or NOT ready!");
         }
+        else {
+            if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
+            else Log.e(TAG, "Oops! Unknown stage type " + daoStage.getStageType());
+        }
+        // init local objects
         init(context);
     }
 
@@ -333,60 +333,63 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-        if (getPlayListService().getActiveStage() != null) {
-            Log.v(TAG, "getPlayListService().getActiveStage() ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
-        }
-        else {
-            Log.e(TAG, "getPlayListService().getActiveStage() NOT ready...");
-            return false;
-        }
 
         DaoStage daoStage = getPlayListService().getActiveStage();
-        DaoLocusList daoLocusList = daoStage.getLocusList();
+        if (daoStage != null) {
+            Log.v(TAG, "Stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
 
-        Log.v(TAG, "stage actor list -> " + daoStage.getActorList().toString());
+            DaoLocusList daoLocusList = daoStage.getLocusList();
 
-//        int color;
-        // for each locus
-        for (DaoLocus daoLocus : daoLocusList.locii) {
-            // default color to signal incoherence if null actor
-            int color = mContext.getResources().getColor(R.color.colorLightGrey);
-            // default to fill
-            mPaintMapRect.setStyle(Paint.Style.FILL);
-            // find index of locus
-            int i = daoLocusList.locii.indexOf(daoLocus);
-            if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
-                // TODO: update actor appears to lose attrs(fore color) - invalid actor moniker after update?
-                // if actor present, set selected color & fill
-                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
-                if (daoActor != null) {
-                    color = daoActor.getForeColor();
+            if (daoLocusList != null) {
+
+                Log.v(TAG, "stage actor list -> " + daoStage.getActorList().toString());
+
+                // for each locus
+                for (DaoLocus daoLocus : daoLocusList.locii) {
+                    // default color to signal incoherence if null actor
+                    int color = mContext.getResources().getColor(R.color.colorLightGrey);
+                    // default to fill
+                    mPaintMapRect.setStyle(Paint.Style.FILL);
+                    // find index of locus
+                    int i = daoLocusList.locii.indexOf(daoLocus);
+                    if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        // TODO: update actor appears to lose attrs(fore color) - invalid actor moniker after update?
+                        // if actor present, set selected color & fill
+                        DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
+                        if (daoActor != null) {
+                            color = daoActor.getForeColor();
+                        }
+                        mPaintMapRect.setStyle(Paint.Style.FILL);
+                    } else if (i >= daoStage.getActorList().size()) {
+                        Log.e(TAG, "invalid locii index " + i + " for stage actor list size = " + daoStage.getActorList().size());
+                    } else {
+                        // set unselected color & no fill
+                        color = getRingColor(daoLocus);
+                        mPaintMapRect.setStyle(Paint.Style.STROKE);
+
+                    }
+                    mPaintMapRect.setColor(color);
+
+                    // draw locus
+                    canvas.drawOval(mRectList.get(i), mPaintMapRect);
+//                      canvas.drawRect(oval, mPaintMapRect);
+
+                    // annotate w/ name
+                    mPaintMinorText.setColor(color);
+                    String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
+                    id = id.substring(1);
+                    drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
                 }
-                mPaintMapRect.setStyle(Paint.Style.FILL);
-            }
-            else if (i >= daoStage.getActorList().size()) {
-                Log.e(TAG, "invalid locii index " + i + " for stage actor list size = " + daoStage.getActorList().size());
+                return true;
             }
             else {
-                // set unselected color & no fill
-                color = getRingColor(daoLocus);
-                mPaintMapRect.setStyle(Paint.Style.STROKE);
-
+                Log.e(TAG, "Oops! no locus list...");
             }
-            mPaintMapRect.setColor(color);
-
-            // draw locus
-            canvas.drawOval(mRectList.get(i), mPaintMapRect);
-//            canvas.drawOval(oval, mPaintMapRect);
-//            canvas.drawRect(oval, mPaintMapRect);
-
-            // annotate w/ name
-            mPaintMinorText.setColor(color);
-            String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
-            id = id.substring(1);
-            drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
         }
-        return true;
+        else {
+            Log.e(TAG, "Oops!  no active stage...");
+        }
+        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawText(Canvas canvas, String text, Paint paint, float x, float y) {
@@ -431,90 +434,97 @@ public class StageViewRing {
         DaoEpic daoEpic = getPlayListService().getActiveEpic();
         DaoStage daoStage = getPlayListService().getActiveStage();
 
-        // set epic tally & tic
-        daoEpic.updateEpicTally(daoStage);
+        if (daoEpic != null && daoStage != null) {
+            // set epic tally & tic
+            daoEpic.updateEpicTally(daoStage);
 
-        // for each star in star board, find max star name length
-        for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
-            // format title: moniker, tally, tic
-            String title = daoEpicStarBoard.getStarMoniker() + "  " +
-                    daoEpicStarBoard.getTally().toString() + "  " +
-                    daoEpicStarBoard.getTic().toString();
-            float titleWidth = mPaintMinorText.measureText(title);
-            if (titleWidth > maxTitleWidth) maxTitleWidth = titleWidth;
-        }
-
-        // order starboard by descending (false) tally
-        List<DaoEpicStarBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
-        // for each star in star board
-        for (DaoEpicStarBoard daoEpicStarBoard : orderedStarBoard) {
-//            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
-            // format title: moniker, tally, tic
-            String title = daoEpicStarBoard.getStarMoniker() + "  " +
-                    daoEpicStarBoard.getTally().toString() + "  " +
-                    daoEpicStarBoard.getTic().toString();
-            // find actor color
-            DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicStarBoard.getStarMoniker());
-            if (daoActor != null) {
-                color = daoActor.getForeColor();
+            // for each star in star board, find max star name length
+            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
+                // format title: moniker, tally, tic
+                String title = daoEpicStarBoard.getStarMoniker() + "  " +
+                        daoEpicStarBoard.getTally().toString() + "  " +
+                        daoEpicStarBoard.getTic().toString();
+                float titleWidth = mPaintMinorText.measureText(title);
+                if (titleWidth > maxTitleWidth) maxTitleWidth = titleWidth;
             }
-            mPaintMinorText.setColor(color);
-            drawText(canvas, title, mPaintMinorText, xTitle, yTitle);
-            // get rect bounding title
-            Rect titleBounds = new Rect();
-            mPaintMinorText.getTextBounds(title, 0, title.length(), titleBounds);
-            // set left X horizontal draw cursor to after title text
-            xTally = xTitle + maxTitleWidth;
-            // set lower y vertical draw cursor
-            float titleHeight = titleBounds.bottom - titleBounds.top;
-            // set dims for full tally rect
-            float left = xTally + xPad;
-            float top = yTitle - titleHeight;
-            float right = xTally + maxTitleWidth;
-            float bottom = yTitle;
-            // draw full tally rect w/ neutral color & no fill for border only
-            int colorEdge = mContext.getResources().getColor(R.color.colorBrightBlue);
-            mPaintMinorText.setColor(colorEdge);
-            mPaintMinorText.setStyle(Paint.Style.STROKE);
-            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
-            // determine percent progress
-            Integer starTally = daoEpicStarBoard.getTally();
-            float percentTally = (float)starTally / (float)daoEpic.getTallyLimit();
-            right = xTally + (maxTitleWidth * percentTally);
+            // order starboard by descending (false) tally
+            List<DaoEpicStarBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
+            // for each star in star board
+            for (DaoEpicStarBoard daoEpicStarBoard : orderedStarBoard) {
+//            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
+                // format title: moniker, tally, tic
+                String title = daoEpicStarBoard.getStarMoniker() + "  " +
+                        daoEpicStarBoard.getTally().toString() + "  " +
+                        daoEpicStarBoard.getTic().toString();
+                // find actor color
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicStarBoard.getStarMoniker());
+                if (daoActor != null) {
+                    color = daoActor.getForeColor();
+                }
+                mPaintMinorText.setColor(color);
+                drawText(canvas, title, mPaintMinorText, xTitle, yTitle);
+                // get rect bounding title
+                Rect titleBounds = new Rect();
+                mPaintMinorText.getTextBounds(title, 0, title.length(), titleBounds);
+                // set left X horizontal draw cursor to after title text
+                xTally = xTitle + maxTitleWidth;
+                // set lower y vertical draw cursor
+                float titleHeight = titleBounds.bottom - titleBounds.top;
+                // set dims for full tally rect
+                float left = xTally + xPad;
+                float top = yTitle - titleHeight;
+                float right = xTally + maxTitleWidth;
+                float bottom = yTitle;
+                // draw full tally rect w/ neutral color & no fill for border only
+                int colorEdge = mContext.getResources().getColor(R.color.colorBrightBlue);
+                mPaintMinorText.setColor(colorEdge);
+                mPaintMinorText.setStyle(Paint.Style.STROKE);
+                canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
-            // draw progress tally rect fill for progress bar
-            mPaintMinorText.setColor(color);
-            mPaintMinorText.setStyle(Paint.Style.FILL);
-            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+                // determine percent progress
+                Integer starTally = daoEpicStarBoard.getTally();
+                float percentTally = (float) starTally / (float) daoEpic.getTallyLimit();
+                right = xTally + (maxTitleWidth * percentTally);
 
-            // set left X horizontal draw cursor to after title text
-            xTic = xTally + maxTitleWidth;
-            // set lower y vertical draw cursor
-            titleHeight = titleBounds.bottom - titleBounds.top;
-            // set dims for full tic rect
-            left = xTic + xPad;
-            top = yTitle - titleHeight;
-            right = xTic + maxTitleWidth;
-            bottom = yTitle;
-            // draw full tic rect w/ actor color
-            mPaintMinorText.setColor(color);
-            mPaintMinorText.setStyle(Paint.Style.FILL);
-            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+                // draw progress tally rect fill for progress bar
+                mPaintMinorText.setColor(color);
+                mPaintMinorText.setStyle(Paint.Style.FILL);
+                canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
-            // determine percent progress finding remaining tics
-            Integer starTic = daoEpicStarBoard.getTic();
-            float percentTic = ((float)daoEpic.getTicLimit() - (float)starTic) / (float)daoEpic.getTicLimit();
-            right = xTic + (maxTitleWidth * percentTic);
+                // set left X horizontal draw cursor to after title text
+                xTic = xTally + maxTitleWidth;
+                // set lower y vertical draw cursor
+                titleHeight = titleBounds.bottom - titleBounds.top;
+                // set dims for full tic rect
+                left = xTic + xPad;
+                top = yTitle - titleHeight;
+                right = xTic + maxTitleWidth;
+                bottom = yTitle;
+                // draw full tic rect w/ actor color
+                mPaintMinorText.setColor(color);
+                mPaintMinorText.setStyle(Paint.Style.FILL);
+                canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
-            // draw progress tic rect fill for progress bar
-            mPaintMinorText.setColor(colorEdge);
-            mPaintMinorText.setStyle(Paint.Style.FILL);
-            canvas.drawRect(left, top, right, bottom, mPaintMinorText);
+                // determine percent progress finding remaining tics
+                Integer starTic = daoEpicStarBoard.getTic();
+                float percentTic = ((float) daoEpic.getTicLimit() - (float) starTic) / (float) daoEpic.getTicLimit();
+                right = xTic + (maxTitleWidth * percentTic);
+
+                // draw progress tic rect fill for progress bar
+                mPaintMinorText.setColor(colorEdge);
+                mPaintMinorText.setStyle(Paint.Style.FILL);
+                canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
 
-            // advance draw cursor for next star
-            yTitle = yTitle + yPad;
+                // advance draw cursor for next star
+                yTitle = yTitle + yPad;
+            }
+        }
+        else {
+            if (daoEpic == null) Log.e(TAG, "Oops!  no active epic...");
+            else Log.e(TAG, "Oops!  no active stage...");
+
         }
         return true;
     }

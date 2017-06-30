@@ -92,47 +92,36 @@ public class DaoMakerUiHandler {
         mRootView = v;
 
         // TODO: rationalize FAB
-        // if story outcome is ClearActors, launch run FAB to run the story
+        // if story outcome is ResetEpic, launch run FAB to run the story
         DaoStory daoStory = mParent.getPlayListService().getActiveStory();
-        if (daoStory != null && daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_CLEAR_STAGE)) {
+        if (daoStory != null && daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_RESET_EPIC)) {
             final DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
             final DaoStage daoStage = mParent.getPlayListService().getActiveStage();
 
-            FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
-            fab.setVisibility(View.VISIBLE);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    Log.d(TAG, "execute fab operation...");
-                    // resetStage by resetting actor list to NADA...)
-                    if (daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
-                        // update object
-                        mParent.getRepoProvider().getDalStage().update(daoStage, true);
-                    }
-                    else {
-                        Log.e(TAG, "Oops! FAB onClick UNKNOWN stage type? " + daoStage.getStageType());
-//                        return;
-                    }
-                    // reset Epic tally & tic
-                    if (daoEpic.resetEpicTallyTic(true, true)) {
-                        // update object
+            if (daoEpic != null && daoStage != null) {
+
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                fab.setVisibility(View.VISIBLE);
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                        Log.d(TAG, "execute fab operation...");
+                        // reset epic
+                        daoEpic.resetEpicStageTallyTic(daoStage, true, true);
                         mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
+                        mParent.getRepoProvider().getDalStage().update(daoStage, true);
+                        // banish fab
+                        FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                        fab.setVisibility(View.GONE);
+                        // refresh content view
+                        Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
+                        if (mCallback != null)
+                            mCallback.onContentHandlerResult(op, objType, moniker);
                     }
-                    else {
-                        Log.e(TAG, "Oops! FAB onClick resetEpicTallyTic failed? " + daoEpic.toString());
-//                        return;
-                    }
-                    // banish fab
-                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
-                    fab.setVisibility(View.GONE);
-                    // refresh content view
-                    Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
-                    if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
-//                }
-                }
-            });
+                });
+            }
         }
 
         // create view xfer to transfer between view & objects
