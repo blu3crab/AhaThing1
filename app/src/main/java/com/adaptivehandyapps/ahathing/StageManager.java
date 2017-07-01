@@ -22,11 +22,12 @@
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
-import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
@@ -54,6 +55,15 @@ public class StageManager {
     private float mVelocityY = 0.0f;
     private MotionEvent mEvent1;
     private MotionEvent mEvent2;
+
+    private MediaPlayer mediaPlayer;
+    private Boolean mediaPlayerReady;
+
+    private MediaPlayer mpTap;
+    private Boolean mpTapReady;
+    private MediaPlayer mpIntro;
+    private Boolean mpIntroReady;
+    private Boolean mpIntroPlaying;
 
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
@@ -114,6 +124,39 @@ public class StageManager {
         this.mEvent2 = event2;
     }
 
+    public MediaPlayer getMpTap() {
+        return mpTap;
+    }
+    public void setMpTap(MediaPlayer mpTap) {
+        this.mpTap = mpTap;
+    }
+
+    public Boolean isMpTapReady() {
+        return mpTapReady;
+    }
+    public void setMpTapReady(Boolean mpTapReady) {
+        this.mpTapReady = mpTapReady;
+    }
+    public Boolean isMpIntroReady() {
+        return mpIntroReady;
+    }
+    public void setMpIntroReady(Boolean mpIntroReady) {
+        this.mpIntroReady = mpIntroReady;
+    }
+
+    public Boolean isMpIntroPlaying() {
+        return mpIntroPlaying;
+    }
+    public void setMpIntroPlaying(Boolean mpIntroPlaying) {
+        this.mpIntroPlaying = mpIntroPlaying;
+    }
+
+    private Boolean isMediaPlayerReady() {return mediaPlayerReady;}
+    private void setMediaPlayerReady(Boolean ready) {
+        mediaPlayerReady = ready;
+    }
+
+
     ///////////////////////////////////////////////////////////////////////////
     public StageManager(Context context, PlayListService playListService, RepoProvider repoProvider) {
 //    public StageManager(StageViewController stageViewController, PlayListService playListService, RepoProvider repoProvider) {
@@ -121,62 +164,175 @@ public class StageManager {
         mContext = context;
         setPlayListService(playListService);
         setRepoProvider(repoProvider);
+
+        mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+//                mp.start();
+                setMediaPlayerReady(true);
+            }
+        });
+        mpTap = MediaPlayer.create(mContext, R.raw.tap);
+        mpTap.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mpTap.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+//                mp.start();
+                setMpTapReady(true);
+            }
+        });
+        setMpIntroPlaying(false);
+        mpIntro = MediaPlayer.create(mContext, R.raw.eintro);
+        mpIntro.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mpIntro.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+//                mp.start();
+                setMpIntroReady(true);
+            }
+        });
+
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Actions
     public Boolean onAction(StageViewRing stageViewRing, String action) {
         Log.d(TAG, "onAction action " + action);
+//        MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
+//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                mp.start();
+//            }
+//        });
+
+        if (isMediaPlayerReady()) {
+            if (!isMpIntroPlaying()) {
+                setMpIntroPlaying(true);
+                mpIntro.start();
+            } else {
+                mpIntro.setVolume(1.0f, 1.0f);
+            }
+        }
+
         // if story exists associating the active actor (or all actor) with the action
         if (updatePlaylist(action)) {
-            // execute outcome
-            switch (action) {
-                case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                case DaoAction.ACTION_TYPE_LONG_PRESS:
-                case DaoAction.ACTION_TYPE_FLING:
-                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                    // if prereq satisfied
-                    if (isPreReqSatisfied(stageViewRing)) {
-                        // increment active actors star board tic
-                        DaoEpic daoEpic = getPlayListService().getActiveEpic();
-                        DaoStage daoStage = getPlayListService().getActiveStage();
-                        if (daoEpic != null && daoStage != null && getPlayListService().getActiveActor() != null) {
-                            int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
-                            if (starInx > -1) {
-                                // increment tic for actor
-                                int tic = daoEpic.getStarBoardList().get(starInx).getTic();
-                                daoEpic.getStarBoardList().get(starInx).setTic(++tic);
-                                Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getStarBoardList().get(starInx).getStarMoniker());
-                                // update epic tally based on stage ring locations occupied
-                                daoEpic.updateEpicTally(daoStage);
-                                // update epic repo
-                                getRepoProvider().getDalEpic().update(daoEpic, true);
-                            }
-                            // deliver outcome
-                            DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
-                            if (daoOutcome != null) {
-                                onOutcome(stageViewRing, daoOutcome.getMoniker());
-                            }
-                            else {
-                                Log.e(TAG,"Oops! no active outcome...");
-                            }
-
-                            // if post-operation indicated
-                            onPostOp();
+            // if prereq satisfied
+            if (isPreReqSatisfied(stageViewRing)) {
+                int resIdAudio = DaoDefs.INIT_INTEGER_MARKER;
+                // execute outcome
+                switch (action) {
+                    case DaoAction.ACTION_TYPE_SINGLE_TAP:
+                        if (isMpTapReady()) {
+                            mpTap.start();
+                            resIdAudio = DaoDefs.INIT_INTEGER_MARKER;
                         }
                         else {
-                            if (daoEpic == null ) Log.e(TAG, "Oops! Active epic NULL! ");
-                            else if (daoStage == null) Log.e(TAG, "Oops! Active stage NULL! ");
-                            else Log.e(TAG, "Oops! Active actor NULL! ");
+                            Log.e(TAG,"Oops!  TAP media player not ready...");
                         }
+                        break;
+                    case DaoAction.ACTION_TYPE_LONG_PRESS:
+                        resIdAudio = R.raw.press;
+                        mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+                        break;
+                    case DaoAction.ACTION_TYPE_FLING:
+                        resIdAudio = R.raw.fling;
+                        mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+                        break;
+                    case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+                        break;
+                    default:
+                        Log.e(TAG, "Oops! Unknown action? " + action);
+                        return false;
+                }
+//            // if prereq satisfied
+//            if (isPreReqSatisfied(stageViewRing)) {
+                // play audio associated with gesture
+                if (resIdAudio != DaoDefs.INIT_INTEGER_MARKER) {
+                    // pause background sounds
+                    int introPosition = 0;
+                    if (isMpIntroPlaying() && isMpIntroReady()) {
+                        mpIntro.pause();
+                        mpIntro.setVolume(0.5f, 0.5f);
+                        introPosition = mpIntro.getCurrentPosition();
+                    }
+                    // play action sound
+                    mediaPlayer.start();
+
+                    // resume background sounds
+                    if (isMpIntroPlaying() && isMpIntroReady()) {
+                        mpIntro.seekTo(introPosition);
+                        mpIntro.start();
                     }
 
-                    return true;
+//                    MediaPlayer mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+//                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                        @Override
+//                        public void onPrepared(MediaPlayer mp) {
+////                            mp.seekTo(0);
+//                            mp.start();
+//                        }
+//                    });
+                }
+                // increment active actors star board tic
+                DaoEpic daoEpic = getPlayListService().getActiveEpic();
+                DaoStage daoStage = getPlayListService().getActiveStage();
+                if (daoEpic != null && daoStage != null && getPlayListService().getActiveActor() != null) {
+                    int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                    if (starInx > -1) {
+                        // increment tic for actor
+                        int tic = daoEpic.getStarBoardList().get(starInx).getTic();
+                        daoEpic.getStarBoardList().get(starInx).setTic(++tic);
+                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getStarBoardList().get(starInx).getStarMoniker());
+                        // update epic tally based on stage ring locations occupied
+                        daoEpic.updateEpicTally(daoStage);
+                        // update epic repo
+                        getRepoProvider().getDalEpic().update(daoEpic, true);
+                    }
+                    // deliver outcome
+                    DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
+                    if (daoOutcome != null) {
+                        onOutcome(stageViewRing, daoOutcome.getMoniker());
+                    }
+                    else {
+                        Log.e(TAG,"Oops! no active outcome...");
+                    }
 
-                default:
-                    Log.e(TAG, "Oops! Unknown action? " + action);
-                    return false;
+                    // if post-operation indicated
+                    onPostOp();
+                }
+                else {
+                    if (daoEpic == null ) Log.e(TAG, "Oops! Active epic NULL! ");
+                    else if (daoStage == null) Log.e(TAG, "Oops! Active stage NULL! ");
+                    else Log.e(TAG, "Oops! Active actor NULL! ");
+                }
             }
+            else {
+//                // prereq not satisfied
+//                resIdAudio = R.raw.uhuh;
+//                // play audio associated with nogo
+//                mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+//                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                    @Override
+//                    public void onPrepared(MediaPlayer mp) {
+//                        mp.seekTo(0);
+                if (isMediaPlayerReady()) {
+                    mediaPlayer.start();
+                }
+                else {
+                    Log.e(TAG,"Oops!  media player not ready...");
+                }
+//                    }
+//                });
+            }
+            if (isMpIntroPlaying() && isMpIntroReady()) {
+                mpIntro.setVolume(1.0f, 1.0f);
+            }
+
+            return true;
         }
 
         return false;

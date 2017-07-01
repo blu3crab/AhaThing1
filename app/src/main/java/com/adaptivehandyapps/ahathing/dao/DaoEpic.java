@@ -236,6 +236,7 @@ public class DaoEpic extends DaoBase {
         // TODO: checkbox for cumulative tally option?
         // reset epic star board tally but not stage or tic (turn counter)
         resetEpicStageTallyTic(null, true, false);
+		Boolean updateTally = false;
         // for each vert
         for (String vertActor : daoStage.getActorList()) {
             int vertActorInx = getStarList().indexOf(vertActor);
@@ -243,8 +244,11 @@ public class DaoEpic extends DaoBase {
                 // increment tally for actor
                 int tally = getStarBoardList().get(vertActorInx).getTally();
                 getStarBoardList().get(vertActorInx).setTally(++tally);
+				updateTally = true;
             }
         }
+        // if not tally updates, epic reset - clear tics
+        if (!updateTally) resetEpicStageTallyTic(null, false, true);
         return true;
     }
     public Boolean resetEpicStageTallyTic(DaoStage daoStage, Boolean resetTally, Boolean resetTic) {
