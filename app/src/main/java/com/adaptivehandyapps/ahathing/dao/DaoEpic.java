@@ -174,17 +174,19 @@ public class DaoEpic extends DaoBase {
         }
         // if highest tally is 1/2 to total
         List<DaoEpicStarBoard> orderedStarBoardList = getTallyOrder(false);
-        Integer highTally = orderedStarBoardList.get(0).getTally();
-		if (highTally > (getTallyLimit()/2)) {
-			// tally all others
-			Integer otherTally = 0;
-			for (int i = 1; i < orderedStarBoardList.size(); i++) {
-				otherTally += orderedStarBoardList.get(i).getTally();
+		if (orderedStarBoardList.size() > 0) {
+			Integer highTally = orderedStarBoardList.get(0).getTally();
+			if (highTally > (getTallyLimit() / 2)) {
+				// tally all others
+				Integer otherTally = 0;
+				for (int i = 1; i < orderedStarBoardList.size(); i++) {
+					otherTally += orderedStarBoardList.get(i).getTally();
+				}
+				float percent = (float) otherTally / (float) highTally;
+				Log.d(TAG, "otherTally/highTally " + otherTally + "/" + highTally);
+				// if highest tally is greater than percentage limit
+				if (percent < EPIC_PERCENT_LIMIT_DEFAULT) return true;
 			}
-			float percent = (float) otherTally / (float) highTally;
-			Log.d(TAG, "otherTally/highTally " + otherTally + "/" + highTally);
-			// if highest tally is greater than percentage limit
-			if (percent < EPIC_PERCENT_LIMIT_DEFAULT) return true;
 		}
         return false;
     }
@@ -262,6 +264,12 @@ public class DaoEpic extends DaoBase {
         }
         return true;
     }
+    public Boolean resetStarBoard() {
+//		getStarBoardList().clear();
+		List<DaoEpicStarBoard> starBoardList = new ArrayList<>();
+		setStarBoardList(starBoardList);
+		return true;
+	}
 	/////////////////////////////helpers//////////////////////////////////
 	public static long getSerialVersionUID() {
 		return serialVersionUID;

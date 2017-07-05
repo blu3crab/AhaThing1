@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -56,14 +57,19 @@ public class StageManager {
     private MotionEvent mEvent1;
     private MotionEvent mEvent2;
 
-    private MediaPlayer mediaPlayer;
-    private Boolean mediaPlayerReady;
+//    private MediaPlayer mediaPlayer;
+//    private Boolean mediaPlayerReady;
 
-    private MediaPlayer mpTap;
-    private Boolean mpTapReady;
-    private MediaPlayer mpIntro;
-    private Boolean mpIntroReady;
-    private Boolean mpIntroPlaying;
+//    private MediaPlayer mpTap;
+//    private Boolean mpTapReady;
+//    private MediaPlayer mpPress;
+//    private Boolean mpPressReady;
+//    private MediaPlayer mpFling;
+//    private Boolean mpFlingReady;
+//
+//    private MediaPlayer mpMusic;
+//    private Boolean mpMusicReady;
+//    private Boolean mpMusicPlaying;
 
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
@@ -124,37 +130,67 @@ public class StageManager {
         this.mEvent2 = event2;
     }
 
-    public MediaPlayer getMpTap() {
-        return mpTap;
-    }
-    public void setMpTap(MediaPlayer mpTap) {
-        this.mpTap = mpTap;
-    }
+//    public MediaPlayer getMpTap() {
+//        return mpTap;
+//    }
+//    public void setMpTap(MediaPlayer mpTap) {
+//        this.mpTap = mpTap;
+//    }
+//
+//    public Boolean getMpTapReady() {
+//        return mpTapReady;
+//    }
+//    public void setMpTapReady(Boolean mpTapReady) {
+//        this.mpTapReady = mpTapReady;
+//    }
+//
+//    public MediaPlayer getMpPress() {
+//        return mpPress;
+//    }
+//    public void setMpPress(MediaPlayer mpPress) {
+//        this.mpPress = mpPress;
+//    }
+//
+//    public Boolean getMpPressReady() {
+//        return mpPressReady;
+//    }
+//    public void setMpPressReady(Boolean mpPressReady) {
+//        this.mpPressReady = mpPressReady;
+//    }
+//
+//    public MediaPlayer getMpFling() {
+//        return mpFling;
+//    }
+//    public void setMpFling(MediaPlayer mpFling) {
+//        this.mpFling = mpFling;
+//    }
+//
+//    public Boolean getMpFlingReady() {
+//        return mpFlingReady;
+//    }
+//    public void setMpFlingReady(Boolean mpFlingReady) {
+//        this.mpFlingReady = mpFlingReady;
+//    }
+//
+//
+//    public Boolean getMpMusicReady() {
+//        return mpMusicReady;
+//    }
+//    public void setMpMusicReady(Boolean mpMusicReady) {
+//        this.mpMusicReady = mpMusicReady;
+//    }
 
-    public Boolean isMpTapReady() {
-        return mpTapReady;
-    }
-    public void setMpTapReady(Boolean mpTapReady) {
-        this.mpTapReady = mpTapReady;
-    }
-    public Boolean isMpIntroReady() {
-        return mpIntroReady;
-    }
-    public void setMpIntroReady(Boolean mpIntroReady) {
-        this.mpIntroReady = mpIntroReady;
-    }
+//    public Boolean getMpMusicPlaying() {
+//        return mpMusicPlaying;
+//    }
+//    public void setMpMusicPlaying(Boolean mpMusicPlaying) {
+//        this.mpMusicPlaying = mpMusicPlaying;
+//    }
 
-    public Boolean isMpIntroPlaying() {
-        return mpIntroPlaying;
-    }
-    public void setMpIntroPlaying(Boolean mpIntroPlaying) {
-        this.mpIntroPlaying = mpIntroPlaying;
-    }
-
-    private Boolean isMediaPlayerReady() {return mediaPlayerReady;}
-    private void setMediaPlayerReady(Boolean ready) {
-        mediaPlayerReady = ready;
-    }
+//    private Boolean isMediaPlayerReady() {return mediaPlayerReady;}
+//    private void setMediaPlayerReady(Boolean ready) {
+//        mediaPlayerReady = ready;
+//    }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -165,34 +201,50 @@ public class StageManager {
         setPlayListService(playListService);
         setRepoProvider(repoProvider);
 
-        mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-//                mp.start();
-                setMediaPlayerReady(true);
-            }
-        });
-        mpTap = MediaPlayer.create(mContext, R.raw.tap);
-        mpTap.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mpTap.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-//                mp.start();
-                setMpTapReady(true);
-            }
-        });
-        setMpIntroPlaying(false);
-        mpIntro = MediaPlayer.create(mContext, R.raw.eintro);
-        mpIntro.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mpIntro.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-//                mp.start();
-                setMpIntroReady(true);
-            }
-        });
+//        mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
+//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+////                mp.start();
+//                setMediaPlayerReady(true);
+//            }
+//        });
+//        setMpTap (MediaPlayer.create(mContext, R.raw.tap));
+//        getMpTap().setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        getMpTap().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                setMpTapReady(true);
+//            }
+//        });
+//
+//        setMpPress (MediaPlayer.create(mContext, R.raw.press));
+//        getMpPress().setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        getMpPress().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                setMpPressReady(true);
+//            }
+//        });
+//
+//        setMpFling (MediaPlayer.create(mContext, R.raw.fling));
+//        getMpFling().setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        getMpFling().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                setMpFlingReady(true);
+//            }
+//        });
+//
+//        mpMusic = MediaPlayer.create(mContext, R.raw.dintro);
+//        mpMusic.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        mpMusic.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                setMpMusicReady(true);
+//            }
+//        });
 
     }
 
@@ -200,47 +252,99 @@ public class StageManager {
     // Actions
     public Boolean onAction(StageViewRing stageViewRing, String action) {
         Log.d(TAG, "onAction action " + action);
-//        MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
-//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//            @Override
-//            public void onPrepared(MediaPlayer mp) {
-//                mp.start();
+//        // turn off music for test
+//        setMpMusicReady(false);
+//        if (getMpMusicReady()) {
+//            if (!mpMusic.isPlaying()) {
+//                mpMusic.start();
+//            } else {
+//                mpMusic.setVolume(1.0f, 1.0f);
 //            }
-//        });
-
-        if (isMediaPlayerReady()) {
-            if (!isMpIntroPlaying()) {
-                setMpIntroPlaying(true);
-                mpIntro.start();
-            } else {
-                mpIntro.setVolume(1.0f, 1.0f);
-            }
-        }
+//        }
 
         // if story exists associating the active actor (or all actor) with the action
         if (updatePlaylist(action)) {
+            int musicPosition = 0;
+
             // if prereq satisfied
             if (isPreReqSatisfied(stageViewRing)) {
-                int resIdAudio = DaoDefs.INIT_INTEGER_MARKER;
+//                // pause background sounds
+//                if (getMpMusicReady() && mpMusic.isPlaying()) {
+//                    mpMusic.pause();
+//                    mpMusic.setVolume(0.5f, 0.5f);
+//                    musicPosition = mpMusic.getCurrentPosition();
+//                }
                 // execute outcome
                 switch (action) {
                     case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                        if (isMpTapReady()) {
-                            mpTap.start();
-                            resIdAudio = DaoDefs.INIT_INTEGER_MARKER;
-                        }
-                        else {
-                            Log.e(TAG,"Oops!  TAP media player not ready...");
-                        }
+//                        setMpTap (MediaPlayer.create(mContext, R.raw.tap));
+//                        getMpTap().setAudioStreamType(AudioManager.STREAM_MUSIC);
+//                        getMpTap().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                            @Override
+//                            public void onPrepared(MediaPlayer mp) {
+//                                setMpTapReady(true);
+//                                mpTap.start();
+//                                CountDownTimer countdown = new CountDownTimer(100, 100) {
+//                                    public void onTick(long millisUntilFinished) {
+//                                        mpTap.start();
+//                                    }
+//                                    public void onFinish() {
+//                                        mpTap.stop();
+//                                        mpTap.release();
+//                                    }
+//                                };
+//                                countdown.start();
+//                            }
+//                        });
+//                        if (getMpTapReady()) {
+//                            mpTap.start();
+//                            CountDownTimer countdown = new CountDownTimer(100, 100) {
+//                                public void onTick(long millisUntilFinished) {
+//                                    mpTap.start();
+//                                }
+//                                public void onFinish() {
+//                                    mpTap.stop();
+//                                }
+//                            };
+//                            countdown.start();
+//                        }
+//                        else {
+//                            Log.e(TAG,"Oops!  TAP media player not ready...");
+//                        }
                         break;
                     case DaoAction.ACTION_TYPE_LONG_PRESS:
-                        resIdAudio = R.raw.press;
-                        mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+//                        if (getMpPressReady()) {
+//                            mpPress.start();
+//                            CountDownTimer countdown = new CountDownTimer(500, 500) {
+//                                public void onTick(long millisUntilFinished) {
+//                                    mpPress.start();
+//                                }
+//                                public void onFinish() {
+//                                    mpPress.stop();
+//                                }
+//                            };
+//                            countdown.start();
+//                        }
+//                        else {
+//                            Log.e(TAG,"Oops!  Press media player not ready...");
+//                        }
                         break;
                     case DaoAction.ACTION_TYPE_FLING:
-                        resIdAudio = R.raw.fling;
-                        mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+//                        if (getMpFlingReady()) {
+//                            mpFling.start();
+//                            CountDownTimer countdown = new CountDownTimer(1000, 1000) {
+//                                public void onTick(long millisUntilFinished) {
+//                                    mpFling.start();
+//                                }
+//                                public void onFinish() {
+//                                    mpFling.stop();
+//                                }
+//                            };
+//                            countdown.start();
+//                        }
+//                        else {
+//                            Log.e(TAG,"Oops!  Fling media player not ready...");
+//                        }
                         break;
                     case DaoAction.ACTION_TYPE_DOUBLE_TAP:
                         break;
@@ -248,35 +352,7 @@ public class StageManager {
                         Log.e(TAG, "Oops! Unknown action? " + action);
                         return false;
                 }
-//            // if prereq satisfied
-//            if (isPreReqSatisfied(stageViewRing)) {
-                // play audio associated with gesture
-                if (resIdAudio != DaoDefs.INIT_INTEGER_MARKER) {
-                    // pause background sounds
-                    int introPosition = 0;
-                    if (isMpIntroPlaying() && isMpIntroReady()) {
-                        mpIntro.pause();
-                        mpIntro.setVolume(0.5f, 0.5f);
-                        introPosition = mpIntro.getCurrentPosition();
-                    }
-                    // play action sound
-                    mediaPlayer.start();
 
-                    // resume background sounds
-                    if (isMpIntroPlaying() && isMpIntroReady()) {
-                        mpIntro.seekTo(introPosition);
-                        mpIntro.start();
-                    }
-
-//                    MediaPlayer mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
-//                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                        @Override
-//                        public void onPrepared(MediaPlayer mp) {
-////                            mp.seekTo(0);
-//                            mp.start();
-//                        }
-//                    });
-                }
                 // increment active actors star board tic
                 DaoEpic daoEpic = getPlayListService().getActiveEpic();
                 DaoStage daoStage = getPlayListService().getActiveStage();
@@ -312,25 +388,22 @@ public class StageManager {
             }
             else {
 //                // prereq not satisfied
-//                resIdAudio = R.raw.uhuh;
+//                int resIdAudio = R.raw.uhuh;
 //                // play audio associated with nogo
-//                mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
+//                final MediaPlayer mediaPlayer = MediaPlayer.create(mContext, resIdAudio);
 //                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 //                    @Override
 //                    public void onPrepared(MediaPlayer mp) {
-//                        mp.seekTo(0);
-                if (isMediaPlayerReady()) {
-                    mediaPlayer.start();
-                }
-                else {
-                    Log.e(TAG,"Oops!  media player not ready...");
-                }
+//                        mediaPlayer.start();
 //                    }
 //                });
             }
-            if (isMpIntroPlaying() && isMpIntroReady()) {
-                mpIntro.setVolume(1.0f, 1.0f);
-            }
+//            // resume background sounds
+//            if (getMpMusicReady() && mpMusic.isPlaying()) {
+//                mpMusic.setVolume(1.0f, 1.0f);
+//                mpMusic.seekTo(musicPosition);
+//                mpMusic.start();
+//            }
 
             return true;
         }
@@ -454,6 +527,7 @@ public class StageManager {
                         Log.i(TAG, "curtain closing dialog - yes...");
                         // reset epic
                         daoEpic.resetEpicStageTallyTic(daoStage, true, true);
+//                        daoEpic.resetStarBoard();
                         // update repo
                         getRepoProvider().getDalEpic().update(daoEpic, true);
                         getRepoProvider().getDalStage().update(daoStage, true);
