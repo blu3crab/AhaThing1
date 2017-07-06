@@ -61,6 +61,7 @@ public class StageViewController extends View implements
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
     private Context mContext;
+    private MainActivity mParent;
 
     private DaoStage mActiveStage;
 
@@ -109,22 +110,22 @@ public class StageViewController extends View implements
 //    private int mVertResizeFactor = 1;
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
-    private PlayListService mPlayListService;
+//    private PlayListService mPlayListService;
     public PlayListService getPlayListService() {
-        return mPlayListService;
+        return mParent.getPlayListService();
     }
-    public void setPlayListService(PlayListService playListService) {
-        mPlayListService = playListService;
-    }
+//    public void setPlayListService(PlayListService playListService) {
+//        mPlayListService = playListService;
+//    }
 
-    private RepoProvider mRepoProvider;
+//    private RepoProvider mRepoProvider;
     public RepoProvider getRepoProvider() {
-        return mRepoProvider;
+        return mParent.getRepoProvider();
     }
-    public void setRepoProvider(RepoProvider repoProvider) {
-        mRepoProvider = repoProvider;
-        Log.d(TAG, "setRepoProvider " + mRepoProvider);
-    }
+//    public void setRepoProvider(RepoProvider repoProvider) {
+//        mRepoProvider = repoProvider;
+//        Log.d(TAG, "setRepoProvider " + mRepoProvider);
+//    }
 
     private StageViewRing mStageViewRing;
     public StageViewRing getStageViewRing() {
@@ -134,13 +135,13 @@ public class StageViewController extends View implements
         this.mStageViewRing = stageViewRing;
     }
 
-    private StageManager mStageManager;
+//    private StageManager mStageManager;
     public StageManager getStageManager() {
-        return mStageManager;
+        return mParent.getStageManager();
     }
-    public void setStageManager(StageManager stageManager) {
-        mStageManager = stageManager;
-    }
+//    public void setStageManager(StageManager stageManager) {
+//        mStageManager = stageManager;
+//    }
 
     public float getTouchX() {
         return mTouchX;
@@ -194,42 +195,57 @@ public class StageViewController extends View implements
     // constructors
     public StageViewController(Context context) {
         super(context);
-        Log.d(TAG, "constructor init context...");
+        Log.d(TAG, "StageViewController constructor init context...");
         init(context);
     }
 
     public StageViewController(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.d(TAG, "constructor init context/attrs...");
+        Log.d(TAG, "StageViewController constructor init context/attrs...");
         init(context);
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean init(Context context) {
 
         mContext = context;
-        MainActivity parent = (MainActivity) context;
-        if (parent != null) {
-            setPlayListService(parent.getPlayListService());
-            if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
-                Log.v(TAG, "Story ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
-            }
-            else {
-                Log.e(TAG, "Story NULL or NOT ready!");
-//                return false;
-            }
-            setRepoProvider(parent.getRepoProvider());
-            if (getRepoProvider() != null) {
-                Log.v(TAG, "Repo Provider ready at " + getRepoProvider() + "...");
-            }
-            else {
-                Log.e(TAG, "Repo Provider NULL!");
-//                return false;
-            }
+        mParent = (MainActivity) context;
+        if (mParent != null) {
+            Log.v(TAG, "StageViewController ready with parent " + mParent.toString() + "...");
+        } else {
+            Log.e(TAG, "Oops!  StageViewController Parent context (MainActivity) NULL!");
         }
-        else {
-            Log.e(TAG, "Parent context (MainActivity) NULL!");
-//            return false;
-        }
+
+//        mContext = context;
+//        MainActivity parent = (MainActivity) context;
+//        if (parent != null) {
+//            setPlayListService(parent.getPlayListService());
+//            if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+//                Log.v(TAG, "Story ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
+//            }
+//            else {
+//                Log.e(TAG, "Story NULL or NOT ready!");
+////                return false;
+//            }
+//            setRepoProvider(parent.getRepoProvider());
+//            if (getRepoProvider() != null) {
+//                Log.v(TAG, "Repo Provider ready at " + getRepoProvider() + "...");
+//            }
+//            else {
+//                Log.e(TAG, "Repo Provider NULL!");
+////                return false;
+//            }
+//        }
+//        else {
+//            Log.e(TAG, "Parent context (MainActivity) NULL!");
+////            return false;
+//        }
+        // init draw resources
+        initDrawResources();
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean initDrawResources() {
 
         // adjust text size
         // TODO: refactor to getDensity()
@@ -261,7 +277,7 @@ public class StageViewController extends View implements
         // Instantiate the gesture detector with the
         // application context and an implementation of
         // GestureDetector.OnGestureListener
-        mDetector = new GestureDetectorCompat(context, this);
+        mDetector = new GestureDetectorCompat(mContext, this);
         // Set the gesture detector as the double tap
         // listener.
         mDetector.setOnDoubleTapListener(this);
@@ -269,11 +285,11 @@ public class StageViewController extends View implements
         mDetector.setIsLongpressEnabled(true);
 
         // pinch zoom support
-        mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mScaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
 
         // stage manager
 //        mStageManager = new StageManager(this, getPlayListService(), getRepoProvider());
-        mStageManager = new StageManager(mContext, getPlayListService(), getRepoProvider());
+//        mStageManager = new StageManager(mContext, getPlayListService(), getRepoProvider());
 
         return true;
     }
@@ -348,6 +364,8 @@ public class StageViewController extends View implements
             Log.d(TAG, "onMeasure width/height mode " + modeToString(widthMode) + "/" + modeToString(heightMode));
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
+//            // init draw resources
+//            initDrawResources();
             // get scale factor
             setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
             Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));

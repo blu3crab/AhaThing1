@@ -44,6 +44,7 @@ public class StageManager {
 //    private StageViewController mStageViewController;
 
     private Context mContext;
+    private MainActivity mParent;
 
     ///////////////////////////////////////////////////////////////////////////
     private PlayListService mPlayListService;
@@ -74,19 +75,25 @@ public class StageManager {
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
     public PlayListService getPlayListService() {
-        return mPlayListService;
+        return mParent.getPlayListService();
     }
-    public void setPlayListService(PlayListService playListService) {
-        mPlayListService = playListService;
-    }
-
     public RepoProvider getRepoProvider() {
-        return mRepoProvider;
+        return mParent.getRepoProvider();
     }
-    public void setRepoProvider(RepoProvider repoProvider) {
-        mRepoProvider = repoProvider;
-        Log.d(TAG, "setRepoProvider " + mRepoProvider);
-    }
+//    public PlayListService getPlayListService() {
+//        return mPlayListService;
+//    }
+//    public void setPlayListService(PlayListService playListService) {
+//        mPlayListService = playListService;
+//    }
+//
+//    public RepoProvider getRepoProvider() {
+//        return mRepoProvider;
+//    }
+//    public void setRepoProvider(RepoProvider repoProvider) {
+//        mRepoProvider = repoProvider;
+//        Log.d(TAG, "setRepoProvider " + mRepoProvider);
+//    }
     public float getTouchX() {
         return mTouchX;
     }
@@ -194,12 +201,19 @@ public class StageManager {
 
 
     ///////////////////////////////////////////////////////////////////////////
-    public StageManager(Context context, PlayListService playListService, RepoProvider repoProvider) {
+    public StageManager(Context context) {
+//    public StageManager(Context context, PlayListService playListService, RepoProvider repoProvider) {
 //    public StageManager(StageViewController stageViewController, PlayListService playListService, RepoProvider repoProvider) {
 //        mStageViewController = stageViewController;
+
         mContext = context;
-        setPlayListService(playListService);
-        setRepoProvider(repoProvider);
+        mParent = (MainActivity) context;
+        if (mParent != null) {
+            Log.v(TAG, "StageManager ready with parent " + mParent.toString() + "...");
+        }
+        else {
+            Log.e(TAG, "Oops!  StageManager Parent context (MainActivity) NULL!");
+        }
 
 //        mediaPlayer = MediaPlayer.create(mContext, R.raw.uhuh);
 //        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);

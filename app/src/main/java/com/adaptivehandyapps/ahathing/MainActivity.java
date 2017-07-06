@@ -65,6 +65,15 @@ public class MainActivity extends AppCompatActivity
     private boolean mVacating = false;
 
     ///////////////////////////////////////////////////////////////////////////
+    private StageManager mStageManager;
+    public StageManager getStageManager() {
+        return mStageManager;
+    }
+    public void setStageManager(StageManager stageManager) {
+        this.mStageManager = stageManager;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // playlist service
     private PlayListService mPlayListService;
     private boolean mPlayListBound = false;
@@ -305,7 +314,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-
+        // establish stage manager
+        mStageManager = new StageManager(this);
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
