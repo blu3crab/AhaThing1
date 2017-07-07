@@ -65,6 +65,14 @@ public class MainActivity extends AppCompatActivity
     private boolean mVacating = false;
 
     ///////////////////////////////////////////////////////////////////////////
+    private SoundManager mSoundManager;
+    public SoundManager getSoundManager() {
+        return mSoundManager;
+    }
+    public void setSoundManager(SoundManager soundManager) {
+        this.mSoundManager = soundManager;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     private StageManager mStageManager;
     public StageManager getStageManager() {
         return mStageManager;
@@ -314,6 +322,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+        // establish sound manager
+        mSoundManager = new SoundManager(this);
         // establish stage manager
         mStageManager = new StageManager(this);
     }

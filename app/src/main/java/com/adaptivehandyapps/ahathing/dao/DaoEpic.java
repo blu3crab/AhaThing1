@@ -95,7 +95,8 @@ public class DaoEpic extends DaoBase {
 
 	///////////////////////////////////////////////////////////////////////////
 	// star registration
-	public Boolean setStar(DaoActor daoActor, String deviceName) {
+	public Boolean setStar(DaoActor daoActor, String deviceName, DaoStage daoStage) {
+
 		// add star, device name, with initial tally & tics
 		if (getStarList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
 			// if star present on same device
@@ -107,17 +108,17 @@ public class DaoEpic extends DaoBase {
 				// if star present but on different device, remove both star & device stale entries
 				int staleStarInx = getStarList().indexOf(deviceName);
 				Log.d(TAG,"setStar removing star " + starBoardList.get(staleStarInx).getStarMoniker() + " at inx " + staleStarInx);
-				removeStar(staleStarInx);
+				removeStar(daoStage, staleStarInx);
 				int staleDeviceInx = getDeviceList().indexOf(deviceName);
 				Log.d(TAG,"setStar removing device " + starBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-				removeStar(staleDeviceInx);
+				removeStar(daoStage, staleDeviceInx);
 			}
 		}
 		else if (getDeviceList().contains(deviceName)) {
 			// if new star but device is allocated, remove stale device entry
 			int staleDeviceInx = getDeviceList().indexOf(deviceName);
 			Log.d(TAG,"setStar removing device " + starBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-			removeStar(staleDeviceInx);
+			removeStar(daoStage, staleDeviceInx);
 		}
 		// create star, device with init tally, tic
 		Log.d(TAG,"setStar adding starBoard for " + daoActor.getMoniker() + " on device " + deviceName);
@@ -158,8 +159,20 @@ public class DaoEpic extends DaoBase {
 		return deviceList;
 	}
 	///////////////////////////////////////////////////////////////////////////
-	public Boolean removeStar(int staleInx) {
+	public Boolean removeStar(DaoStage daoStage, int staleInx) {
 		if (staleInx < starBoardList.size()) {
+			// scan stage actor list for stale actor - if found, reset stage locus
+			String staleActor = starBoardList.get(staleInx).getStarMoniker();
+			if (daoStage != null) {
+				if (daoStage.getActorList() != null) {
+					for (String actor : daoStage.getActorList()) {
+						if (actor.equals(staleActor)) {
+							daoStage.getActorList().set(daoStage.getActorList().indexOf(staleActor), DaoDefs.INIT_STRING_MARKER);
+							Log.d(TAG, "removeStar " + staleActor + " at stage locus " + daoStage.getActorList().indexOf(staleActor));
+						}
+					}
+				}
+			}
 			starBoardList.remove(staleInx);
 			return true;
 		}

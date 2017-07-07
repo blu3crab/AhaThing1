@@ -16,7 +16,7 @@
         android:text="...content_main..." />
     <ImageView
         android:id="@+id/iv_splash"
-        android:src="@drawable/splash50portrait"
+        android:src="@drawable/splash833640"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </RelativeLayout>

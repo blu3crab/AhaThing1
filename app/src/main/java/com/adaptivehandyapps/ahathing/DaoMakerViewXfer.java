@@ -675,7 +675,7 @@ public class DaoMakerViewXfer {
         DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
         if (daoEpic != null && cbStar != null && cbStar.isChecked()) {
             // add to epic star list
-            daoEpic.setStar(activeActor, DevUtils.getDeviceName());
+            daoEpic.setStar(activeActor, DevUtils.getDeviceName(), mParent.getPlayListService().getActiveStage());
             Log.d(TAG, "toActor: new STAR " + activeActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
             // update repo
             mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
