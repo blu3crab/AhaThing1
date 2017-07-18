@@ -44,7 +44,6 @@ public class TagListAdapter extends ArrayAdapter<String> {
 
     ///////////////////////////////////////////////////////////////////////////
     public TagListAdapter(Context context, int resId, List<String> itemname, List<String> itemlabel, List<Integer> imgid, List<Integer> bgColor) {
-//        super(context, R.layout.pipe_list_item, itemname);
         super(context, resId, itemname);
         if ((itemname.size() != imgid.size()) || (itemname.size() != bgColor.size())) {
             Log.e(TAG, "Oops! TagListAdapter find mismatched list size!");

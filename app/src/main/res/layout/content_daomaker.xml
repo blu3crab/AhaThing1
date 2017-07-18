@@ -222,6 +222,197 @@
         </ListView>
     </LinearLayout>
 
+    <!-- theatre -->
+    <LinearLayout
+        android:id="@+id/ll_theatre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox android:id="@+id/cb_soundflourish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNew"
+                android:checked="false"
+                android:text="Play Flourish Sounds"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox android:id="@+id/cb_soundmusic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNew"
+                android:checked="false"
+                android:text="Play Music Sounds"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox android:id="@+id/cb_soundaction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorNew"
+                android:checked="false"
+                android:text="Play Action Sounds"/>
+
+        </LinearLayout>
+        <!-- epic list -->
+        <LinearLayout
+            android:id="@+id/ll_epics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Selected tags highlighted:" />
+
+            <ListView
+                android:id="@+id/listview_epics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorBrightGreen"
+                android:textColor="@color/colorBrightGreen"
+                >
+            </ListView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- epic -->
+    <LinearLayout
+        android:id="@+id/ll_epic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <!-- tally -->
+        <LinearLayout
+            android:id="@+id/ll_tally"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Tally ()" />
+
+            <ProgressBar
+                android:id="@+id/progress_tally"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorTagListNotSelected"
+                android:textColor="@color/colorBrightGreen"
+                android:progress="25"
+                >
+            </ProgressBar>
+        </LinearLayout>
+        <!-- tic -->
+        <LinearLayout
+            android:id="@+id/ll_tic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Tics ():" />
+
+            <ProgressBar
+                android:id="@+id/progress_tic"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorTagListNotSelected"
+                android:textColor="@color/colorBrightGreen"
+                android:progress="25"
+                >
+            </ProgressBar>
+        </LinearLayout>
+        <!-- story list -->
+        <LinearLayout
+            android:id="@+id/ll_stories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNew"
+                android:text="Selected tags highlighted:" />
+
+            <ListView
+                android:id="@+id/listview_stories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorBrightGreen"
+                android:textColor="@color/colorBrightGreen"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">

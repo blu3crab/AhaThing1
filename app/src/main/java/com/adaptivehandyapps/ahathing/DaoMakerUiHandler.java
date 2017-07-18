@@ -146,13 +146,27 @@ public class DaoMakerUiHandler {
                 mActiveTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveTheatre.getTimestamp()) + "(" + mActiveTheatre.getTimestamp().toString() + ")";
                 headline = mActiveTheatre.getHeadline();
-                mTagList = new ArrayList<>(mActiveTheatre.getTagList());
+//                mTagList = new ArrayList<>(mActiveTheatre.getTagList());
+                // xfer object to view
+                mDaoMakerViewXfer.fromTheatre(mActiveTheatre);
+
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
                 mActiveEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
                 date = TimeUtils.secsToDate(mActiveEpic.getTimestamp()) + "(" + mActiveEpic.getTimestamp().toString() + ")";
                 headline = mActiveEpic.getHeadline();
+
+                mActiveStage = null;
                 mTagList = new ArrayList<>(mActiveEpic.getTagList());
+                if (mTagList != null && mTagList.size() > 0) {
+                    mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
+                    if (mActiveStory != null) {
+                        String stageMoniker = mActiveStory.getStage();
+                        mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
+                    }
+                }
+                // xfer object to view
+                mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
@@ -194,11 +208,14 @@ public class DaoMakerUiHandler {
             // if new
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                 mActiveTheatre = new DaoTheatre();
-                mTagList = new ArrayList<>();
+//                mTagList = new ArrayList<>();
+                mDaoMakerViewXfer.fromTheatre(mActiveTheatre);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
                 mActiveEpic = new DaoEpic();
-                mTagList = new ArrayList<>();
+//                mTagList = new ArrayList<>();
+                // xfer object to view
+                mDaoMakerViewXfer.fromEpic(mActiveEpic, null);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 // create object & xfer the contents to the view
@@ -280,71 +297,73 @@ public class DaoMakerUiHandler {
         List<Integer> tagBgColorList = new ArrayList<>();
 
         if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
-            ll.setVisibility(View.VISIBLE);
-            // default list item color to not selected
-            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-            // dereference epic repo dao list
-            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
-            List<String> daoEpicMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getMonikerList();
-            if (!daoEpicMonikerList.containsAll(mTagList)) {
-                Log.e(TAG, "Oops!  Orphan Epic in Theatre, repairing...");
-                mParent.getPlayListService().repairAll(true, true);
-            }
-            // for each epic in repo
-            for (DaoEpic epic : daoEpicList) {
-                // build list of epic names, labels & images
-                tagNameList.add(epic.getMoniker());
-                if (!epic.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-                    tagLabelList.add(epic.getHeadline());
-                }
-                else {
-                    tagLabelList.add("epic headline activity here...");
-                }
-                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-                tagImageResIdList.add(imageResId);
-                // epic is in tag list - set selected color
-                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-                if (mTagList.contains(epic.getMoniker())) {
-                    // highlight list item
-                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-                }
-                tagBgColorList.add(bgColor);
-            }
+//            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
+//            ll.setVisibility(View.VISIBLE);
+//            // default list item color to not selected
+//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//            // dereference epic repo dao list
+//            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
+//            List<String> daoEpicMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getMonikerList();
+//            if (!daoEpicMonikerList.containsAll(mTagList)) {
+//                Log.e(TAG, "Oops!  Orphan Epic in Theatre, repairing...");
+//                mParent.getPlayListService().repairAll(true, true);
+//            }
+//            // for each epic in repo
+//            for (DaoEpic epic : daoEpicList) {
+//                // build list of epic names, labels & images
+//                tagNameList.add(epic.getMoniker());
+//                if (!epic.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
+//                    tagLabelList.add(epic.getHeadline());
+//                }
+//                else {
+//                    tagLabelList.add("epic headline activity here...");
+//                }
+//                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+//                tagImageResIdList.add(imageResId);
+//                // epic is in tag list - set selected color
+//                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//                if (mTagList.contains(epic.getMoniker())) {
+//                    // highlight list item
+//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+//                }
+//                tagBgColorList.add(bgColor);
+//            }
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-            // build list of story names, labels & images
-            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
-            ll.setVisibility(View.VISIBLE);
-            // default list item color to not selected
-            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-            // dereference story repo dao list
-            List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
-            List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
-            if (!daoStoryMonikerList.containsAll(mTagList)) {
-                Log.e(TAG, "Oops!  Orphan Story in Epic...");
-                mParent.getPlayListService().repairAll(true, true);
-            }
-            // for each story in repo
-            for (DaoStory story : daoStoryList) {
-                // build list of story names, labels & images
-                tagNameList.add(story.getMoniker());
-                if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-                    tagLabelList.add(story.getHeadline());
-                }
-                else {
-                    tagLabelList.add("epic headline activity here...");
-                }
-                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-                tagImageResIdList.add(imageResId);
-                // story is in tag list - set selected color
-                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-                if (mTagList.contains(story.getMoniker())) {
-                    // highlight list item
-                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-                }
-                tagBgColorList.add(bgColor);
-            }
+//            // build list of story names, labels & images
+//            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
+//            ll.setVisibility(View.VISIBLE);
+//            // default list item color to not selected
+//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//            // dereference story repo dao list
+//            List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
+//            List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
+//            if (!daoStoryMonikerList.containsAll(mTagList)) {
+//                Log.e(TAG, "Oops!  Orphan Story in Epic...");
+//                mParent.getPlayListService().repairAll(true, true);
+//            }
+//            // for each story in repo
+//            for (DaoStory story : daoStoryList) {
+//                // build list of story names, labels & images
+//                tagNameList.add(story.getMoniker());
+//                if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
+//                    tagLabelList.add(story.getHeadline());
+//                }
+//                else {
+//                    tagLabelList.add("epic headline activity here...");
+//                }
+//                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+//                tagImageResIdList.add(imageResId);
+//                // story is in tag list - set selected color
+//                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//                if (mTagList.contains(story.getMoniker())) {
+//                    // highlight list item
+//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+//                }
+//                tagBgColorList.add(bgColor);
+//            }
+            return true;
         }
         else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
             // no tag list

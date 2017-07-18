@@ -38,7 +38,8 @@ public class DaoEpic extends DaoBase {
 	public static final String EPIC_TYPE_COOPERATE = "Cooperate";
 
 	public static final Integer EPIC_TALLY_LIMIT_DEFAULT = 24;
-    public static final Integer EPIC_TIC_LIMIT_DEFAULT = 12;
+	public static final Integer EPIC_TIC_LIMIT_MAX = 96;
+	public static final Integer EPIC_TIC_LIMIT_DEFAULT = 12;
     public static final float EPIC_PERCENT_LIMIT_DEFAULT = 0.2f;
 
 	@SerializedName("epicType")			// determines how to tally: SumWithTic if sum>limit || tic>limit -> true
@@ -75,11 +76,8 @@ public class DaoEpic extends DaoBase {
 			String reserve1,
 			String epicType,
 			List<DaoEpicStarBoard> starBoardList,
-			List<String> deviceList,
 			Integer tallyLimit,
-			List<Integer> tallyList,
 			Integer ticLimit,
-			List<Integer> ticList,
             String reserve2
     ) {
 		super(moniker, headline, timestamp, tagList, reserve1);
@@ -90,7 +88,6 @@ public class DaoEpic extends DaoBase {
 		this.ticLimit = ticLimit;
 
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
-
 	}
 
 	///////////////////////////////////////////////////////////////////////////

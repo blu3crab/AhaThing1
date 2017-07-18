@@ -28,6 +28,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +53,20 @@ public class DaoMakerViewXfer {
 
     private ContentFragment mParent;
     private View mRootView;
-
+    // theatre controls
+    private TagListAdapter mEpicListAdapter = null;
+    private List<String> mEpicList;
+    private CheckBox mCheckFlourishSound;
+    private CheckBox mCheckMusicSound;
+    private CheckBox mCheckActionSound;
+    // epic controls
+    private TagListAdapter mStoryListAdapter = null;
+    private List<String> mStoryList;
+    private ProgressBar mTallyProgress;
+    private int mMaxTally = 64;
+    private ProgressBar mTicProgress;
+    private int mMaxTic = 128;
+    // story controls
     private ArrayAdapter<String> mStageListAdapter = null;
     private Spinner mSpinnerStages;
     private ArrayAdapter<String> mPreReqListAdapter = null;
@@ -64,7 +79,7 @@ public class DaoMakerViewXfer {
     private Spinner mSpinnerOutcomes;
     private ArrayAdapter<String> mPostOpListAdapter = null;
     private Spinner mSpinnerPostOps;
-
+    // stage controls
     private ArrayAdapter<String> mRingTypeListAdapter = null;
     private Spinner mSpinnerRingType;
     private ArrayAdapter<String> mActionTypeListAdapter = null;
@@ -168,6 +183,220 @@ public class DaoMakerViewXfer {
         });
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean fromTheatre(DaoTheatre daoTheatre) {
+
+        // set theatre views visible
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_theatre);
+        ll.setVisibility(View.VISIBLE);
+
+        // set checkboxes for flourish, music & action sounds
+        mCheckFlourishSound = (CheckBox) mRootView.findViewById(R.id.cb_soundflourish);
+        mCheckFlourishSound.setChecked(daoTheatre.getSoundFlourish());
+        mCheckMusicSound = (CheckBox) mRootView.findViewById(R.id.cb_soundmusic);
+        mCheckMusicSound.setChecked(daoTheatre.getSoundMusic());
+        mCheckActionSound = (CheckBox) mRootView.findViewById(R.id.cb_soundaction);
+        mCheckActionSound.setChecked(daoTheatre.getSoundAction());
+
+        // default list item color to not selected
+        int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+        // check that all epics exist
+        mEpicList = new ArrayList<>(daoTheatre.getTagList());
+        List<String> daoEpicMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getMonikerList();
+        if (!daoEpicMonikerList.containsAll(mEpicList)) {
+            Log.e(TAG, "Oops!  Orphan Epic in Theatre...");
+            mParent.getPlayListService().repairAll(true, true);
+        }
+
+        // epic list adapter settings
+        List<String> tagNameList = new ArrayList<>();
+        List<String> tagLabelList = new ArrayList<>();
+        List<Integer> tagImageResIdList = new ArrayList<>();
+        List<Integer> tagBgColorList = new ArrayList<>();
+
+        // dereference epic repo dao list of all epics
+        List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
+        // for each Epic in repo
+        for (DaoEpic epic : daoEpicList) {
+            // build list of epic names, labels & images
+            tagNameList.add(epic.getMoniker());
+            if (!epic.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
+                tagLabelList.add(epic.getHeadline());
+            }
+            else {
+                tagLabelList.add("epic headline activity here...");
+            }
+            int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+            tagImageResIdList.add(imageResId);
+            // epic is in tag list - set selected color
+            bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+            if (mEpicList.contains(epic.getMoniker())) {
+                // highlight list item
+                bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+            }
+            tagBgColorList.add(bgColor);
+        }
+
+        // instantiate list adapter
+        int resId = R.layout.tag_list_item;
+        mEpicListAdapter =
+                new TagListAdapter(mRootView.getContext(),
+                        resId,
+                        tagNameList,
+                        tagLabelList,
+                        tagImageResIdList,
+                        tagBgColorList);
+
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_epics);
+        if (mEpicListAdapter != null && lv != null) {
+            lv.setAdapter(mEpicListAdapter);
+        } else {
+            Log.e(TAG, "NULL mEpicListAdapter? " + mEpicListAdapter + ", R.id.listview? " + lv);
+            return false;
+        }
+        // establish listener
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3)
+            {
+                String value = (String)adapter.getItemAtPosition(position);
+                Log.d(TAG,"handleTagList item " + value + " at position " + position);
+                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+
+                // if taglist contains selection
+                if (mEpicList.contains(value)) {
+                    // find epic in taglist & remove
+                    int i = mEpicList.indexOf(value);
+                    mEpicList.remove(i);
+                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
+                }
+                else {
+                    // add selection to taglist
+                    mEpicList.add(value);
+                    // set color selected
+                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mEpicList.size()-1));
+                }
+
+                v.setBackgroundColor(bgColor);
+            }
+        });
+
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean fromEpic(DaoEpic daoEpic, DaoStage daoStage) {
+
+        List<String> tagNameList = new ArrayList<>();
+        List<String> tagLabelList = new ArrayList<>();
+        List<Integer> tagImageResIdList = new ArrayList<>();
+        List<Integer> tagBgColorList = new ArrayList<>();
+
+        // set epic views visible
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
+        ll.setVisibility(View.VISIBLE);
+
+        // tally progress
+        mTallyProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tally);
+        if (daoStage != null) mMaxTally = daoStage.getLocusList().locii.size();
+        int progress = (int)(((float)daoEpic.getTallyLimit()/(float)mMaxTally)*100.0);
+        Log.d(TAG,"Tally progress " + progress + " for limit/max (" + daoEpic.getTallyLimit() + "/" + mMaxTally + ")");
+//        mTallyProgress.setProgress(0);
+        mTallyProgress.setMax(mMaxTally);
+        mTallyProgress.setProgress(progress);
+        // tic progress
+        mTicProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tic);
+        progress = (int)(((float)daoEpic.getTicLimit()/(float)mMaxTic)*100.0);
+        Log.d(TAG,"Tic progress " + progress + " for limit/max (" + daoEpic.getTicLimit() + "/" + mMaxTic + ")");
+//        mTicProgress.setProgress(0);
+        mTicProgress.setMax(mMaxTic);
+        mTicProgress.setProgress(progress);
+
+        // default list item color to not selected
+        int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+        // stories list
+        mStoryList = new ArrayList<>(daoEpic.getTagList());
+        // check that all stories in epic exist
+        List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
+        if (!daoStoryMonikerList.containsAll(mStoryList)) {
+            Log.e(TAG, "Oops!  Orphan Story in Epic...");
+            mParent.getPlayListService().repairAll(true, true);
+        }
+        // dereference story repo dao list - all stories
+        List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
+        // for each story in repo
+        for (DaoStory story : daoStoryList) {
+            // build list of story names, labels & images
+            tagNameList.add(story.getMoniker());
+            if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
+                tagLabelList.add(story.getHeadline());
+            }
+            else {
+                tagLabelList.add("epic headline activity here...");
+            }
+            int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+            tagImageResIdList.add(imageResId);
+            // story is in tag list - set selected color
+            bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+            if (mStoryList.contains(story.getMoniker())) {
+                // highlight list item
+                bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+            }
+            tagBgColorList.add(bgColor);
+        }
+
+        // instantiate list adapter
+        int resId = R.layout.tag_list_item;
+        mStoryListAdapter =
+                new TagListAdapter(mRootView.getContext(),
+                        resId,
+                        tagNameList,
+                        tagLabelList,
+                        tagImageResIdList,
+                        tagBgColorList);
+
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stories);
+        if (mStoryListAdapter != null && lv != null) {
+            lv.setAdapter(mStoryListAdapter);
+        } else {
+            Log.e(TAG, "NULL mStoryListAdapter? " + mStoryListAdapter + ", R.id.listview? " + lv);
+            return false;
+        }
+        // establish listener
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3)
+            {
+                String value = (String)adapter.getItemAtPosition(position);
+                Log.d(TAG,"handleTagList item " + value + " at position " + position);
+                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+
+                // if taglist contains selection
+                if (mStoryList.contains(value)) {
+                    // find epic in taglist & remove
+                    int i = mStoryList.indexOf(value);
+                    mStoryList.remove(i);
+                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
+                }
+                else {
+                    // add selection to taglist
+                    mStoryList.add(value);
+                    // set color selected
+                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mStoryList.size()-1));
+                }
+
+                v.setBackgroundColor(bgColor);
+            }
+        });
+
+        return true;
+    }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromStory(DaoStory daoStory) {
 
@@ -536,8 +765,17 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeTheatre.setMoniker(editedMoniker);
         activeTheatre.setHeadline(headline);
-        activeTheatre.setTagList(tagList);
+//        activeTheatre.setTagList(tagList);
+        activeTheatre.setTagList(mEpicList);
         mParent.getPlayListService().setActiveTheatre(activeTheatre);
+        // set checkboxes for flourish, music & action sounds
+        mCheckFlourishSound = (CheckBox) mRootView.findViewById(R.id.cb_soundflourish);
+        activeTheatre.setSoundFlourish(mCheckFlourishSound.isChecked());
+        mCheckMusicSound = (CheckBox) mRootView.findViewById(R.id.cb_soundmusic);
+        activeTheatre.setSoundMusic(mCheckMusicSound.isChecked());
+        mCheckActionSound = (CheckBox) mRootView.findViewById(R.id.cb_soundaction);
+        activeTheatre.setSoundAction(mCheckActionSound.isChecked());
+
         // update repo
         mParent.getRepoProvider().getDalTheatre().update(activeTheatre, true);
         return true;
@@ -565,8 +803,21 @@ public class DaoMakerViewXfer {
         // update with edited values
         activeEpic.setMoniker(editedMoniker);
         activeEpic.setHeadline(headline);
-        activeEpic.setTagList(tagList);
+//        activeEpic.setTagList(tagList);
+        activeEpic.setTagList(mStoryList);
         mParent.getPlayListService().setActiveEpic(activeEpic);
+        // set tally progress
+        mTallyProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tally);
+        int progress = mTallyProgress.getProgress();
+        activeEpic.setTallyLimit(progress);
+        Log.d(TAG,"Tally progress " + progress + " for limit/max (" + activeEpic.getTallyLimit() + "/" + mMaxTally + ")");
+        // tic progress
+        mTicProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tic);
+        progress = mTicProgress.getProgress();
+        activeEpic.setTicLimit(progress);
+        Log.d(TAG,"Tic progress " + progress + " for limit/max (" + activeEpic.getTicLimit() + "/" + mMaxTic + ")");
+        mTicProgress.setProgress(progress);
+
         // update repo
         mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
         return true;
