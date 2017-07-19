@@ -29,7 +29,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,8 +48,13 @@ import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DaoMakerViewXfer {
+public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = DaoMakerViewXfer.class.getSimpleName();
+
+    private static final String TALLY_LIMIT_TEXT = "Tally Limit ";
+    private static final String TIC_LIMIT_TEXT   = "Tic Limit ";
+    private static final int MAX_TALLY_DEFAULT = 64;
+    private static final int MAX_TIC_DEFAULT = 128;
 
     private ContentFragment mParent;
     private View mRootView;
@@ -62,10 +67,14 @@ public class DaoMakerViewXfer {
     // epic controls
     private TagListAdapter mStoryListAdapter = null;
     private List<String> mStoryList;
-    private ProgressBar mTallyProgress;
-    private int mMaxTally = 64;
-    private ProgressBar mTicProgress;
-    private int mMaxTic = 128;
+    private SeekBar mTallySeekbar;
+    private TextView mTvTally;
+    private int mTallyMax = MAX_TALLY_DEFAULT;
+    private int mTallyProgress = MAX_TALLY_DEFAULT/2;
+    private SeekBar mTicSeekbar;
+    private TextView mTvTic;
+    private int mTicMax = MAX_TIC_DEFAULT;
+    private int mTicProgress = MAX_TIC_DEFAULT/2;
     // story controls
     private ArrayAdapter<String> mStageListAdapter = null;
     private Spinner mSpinnerStages;
@@ -300,20 +309,30 @@ public class DaoMakerViewXfer {
         ll.setVisibility(View.VISIBLE);
 
         // tally progress
-        mTallyProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tally);
-        if (daoStage != null) mMaxTally = daoStage.getLocusList().locii.size();
-        int progress = (int)(((float)daoEpic.getTallyLimit()/(float)mMaxTally)*100.0);
-        Log.d(TAG,"Tally progress " + progress + " for limit/max (" + daoEpic.getTallyLimit() + "/" + mMaxTally + ")");
-//        mTallyProgress.setProgress(0);
-        mTallyProgress.setMax(mMaxTally);
-        mTallyProgress.setProgress(progress);
+        mTallySeekbar = (SeekBar) mRootView.findViewById(R.id.seekbar_tally);
+        if (daoStage != null) mTallyMax = daoStage.getLocusList().locii.size();
+//        mTallyProgress = (int)(((float)daoEpic.getTallyLimit()/(float) mTallyMax)*100.0);
+        mTallyProgress = daoEpic.getTallyLimit();
+        Log.d(TAG,"Tally progress " + mTallyProgress + " for limit/max (" + daoEpic.getTallyLimit() + "/" + mTallyMax + ")");
+        mTallySeekbar.setMax(mTallyMax);
+        mTallySeekbar.setProgress(mTallyProgress);
+        mTvTally = (TextView) mRootView.findViewById(R.id.textview_tally);
+        String label_tally = TALLY_LIMIT_TEXT + mTallyProgress;
+        mTvTally.setText(label_tally);
+        // establish listener
+        mTallySeekbar.setOnSeekBarChangeListener(this);
         // tic progress
-        mTicProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tic);
-        progress = (int)(((float)daoEpic.getTicLimit()/(float)mMaxTic)*100.0);
-        Log.d(TAG,"Tic progress " + progress + " for limit/max (" + daoEpic.getTicLimit() + "/" + mMaxTic + ")");
-//        mTicProgress.setProgress(0);
-        mTicProgress.setMax(mMaxTic);
-        mTicProgress.setProgress(progress);
+        mTicSeekbar = (SeekBar) mRootView.findViewById(R.id.seekbar_tic);
+//        mTicProgress = (int)(((float)daoEpic.getTicLimit()/(float) mTicMax)*100.0);
+        mTicProgress = daoEpic.getTicLimit();
+        Log.d(TAG,"Tic progress " + mTicProgress + " for limit/max (" + daoEpic.getTicLimit() + "/" + mTicMax + ")");
+        mTicSeekbar.setMax(mTicMax);
+        mTicSeekbar.setProgress(mTicProgress);
+        mTvTic = (TextView) mRootView.findViewById(R.id.textview_tic);
+        String label_tic = TIC_LIMIT_TEXT + mTicProgress;
+        mTvTic.setText(label_tic);
+        // establish listener
+        mTicSeekbar.setOnSeekBarChangeListener(this);
 
         // default list item color to not selected
         int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
@@ -396,6 +415,35 @@ public class DaoMakerViewXfer {
         });
 
         return true;
+    }
+    @Override
+    public void onProgressChanged(SeekBar seekbar, int progress,
+                                  boolean fromUser) {
+        Log.d(TAG, " onProgressChanged progress " + progress);
+        if (seekbar == mTallySeekbar) {
+            mTallyProgress = progress;
+            Log.d(TAG, " onProgressChanged TALLY progress " + mTallyProgress);
+            String label_tally = TALLY_LIMIT_TEXT + mTallyProgress;
+            mTvTally.setText(label_tally);
+
+        }
+        else if (seekbar == mTicSeekbar) {
+            mTicProgress = progress;
+            Log.d(TAG, " onProgressChanged TIC progress " + mTicProgress);
+            String label_tic = TIC_LIMIT_TEXT + mTicProgress;
+            mTvTic.setText(label_tic);
+        }
+        else {
+            Log.e(TAG, "Oops! onProgressChanged UNKNOWN seekbar " + seekbar.toString());
+        }
+    }
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        Log.d(TAG, " onStartTrackingTouch... ");
+    }
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        Log.d(TAG, " onStopTrackingTouch  ");
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromStory(DaoStory daoStory) {
@@ -807,16 +855,9 @@ public class DaoMakerViewXfer {
         activeEpic.setTagList(mStoryList);
         mParent.getPlayListService().setActiveEpic(activeEpic);
         // set tally progress
-        mTallyProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tally);
-        int progress = mTallyProgress.getProgress();
-        activeEpic.setTallyLimit(progress);
-        Log.d(TAG,"Tally progress " + progress + " for limit/max (" + activeEpic.getTallyLimit() + "/" + mMaxTally + ")");
+        activeEpic.setTallyLimit(mTallyProgress);
         // tic progress
-        mTicProgress = (ProgressBar) mRootView.findViewById(R.id.progress_tic);
-        progress = mTicProgress.getProgress();
-        activeEpic.setTicLimit(progress);
-        Log.d(TAG,"Tic progress " + progress + " for limit/max (" + activeEpic.getTicLimit() + "/" + mMaxTic + ")");
-        mTicProgress.setProgress(progress);
+        activeEpic.setTicLimit(mTicProgress);
 
         // update repo
         mParent.getRepoProvider().getDalEpic().update(activeEpic, true);

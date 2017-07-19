@@ -38,15 +38,10 @@ import java.util.List;
 public class StageManager {
     private static final String TAG = StageManager.class.getSimpleName();
 
-//    private StageViewController mStageViewController;
-
     private Context mContext;
     private MainActivity mParent;
 
     ///////////////////////////////////////////////////////////////////////////
-    private PlayListService mPlayListService;
-    private RepoProvider mRepoProvider;
-
     // touch position
     private float mTouchX = 0.0f;
     private float mTouchY = 0.0f;
@@ -57,14 +52,33 @@ public class StageManager {
 
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
-    public PlayListService getPlayListService() {
+    private PlayListService getPlayListService() {
         return mParent.getPlayListService();
     }
-    public RepoProvider getRepoProvider() {
+    private RepoProvider getRepoProvider() {
         return mParent.getRepoProvider();
     }
-    public SoundManager getSoundManager() {
+    private SoundManager getSoundManager() {
         return mParent.getSoundManager();
+    }
+
+    private Boolean isSoundFlourish() {
+        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+            return getPlayListService().getActiveTheatre().getSoundFlourish();
+        }
+        return false;
+    }
+    private Boolean isSoundMusic() {
+        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+            return getPlayListService().getActiveTheatre().getSoundMusic();
+        }
+        return false;
+    }
+    private Boolean isSoundAction() {
+        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+            return getPlayListService().getActiveTheatre().getSoundAction();
+        }
+        return false;
     }
 
     public float getTouchX() {
@@ -117,7 +131,7 @@ public class StageManager {
         mParent = (MainActivity) context;
         if (mParent != null) {
             Log.v(TAG, "StageManager ready with parent " + mParent.toString() + "...");
-            if (getSoundManager() != null) {
+            if (getSoundManager() != null && isSoundMusic()) {
                 getSoundManager().startSound(
                         getSoundManager().getMpMusic(),
                         SoundManager.SOUND_VOLUME_QTR,
@@ -125,7 +139,7 @@ public class StageManager {
                         SoundManager.SOUND_START_TIC_NADA,
                         SoundManager.SOUND_START_TIC_NADA);
             }
-            else Log.e(TAG, "Oops!  SoundManager NULL?");
+//            else Log.e(TAG, "Oops!  SoundManager NULL?");
         }
         else {
             Log.e(TAG, "Oops!  StageManager Parent context (MainActivity) NULL!");
@@ -137,7 +151,7 @@ public class StageManager {
     public Boolean onAction(StageViewRing stageViewRing, String action) {
         Log.d(TAG, "onAction action " + action);
         // if music not playing, start background music
-        if (!getSoundManager().getMpMusic().isPlaying()) {
+        if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
             getSoundManager().startSound(
                     getSoundManager().getMpMusic(),
                     SoundManager.SOUND_VOLUME_QTR,
@@ -152,6 +166,7 @@ public class StageManager {
 
             // if prereq satisfied
             if (isPreReqSatisfied(stageViewRing)) {
+//            if (isSoundMusic())
 //                getSoundManager().pauseSound(
 //                        getSoundManager().getMpMusic(),
 //                        SoundManager.SOUND_VOLUME_HALF,
@@ -159,37 +174,39 @@ public class StageManager {
 //                        SoundManager.SOUND_START_TIC_NADA,
 //                        SoundManager.SOUND_START_TIC_NADA);
 
-                // execute outcome
-                switch (action) {
-                    case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpTap(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_SHORT,
-                                SoundManager.SOUND_START_TIC_SHORT);
-                        break;
-                    case DaoAction.ACTION_TYPE_LONG_PRESS:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpPress(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_MEDIUM,
-                                SoundManager.SOUND_START_TIC_MEDIUM);
-                        break;
-                    case DaoAction.ACTION_TYPE_FLING:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpFling(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_LONG,
-                                SoundManager.SOUND_START_TIC_LONG);
-                        break;
-                    case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                        break;
-                    default:
-                        Log.e(TAG, "Oops! Unknown action? " + action);
-                        return false;
+                if (isSoundAction()) {
+                    // execute outcome
+                    switch (action) {
+                        case DaoAction.ACTION_TYPE_SINGLE_TAP:
+                            getSoundManager().startSound(
+                                    getSoundManager().getMpTap(),
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_START_TIC_SHORT,
+                                    SoundManager.SOUND_START_TIC_SHORT);
+                            break;
+                        case DaoAction.ACTION_TYPE_LONG_PRESS:
+                            getSoundManager().startSound(
+                                    getSoundManager().getMpPress(),
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_START_TIC_MEDIUM,
+                                    SoundManager.SOUND_START_TIC_MEDIUM);
+                            break;
+                        case DaoAction.ACTION_TYPE_FLING:
+                            getSoundManager().startSound(
+                                    getSoundManager().getMpFling(),
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_VOLUME_FULL,
+                                    SoundManager.SOUND_START_TIC_LONG,
+                                    SoundManager.SOUND_START_TIC_LONG);
+                            break;
+                        case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+                            break;
+                        default:
+                            Log.e(TAG, "Oops! Unknown action? " + action);
+                            return false;
+                    }
                 }
 
                 // increment active actors star board tic
@@ -225,7 +242,7 @@ public class StageManager {
                     else Log.e(TAG, "Oops! Active actor NULL! ");
                 }
             }
-            else {
+            else if (isSoundFlourish()){
                 // play uh-uh sound
                 getSoundManager().startSound(
                         getSoundManager().getMpUhuh(),
@@ -234,6 +251,7 @@ public class StageManager {
                         SoundManager.SOUND_START_TIC_NADA,
                         SoundManager.SOUND_START_TIC_NADA);
             }
+//            if (isSoundMusic())
 //            // resume background music sound
 //            getSoundManager().resumeSound(
 //                    getSoundManager().getMpMusic(),

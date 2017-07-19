@@ -201,21 +201,27 @@ public class DaoEpic extends DaoBase {
         return false;
     }
 	public Boolean isEpicTallyAtLimit() {
-		for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
-			// if epic tally for any star > limit
-			if (daoEpicStarBoard.getTally() > getTallyLimit()) {
-				// return tally at limit
-				return true;
+		// if tally limit defined
+		if (getTallyLimit() > 0) {
+			for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
+				// if epic tally for any star > limit
+				if (daoEpicStarBoard.getTally() > getTallyLimit()) {
+					// return tally at limit
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 	public Boolean isEpicTicAtLimit() {
-		for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
-			// if epic tic for any star > limit
-			if (daoEpicStarBoard.getTic() > getTicLimit()) {
-				// return tic at limit
-				return true;
+		// if tic limit defined
+		if (getTicLimit() > 0) {
+			for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
+				// if epic tic for any star > limit
+				if (daoEpicStarBoard.getTic() > getTicLimit()) {
+					// return tic at limit
+					return true;
+				}
 			}
 		}
 		return false;
