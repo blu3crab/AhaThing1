@@ -480,13 +480,13 @@ public class StageViewController extends View implements
 //                ", \n(1) raw X,Y " + event1.getRawX() + ", " + event1.getRawY() +
 //                ", \n(2) raw X,Y " + event2.getRawX() + ", " + event2.getRawY() +
 //                ", \ndelta raw X,Y " + (event2.getRawX() - event1.getRawX()) + ", " + (event2.getRawY() - event1.getRawY()) );
-//        plotPath(velocityX, velocityY, event1.getRawX(), event1.getRawY(), event2.getRawX(), event2.getRawY());
+//        toggleActorPath(velocityX, velocityY, event1.getRawX(), event1.getRawY(), event2.getRawX(), event2.getRawY());
         Log.d(TAG, "onFling plotpath (" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
                 "\nvelocity X,Y " + velocityX + ", " + velocityY +
                 ", \n(1) raw X,Y " + event1.getX() + ", " + event1.getY() +
                 ", \n(2) raw X,Y " + event2.getX() + ", " + event2.getY() +
                 ", \ndelta raw X,Y " + (event2.getX() - event1.getX()) + ", " + (event2.getY() - event1.getY()) );
-//        getStageManager().plotPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
+//        getStageManager().toggleActorPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
 
         setVelocityX(velocityX);
         setVelocityY(velocityY);
@@ -518,13 +518,31 @@ public class StageViewController extends View implements
 //                "\ndistance X,Y " + distX + ", " + distY);
         Log.d(TAG, "onScroll(" + StringUtils.actionToString(event1.getActionMasked()) + "," + StringUtils.actionToString(event2.getActionMasked()) + "): " +
                 "\ndistance X,Y " + distX + ", " + distY);
+        Log.d(TAG, "onScroll event1(" + event1.getX() + "," + event1.getY() + ") event2(" + event2.getX() + "," + event2.getY() + ")");
         if (event1.getPointerCount() > 1) {
             Log.d(TAG, "onScroll event1 multi-touch? " + event1.getPointerCount());
         }
         if (event2.getPointerCount() > 1) {
             Log.d(TAG, "onScroll event2 multi-touch? " + event2.getPointerCount());
         }
+        mStageViewRing.shiftFocus(distX/2, distY/2);
+        mActiveStage = getPlayListService().getActiveStage();
+        if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+            Log.v(TAG, "onScroll stage type: " + mActiveStage.getStageType());
+            DaoLocusList daoLocusList = mActiveStage.getLocusList();
+            // transform locus to device coords
+            if (mStageViewRing != null) {
+                mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
+            } else {
+                Log.e(TAG, "onScroll finds NULL StageViewRing ");
+            }
+        } else {
+            if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
+            else Log.e(TAG, "onScroll UNKNOWN stage type: " + mActiveStage.getStageType());
+            return false;
+        }
 
+        invalidate();
         return true;
     }
 

@@ -472,20 +472,25 @@ public class StageManager {
             case DaoOutcome.OUTCOME_TYPE_TOGGLE:
                 // toggle selection
                 if (stageViewRing == null) return false;
-                toggleSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, false);
+                toggleActorSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, false);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_PLUS:
                 if (stageViewRing == null) return false;
                 // toggle selection plus adjacent
-                toggleSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, true);
+                toggleActorSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, true);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_PATH:
                 if (stageViewRing == null) return false;
                 // toggle selection plus adjacent
-                plotPath(stageViewRing,
+                toggleActorPath(stageViewRing,
                         getVelocityX(), getVelocityY(),
                         getEvent1().getX(), getEvent1().getY(),
                         getEvent2().getX(), getEvent2().getY());
+                return true;
+            case DaoOutcome.OUTCOME_TYPE_TOGGLE_PROP:
+                // toggle prop at selection
+                if (stageViewRing == null) return false;
+                togglePropSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_RESET_EPIC:
                 // clear actors on stage
@@ -498,8 +503,37 @@ public class StageManager {
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toggleSelection(StageViewRing stageViewRing, float touchX, float touchY, float z, Boolean plus) {
-        Log.d(TAG, "toggleSelection touch (x,y) " + touchX + ", " + touchY);
+    public Boolean togglePropSelection(StageViewRing stageViewRing, float touchX, float touchY, float z) {
+        Log.d(TAG, "togglPropSelection touch (x,y) " + touchX + ", " + touchY);
+        DaoStage daoStage = getPlayListService().getActiveStage();
+        if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+            if (stageViewRing != null) {
+                // get ring index
+                int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
+                // if touch found
+                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
+                        Log.d(TAG, "togglPropSelection (" + selectIndex + ") for prop " + daoStage.getPropList().get(selectIndex));
+                        if (!daoStage.togglePropList(DaoStage.PROP_TYPE_FORBIDDEN, selectIndex)) {
+                            Log.e(TAG, "Ooops! toggleActorSelection UNKNOWN stage type? " + daoStage.getStageType());
+                        }
+                        // update object
+                        getRepoProvider().getDalStage().update(daoStage, true);
+                }
+            }
+            else {
+                Log.e(TAG,"Oops! stageViewRing NULL...");
+            }
+        }
+        else {
+            if (daoStage == null) Log.e(TAG,"Oops! No active stage...");
+            else Log.e(TAG, "toggleActorSelection UNKNOWN stage type: " + daoStage.getStageType());
+            return false;
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean toggleActorSelection(StageViewRing stageViewRing, float touchX, float touchY, float z, Boolean plus) {
+        Log.d(TAG, "toggleActorSelection touch (x,y) " + touchX + ", " + touchY);
 //        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
@@ -509,9 +543,9 @@ public class StageManager {
                 // if touch found
                 if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
                     if (getPlayListService().getActiveActor() != null) {
-                        Log.d(TAG, "toggleSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
+                        Log.d(TAG, "toggleActorSelection (" + selectIndex + ") for actor " + daoStage.getActorList().get(selectIndex));
                         if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), selectIndex)) {
-                            Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
+                            Log.e(TAG, "Ooops! toggleActorSelection UNKNOWN stage type? " + daoStage.getStageType());
                         }
                         // if selecting plus ring
                         if (plus) {
@@ -520,7 +554,7 @@ public class StageManager {
                                 // toggle each rect in ring list
                                 for (Integer i : ringIndexList) {
                                     if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), i)) {
-                                        Log.e(TAG, "Ooops! toggleSelection UNKNOWN stage type? " + daoStage.getStageType());
+                                        Log.e(TAG, "Ooops! toggleActorSelection UNKNOWN stage type? " + daoStage.getStageType());
                                     }
                                 }
                             } else {
@@ -541,52 +575,52 @@ public class StageManager {
         }
         else {
             if (daoStage == null) Log.e(TAG,"Oops! No active stage...");
-            else Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
+            else Log.e(TAG, "toggleActorSelection UNKNOWN stage type: " + daoStage.getStageType());
             return false;
         }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean plotPath(StageViewRing stageViewRing, float velocityX, float velocityY,
-                             float event1X, float event1Y, float event2X, float event2Y) {
+    public Boolean toggleActorPath(StageViewRing stageViewRing, float velocityX, float velocityY,
+                                   float event1X, float event1Y, float event2X, float event2Y) {
 
         // sum velocity ignoring direction (sign)
         float velocity = Math.abs(velocityX) + Math.abs(velocityY);
-        Log.d(TAG, "plotPath velocity sum = " + velocity);
+        Log.d(TAG, "toggleActorPath velocity sum = " + velocity);
         // set # intervals based on velocity
         float intervalCount = velocity / 1000.0f;
-        Log.d(TAG, "plotPath intervalCount = " + intervalCount);
+        Log.d(TAG, "toggleActorPath intervalCount = " + intervalCount);
         // find angle of fling
         double deltaX = event2X - event1X;
         double deltaY =  -(event2Y - event1Y);
         double thetaRad = Math.atan2(deltaY, deltaX);
         double angle = thetaRad * (180.0f/Math.PI);
-        Log.d(TAG, "plotPath thetaRad = " + thetaRad + ", angle = " + angle);
+        Log.d(TAG, "toggleActorPath thetaRad = " + thetaRad + ", angle = " + angle);
 
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && stageViewRing != null) {
             // get ring index
-            Log.d(TAG, "plotPath origin X, Y " + event1X + ", " + event1Y);
+            Log.d(TAG, "toggleActorPath origin X, Y " + event1X + ", " + event1Y);
             int ringIndex = stageViewRing.getRingIndex(event1X, event1Y, 0.0f);
             // toggle initial position
             if (ringIndex != DaoDefs.INIT_INTEGER_MARKER) {
                 if (getPlayListService().getActiveActor() != null) {
                     if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
-                        Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
+                        Log.e(TAG, "Ooops! toggleActorPath UNKNOWN stage type? " + daoStage.getStageType());
                     }
                     // for each interval, generate point along angle
                     for (int i = 1; i < intervalCount; i++) {
                         int prevRingIndex = ringIndex;
                         float x = (float) (event1X + ((StageModelRing.LOCUS_DIST * i) * Math.cos(thetaRad)));
                         float y = (float) (event1Y - ((StageModelRing.LOCUS_DIST * i) * Math.sin(thetaRad)));
-                        Log.d(TAG, "plotPath toggle for interval " + i + " at X, Y " + x + ", " + y);
+                        Log.d(TAG, "toggleActorPath toggle for interval " + i + " at X, Y " + x + ", " + y);
                         // find ring index at interval position
                         ringIndex = stageViewRing.getRingIndex(x, y, 0.0f);
                         // if not previously toggled
                         if (ringIndex != DaoDefs.INIT_INTEGER_MARKER && ringIndex != prevRingIndex) {
                             // toggle at interval position
                             if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), ringIndex)) {
-                                Log.e(TAG, "Ooops! plotPath UNKNOWN stage type? " + daoStage.getStageType());
+                                Log.e(TAG, "Ooops! toggleActorPath UNKNOWN stage type? " + daoStage.getStageType());
                             }
                         }
                     }
@@ -597,7 +631,7 @@ public class StageManager {
                     Log.e(TAG, "Oops!  no active actor...");
                 }
             } else {
-                Log.e(TAG, "plotPath touch out of bounds...");
+                Log.e(TAG, "toggleActorPath touch out of bounds...");
             }
         }
         else {

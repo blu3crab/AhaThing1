@@ -255,6 +255,8 @@ public class PlayListService extends Service {
         return defined;
     }
     public Boolean updateActiveEpic(DaoEpic dao) {
+        // TODO: refactor conditional for clarity
+        // TODO: add conditional for epic if undefined when active theatre set
         // if this object matches prefs or no prefs
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
         if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
@@ -297,7 +299,7 @@ public class PlayListService extends Service {
             defined = true;
             // extract moniker
             moniker = activeDao.getMoniker();
-            // if active stage undefined or story's stage defined && not active stage, set active stage
+            // if active stage undefined or story's stage defined && not active stage
             if (getActiveStage() == null ||
                (!activeDao.getStage().equals(getActiveStage()))) {
                 // set active stage
@@ -314,9 +316,14 @@ public class PlayListService extends Service {
         return defined;
     }
     public Boolean updateActiveStory(DaoStory dao) {
-        // if this object matches prefs or no prefs
+        // TODO: refactor conditional for clarity
+        // if this object matches prefs or no prefs or
+        // if active epic story list contains updated story && not the current active story
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STORY_KEY);
-        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
+        if ((prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) ||
+                (getActiveEpic() != null && getActiveEpic().getTagList().contains(dao.getMoniker()) &&
+                     (getActiveStory() == null ||
+                     (getActiveStory() != null && !getActiveEpic().getTagList().contains(getActiveStory().getMoniker()))))) {
             // set active to updated object
             setActiveStory(dao);
             return true;
@@ -372,9 +379,14 @@ public class PlayListService extends Service {
 
     }
     public Boolean updateActiveStage(DaoStage dao) {
+        // TODO: refactor conditional for clarity
         // if this object matches prefs or no prefs
+        // if active stage does not matches updating stage && does match the current active story stage
         String prefsActiveDao = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_STAGE_KEY);
-        if (prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) {
+        if ((prefsActiveDao.equals(dao.getMoniker()) || prefsActiveDao.equals(DaoDefs.INIT_STRING_MARKER)) ||
+            (getActiveStage() != null && !getActiveStage().equals(dao.getMoniker()) &&
+                    (getActiveStory() == null ||
+                            (getActiveStory() != null && getActiveStory().getStage().equals(dao.getMoniker()))))) {
             // set active to updated object
             // setActiveStage creates stage model & triggers refresh - remote updates are displayed
             setActiveStage(dao);
@@ -611,7 +623,7 @@ public class PlayListService extends Service {
                                 } else {
                                     // stage defined - allow multiple stages?
                                     // if flag TRUE to force story stage to active stage & story stage not active stage
-                                    if (forceToActiveStage && !monikerStage.equals(getActiveStage().getMoniker())) {
+                                    if (forceToActiveStage && (getActiveStage() != null && !monikerStage.equals(getActiveStage().getMoniker()))) {
                                         ((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
                                         Log.e(TAG, "Multiple Stages " + monikerStage + " in Story " + monikerStory + " (Stage reset to " + getActiveStage().getMoniker() + ") Story updated...");
                                         mRepoProvider.getDalStory().update(daoStory, true);

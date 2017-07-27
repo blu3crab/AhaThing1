@@ -38,7 +38,8 @@ public class StageModelRing {
     public static final Double LOCUS_DIST = 64.0;
 //    public static  final Double LOCUS_DIST = 32.0;
 //    public static  final Double LOCUS_DIST = 128.0;
-    private final Integer FUDGE_DIST = 2;
+//    private final Integer FUDGE_DIST = 2; // precision for 4 rings ok...
+    private final Integer FUDGE_DIST = 16;  // precision loss for 8 rings ok
 
     // start & delta angles
     private final Double ANGLE_START = 0.0;      // start due east
@@ -136,7 +137,7 @@ public class StageModelRing {
     private Integer populateLocii(Integer ring, Integer locusIdStart, DaoLocusList daoLocusList, DaoLocus origin,
                                   List<String> actorList, List<String> propList) {
         Integer locusId = locusIdStart;
-//        Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
+        Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
         Double rad = RADIAN_START;
         Integer angleCount = 0;
         Long z = 0l;
@@ -172,6 +173,7 @@ public class StageModelRing {
     ///////////////////////////////////////////////////////////////////////////
     private DaoLocus findLocus(DaoLocusList daoLocusList, Long x, Long y, Long z) {
 //        Log.d(TAG, "testing for match at x,y,z: " + x + ", " + y + ", " + z);
+        // TODO: fudge should be LOCUS_DIST range
         // scan list of locus
         for (DaoLocus l : daoLocusList.locii) {
             if (Math.abs(l.getVertX() - x) < FUDGE_DIST &&

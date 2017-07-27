@@ -18,6 +18,7 @@
 
 package com.adaptivehandyapps.ahathing.dao;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
@@ -33,6 +34,9 @@ public class DaoStage extends DaoBase {
 
 	public static final String STAGE_TYPE_RING = "RingWorld";
 	public static final Integer STAGE_TYPE_RING_SIZE_DEFAULT = 4;
+
+	public static final String PROP_TYPE_FORBIDDEN = "Forbidden";
+	public static final int PROP_COLOR_FORBIDDEN = Color.BLACK;
 
 	@SerializedName("stageType")		// stage type
 	private String stageType;
@@ -146,6 +150,19 @@ public class DaoStage extends DaoBase {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	public Boolean togglePropList(String propMoniker, Integer selectIndex) {
+		// if stage prop list empty at ring location
+		if (getPropList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+			// set stage to prop at selected location
+            getPropList().set(selectIndex, propMoniker);
+//            getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+		}
+		else {
+			// clear stage prop list at selected location
+			getPropList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+		}
+		return true;
+	}
 	public Boolean toggleActorList(String actorMoniker, Integer selectIndex) {
 		// if stage actor list empty at ring location
 		if (getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
@@ -168,7 +185,7 @@ public class DaoStage extends DaoBase {
 			}
 		}
 		else {
-//			Log.e(TAG, "toggleSelection UNKNOWN stage type: " + daoStage.getStageType());
+//			Log.e(TAG, "toggleActorSelection UNKNOWN stage type: " + daoStage.getStageType());
 			return false;
 		}
 		return true;

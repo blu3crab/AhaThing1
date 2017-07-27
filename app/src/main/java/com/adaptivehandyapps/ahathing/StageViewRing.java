@@ -69,6 +69,39 @@ public class StageViewRing {
     private float mScaleFactor = 1.0f;
 
     ///////////////////////////////////////////////////////////////////////////
+    // focus (center) of view
+    private float mFocusX = StageModelRing.RING_CENTER_X;
+    private float mFocusY = StageModelRing.RING_CENTER_Y;
+
+    public float getFocusX() {
+        return mFocusX;
+    }
+    public void setFocusX(float focusX) {
+        this.mFocusX = focusX;
+    }
+    public float getFocusY() {
+        return mFocusY;
+    }
+    public void setFocusY(float focusY) {
+        this.mFocusY = focusY;
+    }
+
+    public Boolean shiftFocus(float distX, float distY) {
+        float focusX = getFocusX() + distX;
+        float focusY = getFocusY() + distY;
+        if (getRingIndex(focusX, focusY, 0.0f) != DaoDefs.INIT_INTEGER_MARKER) {
+            setFocusX(focusX);
+            setFocusY(focusY);
+            return true;
+        }
+//        else {
+//            setFocusX(StageModelRing.RING_CENTER_X);
+//            setFocusY(StageModelRing.RING_CENTER_Y);
+//        }
+        return false;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // list of rects cooresponding to locus translated to device coords
     List<RectF> mRectList;
     public List<RectF> getRectList() {
@@ -227,7 +260,8 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
-        float dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
+//        float dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
+        float dx = (getCanvasWidth() / 2) - getFocusX();
         // shift x,y from abstract locus center to device screen center
         float x = vertX.floatValue() + dx;
         // scale by applying dist from dev center by scale factor
@@ -248,7 +282,8 @@ public class StageViewRing {
         dx = (dx * scaleFactor) - dx;
         x = x - dx;
         // derive delta x,y to shift from abstract locus center to device screen center
-        dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
+//        dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
+        dx = (getCanvasWidth() / 2) - getFocusX();
         // shift x,y from device screen center to abstract locus center
         x = x - dx;
         vertX = (long) x;
@@ -258,7 +293,8 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
-        float dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+//        float dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+        float dy = (getCanvasHeight() / 2) - getFocusY();
         // shift x,y from abstract locus center to device screen center
         float y = vertY.floatValue() + dy;
         // scale by applying dist from dev center by scale factor
@@ -278,7 +314,8 @@ public class StageViewRing {
         dy = (dy * scaleFactor) - dy;
         y = y - dy;
         // derive delta x,y to shift from abstract locus center to device screen center
-        dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+//        dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
+        dy = (getCanvasHeight() / 2) - getFocusY();
         // shift x,y from device screen center to abstract locus center
         y = y - dy;
         vertY = (long) y;
@@ -288,7 +325,6 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     // tranform locus list to device coords
     ///////////////////////////////////////////////////////////////////////////
-    // TODO: add pan support
     public List<RectF> transformLocus(DaoLocusList daoLocusList, float scaleFactor) {
         Log.v(TAG, "transformLocus for " + scaleFactor + "...");
         // set scale factor
@@ -297,7 +333,6 @@ public class StageViewRing {
         mRectList = new ArrayList<>();
         // for each locus
         for (DaoLocus daoLocus : daoLocusList.locii) {
-            // TODO: refactor canvas center to focus when panning
             // transform abstract vert coords to device coords
             float x = vertToDeviceX(daoLocus.getVertX(), getScaleFactor());
             float y = vertToDeviceY(daoLocus.getVertY(), getScaleFactor());
@@ -360,9 +395,20 @@ public class StageViewRing {
                             color = daoActor.getForeColor();
                         }
                         mPaintMapRect.setStyle(Paint.Style.FILL);
-                    } else if (i >= daoStage.getActorList().size()) {
-                        Log.e(TAG, "invalid locii index " + i + " for stage actor list size = " + daoStage.getActorList().size());
-                    } else {
+                    }
+                    else if (i < daoStage.getPropList().size() && !daoStage.getPropList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        // if prop present, set selected color & fill
+                        if (daoStage.getPropList().get(i).equals(DaoStage.PROP_TYPE_FORBIDDEN)) {
+                            color = DaoStage.PROP_COLOR_FORBIDDEN;
+                        }
+                        mPaintMapRect.setStyle(Paint.Style.FILL);
+                    }
+                    else if (i >= daoStage.getActorList().size() || i >= daoStage.getActorList().size()) {
+                        Log.e(TAG, "invalid locii index " + i +
+                                " for stage actor list size = " + daoStage.getActorList().size() +
+                                " for stage prop list size = " + daoStage.getPropList().size());
+                    }
+                    else {
                         // set unselected color & no fill
                         color = getRingColor(daoLocus);
                         mPaintMapRect.setStyle(Paint.Style.STROKE);

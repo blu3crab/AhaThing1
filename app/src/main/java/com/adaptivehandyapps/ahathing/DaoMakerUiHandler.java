@@ -174,64 +174,78 @@ public class DaoMakerUiHandler {
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
                 mActiveTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveTheatre.getTimestamp()) + "(" + mActiveTheatre.getTimestamp().toString() + ")";
-                headline = mActiveTheatre.getHeadline();
+                if (mActiveTheatre != null) {
+                    date = TimeUtils.secsToDate(mActiveTheatre.getTimestamp()) + "(" + mActiveTheatre.getTimestamp().toString() + ")";
+                    headline = mActiveTheatre.getHeadline();
 //                mTagList = new ArrayList<>(mActiveTheatre.getTagList());
-                // xfer object to view
-                mDaoMakerViewXfer.fromTheatre(mActiveTheatre);
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromTheatre(mActiveTheatre);
+                }
 
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
                 mActiveEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveEpic.getTimestamp()) + "(" + mActiveEpic.getTimestamp().toString() + ")";
-                headline = mActiveEpic.getHeadline();
+                if (mActiveEpic != null) {
+                    date = TimeUtils.secsToDate(mActiveEpic.getTimestamp()) + "(" + mActiveEpic.getTimestamp().toString() + ")";
+                    headline = mActiveEpic.getHeadline();
 
-                mActiveStage = null;
-                mTagList = new ArrayList<>(mActiveEpic.getTagList());
-                if (mTagList != null && mTagList.size() > 0) {
-                    mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
-                    if (mActiveStory != null) {
-                        String stageMoniker = mActiveStory.getStage();
-                        mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
+                    mActiveStage = null;
+                    mTagList = new ArrayList<>(mActiveEpic.getTagList());
+                    if (mTagList != null && mTagList.size() > 0) {
+                        mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
+                        if (mActiveStory != null) {
+                            String stageMoniker = mActiveStory.getStage();
+                            mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
+                        }
                     }
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
                 }
-                // xfer object to view
-                mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                 mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveStory.getTimestamp()) + "(" + mActiveStory.getTimestamp().toString() + ")";
-                headline = mActiveStory.getHeadline();
-                // xfer object to view
-                mDaoMakerViewXfer.fromStory(mActiveStory);
+                if (mActiveStory != null) {
+                    date = TimeUtils.secsToDate(mActiveStory.getTimestamp()) + "(" + mActiveStory.getTimestamp().toString() + ")";
+                    headline = mActiveStory.getHeadline();
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromStory(mActiveStory);
+                }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
                 mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveStage.getTimestamp()) + "(" + mActiveStage.getTimestamp().toString() + ")";
-                headline = mActiveStage.getHeadline();
-                // xfer object to view
-                mDaoMakerViewXfer.fromStage(mActiveStage);
+                if (mActiveStage != null) {
+                    date = TimeUtils.secsToDate(mActiveStage.getTimestamp()) + "(" + mActiveStage.getTimestamp().toString() + ")";
+                    headline = mActiveStage.getHeadline();
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromStage(mActiveStage);
+                }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
                 mActiveActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveActor.getTimestamp()) + "(" + mActiveActor.getTimestamp().toString() + ")";
-                headline = mActiveActor.getHeadline();
-                // xfer object to view
-                mDaoMakerViewXfer.fromActor(mActiveActor);
+                if (mActiveActor != null) {
+                    date = TimeUtils.secsToDate(mActiveActor.getTimestamp()) + "(" + mActiveActor.getTimestamp().toString() + ")";
+                    headline = mActiveActor.getHeadline();
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromActor(mActiveActor);
+                }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
                 mActiveAction = (DaoAction) mParent.getRepoProvider().getDalAction().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveAction.getTimestamp()) + "(" + mActiveAction.getTimestamp().toString() + ")";
-                headline = mActiveAction.getHeadline();
-                // xfer object to view
-                mDaoMakerViewXfer.fromAction(mActiveAction);
+                if (mActiveAction != null) {
+                    date = TimeUtils.secsToDate(mActiveAction.getTimestamp()) + "(" + mActiveAction.getTimestamp().toString() + ")";
+                    headline = mActiveAction.getHeadline();
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromAction(mActiveAction);
+                }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                 mActiveOutcome = (DaoOutcome) mParent.getRepoProvider().getDalOutcome().getDaoRepo().get(moniker);
-                date = TimeUtils.secsToDate(mActiveOutcome.getTimestamp()) + "(" + mActiveOutcome.getTimestamp().toString() + ")";
-                headline = mActiveOutcome.getHeadline();
-                // xfer object to view
-                mDaoMakerViewXfer.fromOutcome(mActiveOutcome);
+                if (mActiveOutcome != null) {
+                    date = TimeUtils.secsToDate(mActiveOutcome.getTimestamp()) + "(" + mActiveOutcome.getTimestamp().toString() + ")";
+                    headline = mActiveOutcome.getHeadline();
+                    // xfer object to view
+                    mDaoMakerViewXfer.fromOutcome(mActiveOutcome);
+                }
             }
         }
         else if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NEW)) {
