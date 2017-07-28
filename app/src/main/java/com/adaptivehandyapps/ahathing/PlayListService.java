@@ -354,12 +354,18 @@ public class PlayListService extends Service {
         if (mActiveStage != null) return true;
         return false;
     }
+    public Boolean isActiveStage(DaoStage daoStage) {
+        if (mActiveStage != null && daoStage != null) {
+            if (mActiveStage.getMoniker().equals(daoStage.getMoniker())) return true;
+        }
+        return false;
+    }
     public DaoStage getActiveStage() { return mActiveStage; }
     public void setActiveStage(DaoStage activeDao) {
         if (mRepoProviderBound && mRepoProvider != null) {
             String moniker = DaoDefs.INIT_STRING_MARKER;
-            // if object defined
-            if (activeDao != null) {
+            // if object defined & not current active stage
+            if (activeDao != null && !isActiveStage(activeDao)) {
                 // extract moniker
                 moniker = activeDao.getMoniker();
 

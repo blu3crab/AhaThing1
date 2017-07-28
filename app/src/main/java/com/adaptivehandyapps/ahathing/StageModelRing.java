@@ -17,6 +17,7 @@
  */
 package com.adaptivehandyapps.ahathing;
 
+import android.graphics.RectF;
 import android.util.Log;
 
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -75,6 +76,43 @@ public class StageModelRing {
     private String setLocusName(Integer ring, Integer id) { return "R" + ring + "L" + id; }
 
     ///////////////////////////////////////////////////////////////////////////
+    // bounding rect
+    private RectF mBoundingRect;
+    public RectF getBoundingRect() { return mBoundingRect;}
+    public Boolean setBoundingRect(RectF boundingRect) { mBoundingRect = boundingRect; return true;}
+    ///////////////////////////////////////////////////////////////////////////
+    // focus (center) of view
+    private float mFocusX = StageModelRing.RING_CENTER_X;
+    private float mFocusY = StageModelRing.RING_CENTER_Y;
+
+    public float getFocusX() {
+        return mFocusX;
+    }
+    public void setFocusX(float focusX) {
+        this.mFocusX = focusX;
+    }
+    public float getFocusY() {
+        return mFocusY;
+    }
+    public void setFocusY(float focusY) {
+        this.mFocusY = focusY;
+    }
+
+    public Boolean shiftFocus(float distX, float distY) {
+        float focusX = getFocusX() + distX;
+        float focusY = getFocusY() + distY;
+//        if (getRingIndex(focusX, focusY, 0.0f) != DaoDefs.INIT_INTEGER_MARKER) {
+            setFocusX(focusX);
+            setFocusY(focusY);
+            return true;
+//        }
+//        else {
+//            setFocusX(StageModelRing.RING_CENTER_X);
+//            setFocusY(StageModelRing.RING_CENTER_Y);
+//        }
+//        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // constructor
     public StageModelRing(PlayListService playListService) { setPlayListService(playListService); }
 
@@ -82,6 +120,9 @@ public class StageModelRing {
     // builder
     // create a collection of locus & assign to active stage
     public Boolean buildModel(DaoStage activeStage) {
+
+        // create bounding rect
+        setBoundingRect(new RectF(RING_MAX_X, RING_MAX_Y, RING_MIN_X, RING_MIN_Y));
 
         // if no previous model, create locus, actor, prop lists
         if (activeStage.getLocusList().locii.size() == 0) {
@@ -155,6 +196,11 @@ public class StageModelRing {
                 locus.setVertY(y);
                 locus.setVertZ(z);
                 Log.d(TAG, locus.toString() + " at " + rad + " radians from origin.");
+                // update bounding rect
+                if ( x < getBoundingRect().left ) getBoundingRect().left = x;
+                if ( y < getBoundingRect().top ) getBoundingRect().top = y;
+                if ( x > getBoundingRect().right ) getBoundingRect().right = x;
+                if ( y > getBoundingRect().bottom ) getBoundingRect().bottom = y;
             }
             // bump rad
             rad += RADIAN_DELTA;

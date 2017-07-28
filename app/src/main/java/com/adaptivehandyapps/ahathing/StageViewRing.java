@@ -61,6 +61,7 @@ public class StageViewRing {
     private Paint mPaintMinorText;
     private Paint mPaintMajorText;
     private Paint mPaintMapRect;
+    private Paint mPaintBoundingRect;
 
     private int mMinorTextSize = DEFAULT_MINOR_TEXT_SIZE_DP;
     private int mMajorTextSize = DEFAULT_MAJOR_TEXT_SIZE_DP;
@@ -69,38 +70,10 @@ public class StageViewRing {
     private float mScaleFactor = 1.0f;
 
     ///////////////////////////////////////////////////////////////////////////
-    // focus (center) of view
-    private float mFocusX = StageModelRing.RING_CENTER_X;
-    private float mFocusY = StageModelRing.RING_CENTER_Y;
-
-    public float getFocusX() {
-        return mFocusX;
-    }
-    public void setFocusX(float focusX) {
-        this.mFocusX = focusX;
-    }
-    public float getFocusY() {
-        return mFocusY;
-    }
-    public void setFocusY(float focusY) {
-        this.mFocusY = focusY;
-    }
-
-    public Boolean shiftFocus(float distX, float distY) {
-        float focusX = getFocusX() + distX;
-        float focusY = getFocusY() + distY;
-        if (getRingIndex(focusX, focusY, 0.0f) != DaoDefs.INIT_INTEGER_MARKER) {
-            setFocusX(focusX);
-            setFocusY(focusY);
-            return true;
-        }
-//        else {
-//            setFocusX(StageModelRing.RING_CENTER_X);
-//            setFocusY(StageModelRing.RING_CENTER_Y);
-//        }
-        return false;
-    }
-
+    // bounding rect
+    private RectF mBoundingRect;
+    public RectF getBoundingRect() { return mBoundingRect;}
+    public Boolean setBoundingRect(RectF boundingRect) { mBoundingRect = boundingRect; return true;}
     ///////////////////////////////////////////////////////////////////////////
     // list of rects cooresponding to locus translated to device coords
     List<RectF> mRectList;
@@ -172,6 +145,16 @@ public class StageViewRing {
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
+            // create bounding rect
+            setBoundingRect(new RectF(StageModelRing.RING_MAX_X, StageModelRing.RING_MAX_Y, StageModelRing.RING_MIN_X, StageModelRing.RING_MIN_Y));
+
+            for (DaoLocus locus : daoStage.getLocusList().locii) {
+                // update bounding rect
+                if ( locus.getVertX() < getBoundingRect().left ) getBoundingRect().left = locus.getVertX();
+                if ( locus.getVertY() < getBoundingRect().top ) getBoundingRect().top = locus.getVertY();
+                if ( locus.getVertX() > getBoundingRect().right ) getBoundingRect().right = locus.getVertX();
+                if ( locus.getVertY() > getBoundingRect().bottom ) getBoundingRect().bottom = locus.getVertY();
+            }
         }
         else {
             if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
@@ -200,6 +183,11 @@ public class StageViewRing {
         mPaintMapRect.setStyle(Paint.Style.STROKE);
         mPaintMapRect.setStrokeWidth(4);
         mPaintMapRect.setColor(Color.CYAN);
+
+        mPaintBoundingRect = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintBoundingRect.setStyle(Paint.Style.STROKE);
+        mPaintBoundingRect.setStrokeWidth(4);
+        mPaintBoundingRect.setColor(Color.CYAN);
 
         return true;
     }
@@ -261,7 +249,7 @@ public class StageViewRing {
     public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
 //        float dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
-        float dx = (getCanvasWidth() / 2) - getFocusX();
+        float dx = (getCanvasWidth() / 2) - getRepoProvider().getStageModelRing().getFocusX();
         // shift x,y from abstract locus center to device screen center
         float x = vertX.floatValue() + dx;
         // scale by applying dist from dev center by scale factor
@@ -283,7 +271,7 @@ public class StageViewRing {
         x = x - dx;
         // derive delta x,y to shift from abstract locus center to device screen center
 //        dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
-        dx = (getCanvasWidth() / 2) - getFocusX();
+        dx = (getCanvasWidth() / 2) - getRepoProvider().getStageModelRing().getFocusX();
         // shift x,y from device screen center to abstract locus center
         x = x - dx;
         vertX = (long) x;
@@ -294,7 +282,7 @@ public class StageViewRing {
     public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
 //        float dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
-        float dy = (getCanvasHeight() / 2) - getFocusY();
+        float dy = (getCanvasHeight() / 2) - getRepoProvider().getStageModelRing().getFocusY();
         // shift x,y from abstract locus center to device screen center
         float y = vertY.floatValue() + dy;
         // scale by applying dist from dev center by scale factor
@@ -315,7 +303,7 @@ public class StageViewRing {
         y = y - dy;
         // derive delta x,y to shift from abstract locus center to device screen center
 //        dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
-        dy = (getCanvasHeight() / 2) - getFocusY();
+        dy = (getCanvasHeight() / 2) - getRepoProvider().getStageModelRing().getFocusY();
         // shift x,y from device screen center to abstract locus center
         y = y - dy;
         vertY = (long) y;
@@ -363,6 +351,13 @@ public class StageViewRing {
 
         // draw banner
         drawBanner(canvas);
+
+        if (mBoundingRect == null) {
+            // set current bounding rect
+            mBoundingRect = scaleRect();
+        }
+        // draw map rect
+        drawMapRect(canvas);
 
         return true;
     }
@@ -573,6 +568,55 @@ public class StageViewRing {
 
         }
         return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    private boolean drawMapRect(Canvas canvas) {
+//        canvas.drawRoundRect(mBoundingRect, 0.0f, 0.0f, mPaintBoundingRect);
+//        Log.d(TAG, "Bounding rect: " + getRepoProvider().getStageModelRing().getBoundingRect().toString());
+//        canvas.drawRoundRect(getRepoProvider().getStageModelRing().getBoundingRect(), 0.0f, 0.0f, mPaintBoundingRect);
+        Log.d(TAG, "Bounding rect: " + getBoundingRect().toString());
+        RectF scaledBoundingRect = scaleRect();
+        Log.d(TAG, "Scaled Bounding rect: " + scaledBoundingRect.toString());
+//        canvas.drawRoundRect(getBoundingRect(), 0.0f, 0.0f, mPaintBoundingRect);
+        canvas.drawRoundRect(scaledBoundingRect, 0.0f, 0.0f, mPaintBoundingRect);
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private RectF scaleRect() {
+
+        float left = vertToDeviceX((long)getBoundingRect().left, getScaleFactor());
+        float top = vertToDeviceY((long)getBoundingRect().top, getScaleFactor());
+        float right = vertToDeviceX((long)getBoundingRect().right, getScaleFactor());
+        float bottom = vertToDeviceY((long)getBoundingRect().bottom, getScaleFactor());
+//        // define map rect - scale factor ranges from .1 to 1.9
+//        float left = (getBoundingRect().left) * getScaleFactor();
+//        float top = (getBoundingRect().top) * getScaleFactor();
+//        float right = (getBoundingRect().right) * getScaleFactor();
+//        float bottom = (getBoundingRect().bottom) * getScaleFactor();
+//        float left = ((getRepoProvider().getStageModelRing().getFocusX()/2) - getBoundingRect().left) * getScaleFactor();
+//        float top = ((getRepoProvider().getStageModelRing().getFocusY()/2) - getBoundingRect().top) * getScaleFactor();
+//        float right = ((getRepoProvider().getStageModelRing().getFocusX()/2) + getBoundingRect().right) * getScaleFactor();
+//        float bottom = ((getRepoProvider().getStageModelRing().getFocusY()/2) + getBoundingRect().bottom) * getScaleFactor();
+//        // define map rect - scale factor ranges from .1 to 1.9
+//        float left = (mCanvasWidth / 2) - (getRepoProvider().getStageModelRing().getBoundingRect().left) * getScaleFactor();
+//        float right = (mCanvasWidth / 2) + (getRepoProvider().getStageModelRing().getBoundingRect().right) * getScaleFactor();
+//        float top = (mCanvasHeight / 2) - (getRepoProvider().getStageModelRing().getBoundingRect().top) * getScaleFactor();
+//        float bottom = (mCanvasHeight / 2) + (getRepoProvider().getStageModelRing().getBoundingRect().bottom) * getScaleFactor();
+
+//        // define map rect - scale factor ranges from .1 to 1.9
+//        float left = (mCanvasWidth / 2) - ((mCanvasWidth / 4) * getScaleFactor());
+//        float right = (mCanvasWidth / 2) + ((mCanvasWidth / 4) * getScaleFactor());
+//        float top = (mCanvasHeight / 2) - ((mCanvasWidth / 4) * getScaleFactor());
+//        float bottom = (mCanvasHeight / 2) + ((mCanvasWidth / 4) * getScaleFactor());
+//
+////        float left = (mCanvasWidth / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
+////        float right = (mCanvasWidth / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
+////        float top = (mCanvasHeight / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
+////        float bottom = (mCanvasHeight / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
+        // create scaled rect
+        RectF rect = new RectF(left, top, right, bottom);
+        return rect;
     }
     ///////////////////////////////////////////////////////////////////////////
 
