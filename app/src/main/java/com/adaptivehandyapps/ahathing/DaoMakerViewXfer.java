@@ -790,7 +790,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toTheatre(String op, String moniker, String editedMoniker, String headline, List<String> tagList) {
+    public Boolean toTheatre(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange, List<String> tagList) {
         // active object
         DaoTheatre activeTheatre = null;
         // xfer view to theatre object
@@ -798,7 +798,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeTheatre = (DaoTheatre) mParent.getRepoProvider().getDalTheatre().getDaoRepo().get(moniker);
             if (activeTheatre != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalTheatre().remove(activeTheatre, true);
                 }
@@ -829,7 +829,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toEpic(String op, String moniker, String editedMoniker, String headline, List<String> tagList) {
+    public Boolean toEpic(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange, List<String> tagList) {
         // active object
         DaoEpic activeEpic = null;
         // xfer view to object
@@ -837,7 +837,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
             if (activeEpic != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalEpic().remove(activeEpic, true);
                 }
@@ -864,7 +864,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toStory(String op, String moniker, String editedMoniker, String headline) {
+    public Boolean toStory(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoStory activeStory = null;
         // xfer view to object
@@ -872,7 +872,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(moniker);
             if (activeStory != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalStory().remove(activeStory, true);
                 }
@@ -905,7 +905,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toStage(String op, String moniker, String editedMoniker, String headline) {
+    public Boolean toStage(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoStage activeStage = null;
         // xfer view to object
@@ -913,7 +913,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
             if (activeStage != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalStage().remove(activeStage, true);
                 }
@@ -938,7 +938,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toActor(String op, String moniker, String editedMoniker, String headline) {
+    public Boolean toActor(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoActor activeActor = null;
         // xfer view to object
@@ -946,7 +946,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(moniker);
             if (activeActor != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalActor().remove(activeActor, true);
                 }
@@ -980,13 +980,13 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toAction(String op, String moniker, String editedMoniker, String headline) {
+    public Boolean toAction(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoAction activeAction = null;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             activeAction = (DaoAction) mParent.getRepoProvider().getDalAction().getDaoRepo().get(moniker);
-            if (activeAction != null) {
+            if (activeAction != null && removeOriginalOnMonikerChange) {
                 // if moniker has been edited
                 if (!moniker.equals(editedMoniker)) {
                     // remove obsolete entry
@@ -1010,7 +1010,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toOutcome(String op, String moniker, String editedMoniker, String headline) {
+    public Boolean toOutcome(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoOutcome activeOutcome = null;
         // xfer view to object
@@ -1018,7 +1018,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             activeOutcome = (DaoOutcome) mParent.getRepoProvider().getDalOutcome().getDaoRepo().get(moniker);
             if (activeOutcome != null) {
                 // if moniker has been edited
-                if (!moniker.equals(editedMoniker)) {
+                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
                     // remove obsolete entry
                     mParent.getRepoProvider().getDalOutcome().remove(activeOutcome, true);
                 }

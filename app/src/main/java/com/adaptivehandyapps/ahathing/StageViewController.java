@@ -73,14 +73,9 @@ public class StageViewController extends View implements
 
     private Paint mPaintMinorText;
     private Paint mPaintMajorText;
-//    private Paint mPaintMapRect;
 
     private int mMinorTextSize = DEFAULT_MINOR_TEXT_SIZE_DP;
     private int mMajorTextSize = DEFAULT_MAJOR_TEXT_SIZE_DP;
-
-//    private RectF mMapRect;
-//    private Integer mMapVertCountX;
-//    private Integer mMapVertCountY;
 
     // pinch zoom support - scale factor ranges from .1 to 1.9
     private float mRawScaleFactor = DEFAULT_SCALE_FACTOR;   // retain raw scale factor to test for change
@@ -200,31 +195,6 @@ public class StageViewController extends View implements
         } else {
             Log.e(TAG, "Oops!  StageViewController Parent context (MainActivity) NULL!");
         }
-
-//        mContext = context;
-//        MainActivity parent = (MainActivity) context;
-//        if (parent != null) {
-//            setPlayListService(parent.getPlayListService());
-//            if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
-//                Log.v(TAG, "Story ready for " + getPlayListService().getActiveStory().getMoniker() + "...");
-//            }
-//            else {
-//                Log.e(TAG, "Story NULL or NOT ready!");
-////                return false;
-//            }
-//            setRepoProvider(parent.getRepoProvider());
-//            if (getRepoProvider() != null) {
-//                Log.v(TAG, "Repo Provider ready at " + getRepoProvider() + "...");
-//            }
-//            else {
-//                Log.e(TAG, "Repo Provider NULL!");
-////                return false;
-//            }
-//        }
-//        else {
-//            Log.e(TAG, "Parent context (MainActivity) NULL!");
-////            return false;
-//        }
         // init draw resources
         initDrawResources();
 
@@ -238,9 +208,6 @@ public class StageViewController extends View implements
         setDensity(getResources().getDisplayMetrics().density);
         setMinorTextSize(Math.round(DEFAULT_MINOR_TEXT_SIZE_DP * getDensity()));
         setMajorTextSize(Math.round(DEFAULT_MAJOR_TEXT_SIZE_DP * getDensity()));
-//        float density = getResources().getDisplayMetrics().density;
-//        setMinorTextSize(Math.round(DEFAULT_MINOR_TEXT_SIZE_DP * density));
-//        setMajorTextSize(Math.round(DEFAULT_MAJOR_TEXT_SIZE_DP * density));
 
         // minor text paint
         mPaintMinorText = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -254,12 +221,6 @@ public class StageViewController extends View implements
         mPaintMajorText.setColor(getResources().getColor(R.color.colorStagePrimary));
 //        mPaintMajorText.setColor(Color.rgb(255, 255, 255));
 
-
-//        mPaintMapRect = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        mPaintMapRect.setStyle(Paint.Style.STROKE);
-//        mPaintMapRect.setStrokeWidth(4);
-//        mPaintMapRect.setColor(Color.CYAN);
-
         // Instantiate the gesture detector with the
         // application context and an implementation of
         // GestureDetector.OnGestureListener
@@ -272,10 +233,6 @@ public class StageViewController extends View implements
 
         // pinch zoom support
         mScaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
-
-        // stage manager
-//        mStageManager = new StageManager(this, getPlayListService(), getRepoProvider());
-//        mStageManager = new StageManager(mContext, getPlayListService(), getRepoProvider());
 
         return true;
     }
@@ -343,15 +300,11 @@ public class StageViewController extends View implements
         setCanvasWidth(widthSize);
         setCanvasHeight(heightSize);
 
-//        setDensity(getResources().getDisplayMetrics().density);
-//
         if (mInitLoad) {
             Log.d(TAG, "onMeasure width/height = " + getCanvasWidth() + "/" + getCanvasHeight() + " with density " + getDensity());
             Log.d(TAG, "onMeasure width/height mode " + modeToString(widthMode) + "/" + modeToString(heightMode));
             Log.d(TAG, "onMeasure width/height size = " + widthSize + "/ " + heightSize);
             mInitLoad = false;
-//            // init draw resources
-//            initDrawResources();
             // get scale factor
             setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
             Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));
@@ -365,8 +318,6 @@ public class StageViewController extends View implements
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();
                     // transform locus to device coords
                     mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
-                    // clear selection list
-//                    mStageViewRing.setSelectLocus(daoLocusList, false);
                 } else {
                     if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
                     else Log.e(TAG, "Oops!  UNKNOWN stage type: " + mActiveStage.getStageType());
@@ -405,10 +356,6 @@ public class StageViewController extends View implements
         if (event.getPointerCount() > 1) {
             // if multi-touch event
             Log.d(TAG, "Multi-touch event getPointerCount " + event.getPointerCount());
-//            // T ODO: vert counts are inherently dependent on the map - refactor with MapRect class
-//            mMapRect = scaleRect();
-//            // redraw to reflect scaling on pinch/zoom
-//            invalidate();
         }
         else  {
             // single touch event
@@ -564,6 +511,8 @@ public class StageViewController extends View implements
         Log.d(TAG, "onDoubleTap(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "onDoubleTap: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
+        setTouchX(event.getX());
+        setTouchY(event.getY());
         getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
         invalidate();
         return true;
@@ -621,14 +570,6 @@ public class StageViewController extends View implements
         if (mStageViewRing != null) {
             mStageViewRing.onDraw(canvas);
         }
-
-//        if (mMapRect == null) {
-//            // set current map & vert counts
-//            mMapRect = scaleRect();
-//        }
-//        // draw map rect
-//        drawMapRect(canvas);
-
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawText(Canvas canvas, String text, Paint paint, float x, float y) {
@@ -651,35 +592,6 @@ public class StageViewController extends View implements
         canvas.drawText(greeting, x, y, paint);
         return true;
     }
-//    ///////////////////////////////////////////////////////////////////////////
-//    private boolean drawMapRect(Canvas canvas) {
-//        canvas.drawRoundRect(mMapRect, 0.0f, 0.0f, mPaintMapRect);
-//        return true;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    private RectF scaleRect() {
-//
-//        // define map rect - scale factor ranges from .1 to 1.9
-//        float left = ((mCanvasWidth / 2) - getRepoProvider().getStageModelRing().getBoundingRect().left) * getScaleFactor();
-//        float right = ((mCanvasWidth / 2) + getRepoProvider().getStageModelRing().getBoundingRect().right) * getScaleFactor();
-//        float top = ((mCanvasHeight / 2) - getRepoProvider().getStageModelRing().getBoundingRect().top) * getScaleFactor();
-//        float bottom = ((mCanvasHeight / 2) + getRepoProvider().getStageModelRing().getBoundingRect().bottom) * getScaleFactor();
-//
-////        // define map rect - scale factor ranges from .1 to 1.9
-////        float left = (mCanvasWidth / 2) - ((mCanvasWidth / 4) * getScaleFactor());
-////        float right = (mCanvasWidth / 2) + ((mCanvasWidth / 4) * getScaleFactor());
-////        float top = (mCanvasHeight / 2) - ((mCanvasWidth / 4) * getScaleFactor());
-////        float bottom = (mCanvasHeight / 2) + ((mCanvasWidth / 4) * getScaleFactor());
-////
-//////        float left = (mCanvasWidth / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-//////        float right = (mCanvasWidth / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-//////        float top = (mCanvasHeight / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-//////        float bottom = (mCanvasHeight / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-//        // create scaled rect
-//        RectF rect = new RectF(left, top, right, bottom);
-//        return rect;
-//    }
-    ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 }

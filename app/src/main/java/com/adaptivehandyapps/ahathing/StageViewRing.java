@@ -74,6 +74,7 @@ public class StageViewRing {
     private RectF mBoundingRect;
     public RectF getBoundingRect() { return mBoundingRect;}
     public Boolean setBoundingRect(RectF boundingRect) { mBoundingRect = boundingRect; return true;}
+
     ///////////////////////////////////////////////////////////////////////////
     // list of rects cooresponding to locus translated to device coords
     List<RectF> mRectList;
@@ -83,9 +84,6 @@ public class StageViewRing {
     public void setRectList(List<RectF> rectList) {
         this.mRectList = rectList;
     }
-
-//    // list of selection markers for each locus
-//    List<Boolean> mSelectList;
 
     ///////////////////////////////////////////////////////////////////////////
     private PlayListService mPlayListService;
@@ -145,16 +143,11 @@ public class StageViewRing {
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
+            // TODO: refactor to use StageModelRing?
             // create bounding rect
-            setBoundingRect(new RectF(StageModelRing.RING_MAX_X, StageModelRing.RING_MAX_Y, StageModelRing.RING_MIN_X, StageModelRing.RING_MIN_Y));
-
-            for (DaoLocus locus : daoStage.getLocusList().locii) {
-                // update bounding rect
-                if ( locus.getVertX() < getBoundingRect().left ) getBoundingRect().left = locus.getVertX();
-                if ( locus.getVertY() < getBoundingRect().top ) getBoundingRect().top = locus.getVertY();
-                if ( locus.getVertX() > getBoundingRect().right ) getBoundingRect().right = locus.getVertX();
-                if ( locus.getVertY() > getBoundingRect().bottom ) getBoundingRect().bottom = locus.getVertY();
-            }
+            initBoundingRect(daoStage);
+            // ensure stage model bounding rect set
+            getRepoProvider().getStageModelRing().setBoundingRect(getBoundingRect());
         }
         else {
             if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
@@ -162,6 +155,21 @@ public class StageViewRing {
         }
         // init local objects
         init(context);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean initBoundingRect(DaoStage daoStage) {
+        // create bounding rect
+        setBoundingRect(new RectF(StageModelRing.RING_MAX_X, StageModelRing.RING_MAX_Y, StageModelRing.RING_MIN_X, StageModelRing.RING_MIN_Y));
+
+        for (DaoLocus locus : daoStage.getLocusList().locii) {
+            // update bounding rect
+            if ( locus.getVertX() < getBoundingRect().left ) getBoundingRect().left = locus.getVertX();
+            if ( locus.getVertY() < getBoundingRect().top ) getBoundingRect().top = locus.getVertY();
+            if ( locus.getVertX() > getBoundingRect().right ) getBoundingRect().right = locus.getVertX();
+            if ( locus.getVertY() > getBoundingRect().bottom ) getBoundingRect().bottom = locus.getVertY();
+        }
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -357,7 +365,7 @@ public class StageViewRing {
             mBoundingRect = scaleRect();
         }
         // draw map rect
-        drawMapRect(canvas);
+        drawBoundingRect(canvas);
 
         return true;
     }
@@ -413,7 +421,6 @@ public class StageViewRing {
 
                     // draw locus
                     canvas.drawOval(mRectList.get(i), mPaintMapRect);
-//                      canvas.drawRect(oval, mPaintMapRect);
 
                     // annotate w/ name
                     mPaintMinorText.setColor(color);
@@ -493,7 +500,6 @@ public class StageViewRing {
             List<DaoEpicStarBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
             // for each star in star board
             for (DaoEpicStarBoard daoEpicStarBoard : orderedStarBoard) {
-//            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
                 // format title: moniker, tally, tic
                 String title = daoEpicStarBoard.getStarMoniker() + "  " +
                         daoEpicStarBoard.getTally().toString() + "  " +
@@ -571,14 +577,10 @@ public class StageViewRing {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private boolean drawMapRect(Canvas canvas) {
-//        canvas.drawRoundRect(mBoundingRect, 0.0f, 0.0f, mPaintBoundingRect);
-//        Log.d(TAG, "Bounding rect: " + getRepoProvider().getStageModelRing().getBoundingRect().toString());
-//        canvas.drawRoundRect(getRepoProvider().getStageModelRing().getBoundingRect(), 0.0f, 0.0f, mPaintBoundingRect);
-        Log.d(TAG, "Bounding rect: " + getBoundingRect().toString());
+    private boolean drawBoundingRect(Canvas canvas) {
+//        Log.d(TAG, "Bounding rect: " + getBoundingRect().toString());
         RectF scaledBoundingRect = scaleRect();
-        Log.d(TAG, "Scaled Bounding rect: " + scaledBoundingRect.toString());
-//        canvas.drawRoundRect(getBoundingRect(), 0.0f, 0.0f, mPaintBoundingRect);
+//        Log.d(TAG, "Scaled Bounding rect: " + scaledBoundingRect.toString());
         canvas.drawRoundRect(scaledBoundingRect, 0.0f, 0.0f, mPaintBoundingRect);
         return true;
     }
@@ -589,31 +591,6 @@ public class StageViewRing {
         float top = vertToDeviceY((long)getBoundingRect().top, getScaleFactor());
         float right = vertToDeviceX((long)getBoundingRect().right, getScaleFactor());
         float bottom = vertToDeviceY((long)getBoundingRect().bottom, getScaleFactor());
-//        // define map rect - scale factor ranges from .1 to 1.9
-//        float left = (getBoundingRect().left) * getScaleFactor();
-//        float top = (getBoundingRect().top) * getScaleFactor();
-//        float right = (getBoundingRect().right) * getScaleFactor();
-//        float bottom = (getBoundingRect().bottom) * getScaleFactor();
-//        float left = ((getRepoProvider().getStageModelRing().getFocusX()/2) - getBoundingRect().left) * getScaleFactor();
-//        float top = ((getRepoProvider().getStageModelRing().getFocusY()/2) - getBoundingRect().top) * getScaleFactor();
-//        float right = ((getRepoProvider().getStageModelRing().getFocusX()/2) + getBoundingRect().right) * getScaleFactor();
-//        float bottom = ((getRepoProvider().getStageModelRing().getFocusY()/2) + getBoundingRect().bottom) * getScaleFactor();
-//        // define map rect - scale factor ranges from .1 to 1.9
-//        float left = (mCanvasWidth / 2) - (getRepoProvider().getStageModelRing().getBoundingRect().left) * getScaleFactor();
-//        float right = (mCanvasWidth / 2) + (getRepoProvider().getStageModelRing().getBoundingRect().right) * getScaleFactor();
-//        float top = (mCanvasHeight / 2) - (getRepoProvider().getStageModelRing().getBoundingRect().top) * getScaleFactor();
-//        float bottom = (mCanvasHeight / 2) + (getRepoProvider().getStageModelRing().getBoundingRect().bottom) * getScaleFactor();
-
-//        // define map rect - scale factor ranges from .1 to 1.9
-//        float left = (mCanvasWidth / 2) - ((mCanvasWidth / 4) * getScaleFactor());
-//        float right = (mCanvasWidth / 2) + ((mCanvasWidth / 4) * getScaleFactor());
-//        float top = (mCanvasHeight / 2) - ((mCanvasWidth / 4) * getScaleFactor());
-//        float bottom = (mCanvasHeight / 2) + ((mCanvasWidth / 4) * getScaleFactor());
-//
-////        float left = (mCanvasWidth / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-////        float right = (mCanvasWidth / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-////        float top = (mCanvasHeight / 2) - (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
-////        float bottom = (mCanvasHeight / 2) + (DEFAULT_RECT_SIZE_DP * mDensity * getScaleFactor());
         // create scaled rect
         RectF rect = new RectF(left, top, right, bottom);
         return rect;

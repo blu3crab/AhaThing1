@@ -104,6 +104,26 @@
             />
 
     </LinearLayout>
+    <!-- copy checkbox -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <CheckBox android:id="@+id/cb_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/colorNew"
+            android:checked="false"
+            android:text="Remove Original When Moniker Changed"/>
+
+    </LinearLayout>
     <!-- last update -->
     <LinearLayout
         android:layout_width="wrap_content"

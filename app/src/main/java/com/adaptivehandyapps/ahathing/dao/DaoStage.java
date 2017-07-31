@@ -36,7 +36,7 @@ public class DaoStage extends DaoBase {
 	public static final Integer STAGE_TYPE_RING_SIZE_DEFAULT = 4;
 
 	public static final String PROP_TYPE_FORBIDDEN = "Forbidden";
-	public static final int PROP_COLOR_FORBIDDEN = Color.BLACK;
+	public static final int PROP_COLOR_FORBIDDEN = Color.BLUE;
 
 	@SerializedName("stageType")		// stage type
 	private String stageType;

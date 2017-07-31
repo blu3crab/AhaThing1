@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -508,29 +509,31 @@ public class DaoMakerUiHandler {
                 String editedMoniker = etMoniker.getText().toString();
                 EditText etHeadline = (EditText) mRootView.findViewById(R.id.et_headline);
                 String headline = etHeadline.getText().toString();
+                CheckBox cbRemove = (CheckBox) mRootView.findViewById(R.id.cb_remove);
+                Boolean removeOriginalOnMonikerChange = cbRemove.isChecked();
 
                 Toast.makeText(mRootView.getContext(), "Creating thing " + editedMoniker, Toast.LENGTH_SHORT).show();
 
                 if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-                    mDaoMakerViewXfer.toTheatre(op, moniker, editedMoniker, headline, mTagList);
+                    mDaoMakerViewXfer.toTheatre(op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange, mTagList);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-                    mDaoMakerViewXfer.toEpic(op, moniker, editedMoniker, headline, mTagList);
+                    mDaoMakerViewXfer.toEpic(op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange, mTagList);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-                    mDaoMakerViewXfer.toStory (op, moniker, editedMoniker, headline);
+                    mDaoMakerViewXfer.toStory (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-                    mDaoMakerViewXfer.toStage (op, moniker, editedMoniker, headline);
+                    mDaoMakerViewXfer.toStage (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-                    mDaoMakerViewXfer.toActor (op, moniker, editedMoniker, headline);
+                    mDaoMakerViewXfer.toActor (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-                    mDaoMakerViewXfer.toAction (op, moniker, editedMoniker, headline);
+                    mDaoMakerViewXfer.toAction (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-                    mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline);
+                    mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else {
                     // banish fab

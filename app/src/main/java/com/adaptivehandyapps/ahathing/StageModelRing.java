@@ -101,16 +101,16 @@ public class StageModelRing {
     public Boolean shiftFocus(float distX, float distY) {
         float focusX = getFocusX() + distX;
         float focusY = getFocusY() + distY;
-//        if (getRingIndex(focusX, focusY, 0.0f) != DaoDefs.INIT_INTEGER_MARKER) {
+        if (getBoundingRect() != null && getBoundingRect().contains(focusX, focusY)) {
             setFocusX(focusX);
             setFocusY(focusY);
             return true;
-//        }
-//        else {
-//            setFocusX(StageModelRing.RING_CENTER_X);
-//            setFocusY(StageModelRing.RING_CENTER_Y);
-//        }
-//        return false;
+        }
+        else {
+            setFocusX(StageModelRing.RING_CENTER_X);
+            setFocusY(StageModelRing.RING_CENTER_Y);
+        }
+        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
@@ -120,9 +120,6 @@ public class StageModelRing {
     // builder
     // create a collection of locus & assign to active stage
     public Boolean buildModel(DaoStage activeStage) {
-
-        // create bounding rect
-        setBoundingRect(new RectF(RING_MAX_X, RING_MAX_Y, RING_MIN_X, RING_MIN_Y));
 
         // if no previous model, create locus, actor, prop lists
         if (activeStage.getLocusList().locii.size() == 0) {
@@ -171,6 +168,10 @@ public class StageModelRing {
                 }
                 ringMaxId.add(ringId);
             }
+            // create bounding rect with min/max inverted
+            setBoundingRect(new RectF(RING_MAX_X, RING_MAX_Y, RING_MIN_X, RING_MIN_Y));
+            // create bounding rect
+            initBoundingRect(activeStage);
         }
         return true;
     }
@@ -196,11 +197,6 @@ public class StageModelRing {
                 locus.setVertY(y);
                 locus.setVertZ(z);
                 Log.d(TAG, locus.toString() + " at " + rad + " radians from origin.");
-                // update bounding rect
-                if ( x < getBoundingRect().left ) getBoundingRect().left = x;
-                if ( y < getBoundingRect().top ) getBoundingRect().top = y;
-                if ( x > getBoundingRect().right ) getBoundingRect().right = x;
-                if ( y > getBoundingRect().bottom ) getBoundingRect().bottom = y;
             }
             // bump rad
             rad += RADIAN_DELTA;
@@ -208,6 +204,20 @@ public class StageModelRing {
         }
 
         return locusId;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean initBoundingRect(DaoStage daoStage) {
+        // create bounding rect
+        setBoundingRect(new RectF(StageModelRing.RING_MAX_X, StageModelRing.RING_MAX_Y, StageModelRing.RING_MIN_X, StageModelRing.RING_MIN_Y));
+
+        for (DaoLocus locus : daoStage.getLocusList().locii) {
+            // update bounding rect
+            if ( locus.getVertX() < getBoundingRect().left ) getBoundingRect().left = locus.getVertX();
+            if ( locus.getVertY() < getBoundingRect().top ) getBoundingRect().top = locus.getVertY();
+            if ( locus.getVertX() > getBoundingRect().right ) getBoundingRect().right = locus.getVertX();
+            if ( locus.getVertY() > getBoundingRect().bottom ) getBoundingRect().bottom = locus.getVertY();
+        }
+        return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean mirrorLociiAdd(DaoLocus locus, DaoLocusList daoLocusList, List<String> actorList, List<String> propList) {
