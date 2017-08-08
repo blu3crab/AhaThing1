@@ -930,8 +930,13 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeStage.setStageType(DaoStage.STAGE_TYPE_RING);
         // ignore ring type
         EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
-        Integer ringSize = Integer.parseInt(etRingSize.getText().toString());;
-        activeStage.setRingSize(ringSize);
+        try {
+            Integer ringSize = Integer.parseInt(etRingSize.getText().toString());
+            activeStage.setRingSize(ringSize);
+        }
+        catch (Exception ex) {
+            activeStage.setRingSize(DaoStage.STAGE_TYPE_RING_SIZE_DEFAULT);
+        }
         // update repo
         mParent.getPlayListService().setActiveStage(activeStage);
         mParent.getRepoProvider().getDalStage().update(activeStage, true);
