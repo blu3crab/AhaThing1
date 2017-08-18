@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -313,6 +314,8 @@ public class StageViewController extends View implements
                 mActiveStage = getPlayListService().getActiveStage();
                 if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
+//                    FloatingActionButton fab = (FloatingActionButton) mParent.findViewById(R.id.fab_lock);
+
                     // create stage view helper
                     mStageViewRing = new StageViewRing(mContext, this);
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();

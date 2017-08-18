@@ -209,16 +209,6 @@ public class MainActivity extends AppCompatActivity
         // setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // setup fab
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_map);
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_run);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
         // setup drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         final DrawerLayout drawer = mDrawerLayout;

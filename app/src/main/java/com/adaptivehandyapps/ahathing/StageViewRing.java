@@ -20,13 +20,17 @@ package com.adaptivehandyapps.ahathing;
 // Created by mat on 1/9/2017.
 //
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -39,9 +43,13 @@ import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.adaptivehandyapps.ahathing.R.drawable.ic_lock_open_black_48dp;
+
 public class StageViewRing {
 
     private static final String TAG = StageViewRing.class.getSimpleName();
+
+    public static final Boolean DEFAULT_STAGE_LOCK = false;
 
     private static final int DEFAULT_MINOR_TEXT_SIZE_DP = 12;
     private static final int DEFAULT_MAJOR_TEXT_SIZE_DP = 24;
@@ -148,6 +156,27 @@ public class StageViewRing {
             initBoundingRect(daoStage);
             // ensure stage model bounding rect set
             getRepoProvider().getStageModelRing().setBoundingRect(getBoundingRect());
+            // establish stage lock fab
+            Boolean lock = PrefsUtils.getBooleanPrefs(mContext,PrefsUtils.STAGE_LOCK_KEY);
+            String lockImage = "ic_lock_open_black_48dp";
+            if (lock) {
+                lockImage = "ic_lock_black_48dp";
+            }
+            Activity activity = (Activity) context;
+            FloatingActionButton fab = (FloatingActionButton) activity.findViewById(R.id.fab_lock);
+            fab.setImageResource(getImageId(context, lockImage));
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    Log.d(TAG, "execute fab operation...");
+                    // toggle lock preference
+                    toggleLock();
+                }
+            });
+
         }
         else {
             if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
@@ -155,6 +184,23 @@ public class StageViewRing {
         }
         // init local objects
         init(context);
+    }
+
+    public static int getImageId(Context context, String imageName) {
+        return context.getResources().getIdentifier("drawable/" + imageName, null, context.getPackageName());
+    }
+
+    private Boolean toggleLock() {
+        Activity activity = (Activity) mContext;
+        FloatingActionButton fab = (FloatingActionButton) activity.findViewById(R.id.fab_lock);
+        Boolean lock = !PrefsUtils.getBooleanPrefs(mContext, PrefsUtils.STAGE_LOCK_KEY);
+        PrefsUtils.setPrefs(mContext, PrefsUtils.STAGE_LOCK_KEY, lock);
+        String lockImage = "ic_lock_open_black_48dp";
+        if (lock) {
+            lockImage = "ic_lock_black_48dp";
+        }
+        fab.setImageResource(getImageId(mContext, lockImage));
+        return lock;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -372,6 +418,8 @@ public class StageViewRing {
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
 
+        int color;
+
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null) {
             Log.v(TAG, "Stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
@@ -385,7 +433,7 @@ public class StageViewRing {
                 // for each locus
                 for (DaoLocus daoLocus : daoLocusList.locii) {
                     // default color to signal incoherence if null actor
-                    int color = mContext.getResources().getColor(R.color.colorLightGrey);
+                    color = mContext.getResources().getColor(R.color.colorLightGrey);
                     // default to fill
                     mPaintMapRect.setStyle(Paint.Style.FILL);
                     // find index of locus
@@ -427,6 +475,21 @@ public class StageViewRing {
                     String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
                     id = id.substring(1);
                     drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                }
+                // if locus is marked, highlight
+                if (mParentViewController.getStageManager().getMarkIndex() != DaoDefs.INIT_INTEGER_MARKER) {
+                    int i = mParentViewController.getStageManager().getMarkIndex();
+                    color = mContext.getResources().getColor(R.color.colorLightGrey);
+                    // if actor present, set selected color & fill
+                    DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
+                    if (daoActor != null) {
+                        color = daoActor.getBackColor();
+                        Log.d(TAG, "drawMark " + daoStage.getActorList().get(i) + " at locus " + i);
+                    }
+                    mPaintMapRect.setColor(color);
+                    mPaintMapRect.setStyle(Paint.Style.FILL);
+                    // draw locus
+                    canvas.drawOval(mRectList.get(i), mPaintMapRect);
                 }
                 return true;
             }

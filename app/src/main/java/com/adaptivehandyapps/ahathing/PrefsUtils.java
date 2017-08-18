@@ -45,6 +45,7 @@ public class PrefsUtils {
     public static final String ACTIVE_ACTION_KEY = "activeAction";
     public static final String ACTIVE_OUTCOME_KEY = "activeOutcome";
     public static final String SCALE_FACTOR_KEY = "scaleFactor";
+    public static final String STAGE_LOCK_KEY = "stageLockKey";
 
     ///////////////////////////////////////////////////////////////////////////
     public static void setDefaults(Context context) {
@@ -58,6 +59,7 @@ public class PrefsUtils {
         prefs.edit().putString(ACTIVE_ACTION_KEY, DaoDefs.INIT_STRING_MARKER);
         prefs.edit().putString(ACTIVE_OUTCOME_KEY, DaoDefs.INIT_STRING_MARKER);
         prefs.edit().putFloat(SCALE_FACTOR_KEY, StageViewController.DEFAULT_SCALE_FACTOR);
+        prefs.edit().putBoolean(STAGE_LOCK_KEY, StageViewRing.DEFAULT_STAGE_LOCK);
         return;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -77,7 +79,11 @@ public class PrefsUtils {
                 ACTIVE_ACTION_KEY + ": " +
                 prefs.getString(ACTIVE_ACTION_KEY, DaoDefs.INIT_STRING_MARKER)  + "\n" +
                 ACTIVE_OUTCOME_KEY + ": " +
-                prefs.getString(ACTIVE_OUTCOME_KEY, DaoDefs.INIT_STRING_MARKER)  + "\n";
+                prefs.getString(ACTIVE_OUTCOME_KEY, DaoDefs.INIT_STRING_MARKER)  + "\n" +
+                SCALE_FACTOR_KEY + ": " +
+                prefs.getFloat(SCALE_FACTOR_KEY, StageViewController.DEFAULT_SCALE_FACTOR)  + "\n" +
+                STAGE_LOCK_KEY + ": " +
+                prefs.getBoolean(STAGE_LOCK_KEY, StageViewRing.DEFAULT_STAGE_LOCK)  + "\n";
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters & setters
@@ -89,6 +95,10 @@ public class PrefsUtils {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getFloat(key, StageViewController.DEFAULT_SCALE_FACTOR);
     }
+    public static Boolean getBooleanPrefs(Context context, String key) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(key, StageViewRing.DEFAULT_STAGE_LOCK);
+    }
     public static void setPrefs(Context context, String key, String value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.edit().putString(key, value).apply();
@@ -97,6 +107,11 @@ public class PrefsUtils {
     public static void setPrefs(Context context, String key, float value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.edit().putFloat(key, value).apply();
+        return;
+    }
+    public static void setPrefs(Context context, String key, Boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().putBoolean(key, value).apply();
         return;
     }
     ///////////////////////////////////////////////////////////////////////////

@@ -92,38 +92,6 @@ public class DaoMakerUiHandler {
         Log.d(TAG, "DaoMakerUiHandler: op " + op + ", objtype" + objType + ", moniker " + moniker);
         mRootView = v;
 
-//        // TODO: rationalize FAB
-//        // if story outcome is ResetEpic, launch run FAB to run the story
-//        DaoStory daoStory = mParent.getPlayListService().getActiveStory();
-//        if (daoStory != null && daoStory.getOutcome().equals(DaoOutcome.OUTCOME_TYPE_RESET_EPIC)) {
-//            final DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
-//            final DaoStage daoStage = mParent.getPlayListService().getActiveStage();
-//
-//            if (daoEpic != null && daoStage != null) {
-//
-//                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
-//                fab.setVisibility(View.VISIBLE);
-//                fab.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        Snackbar.make(view, "Patience, Grasshopper.", Snackbar.LENGTH_LONG)
-//                                .setAction("Action", null).show();
-//                        Log.d(TAG, "execute fab operation...");
-//                        // reset epic
-//                        daoEpic.resetEpicStageTallyTic(daoStage, true, true);
-//                        mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
-//                        mParent.getRepoProvider().getDalStage().update(daoStage, true);
-//                        // banish fab
-//                        FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
-//                        fab.setVisibility(View.GONE);
-//                        // refresh content view
-//                        Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
-//                        if (mCallback != null)
-//                            mCallback.onContentHandlerResult(op, objType, moniker);
-//                    }
-//                });
-//            }
-//        }
         // if editing epic, provide reset FAB
         if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER) && op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             final DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
@@ -131,7 +99,7 @@ public class DaoMakerUiHandler {
             // if epic & stage are defined
             if (daoEpic != null && daoStage != null) {
 
-                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
                 fab.setVisibility(View.VISIBLE);
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -144,7 +112,7 @@ public class DaoMakerUiHandler {
                         mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
                         mParent.getRepoProvider().getDalStage().update(daoStage, true);
                         // banish fab
-                        FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                        FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
                         fab.setVisibility(View.GONE);
                         // refresh content view
                         if (mCallback != null)
@@ -535,14 +503,14 @@ public class DaoMakerUiHandler {
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                     mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
-                else {
+//                else {
                     // banish fab
-                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
                     fab.setVisibility(View.GONE);
                     // refresh content view
                     Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
                     if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
-                }
+//                }
 
             }
         });
@@ -592,6 +560,9 @@ public class DaoMakerUiHandler {
                 Boolean removeIfUndefined = true;
                 Boolean forceToActiveStage = true;
                 mParent.getPlayListService().repairAll(removeIfUndefined, forceToActiveStage);
+                // banish fab
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                fab.setVisibility(View.GONE);
             }
         });
 
@@ -697,7 +668,7 @@ public class DaoMakerUiHandler {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // banish fab
-                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_run);
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
                 fab.setVisibility(View.GONE);
 
                 Log.v(TAG, "buttonCancel.setOnClickListener: ");

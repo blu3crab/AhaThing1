@@ -291,7 +291,7 @@ public class StageManager {
                     float touchY = getTouchY();
                     float z = 0.0f;
                     int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
-                    if (selectIndex < daoStage.getActorList().size()) {
+                    if (selectIndex >= 0 && selectIndex < daoStage.getActorList().size()) {
                         String vertActor = daoStage.getActorList().get(selectIndex);
                         // get active actor
                         String activeActor = getPlayListService().getActiveActor().getMoniker();
@@ -565,11 +565,13 @@ public class StageManager {
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found & actor not present
                 if (selectIndex != DaoDefs.INIT_INTEGER_MARKER && daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
-                    Log.d(TAG, "moveActor " + daoStage.getActorList().get(getMarkIndex()) + " from locus " + + getMarkIndex() + " to " + selectIndex);
-                    // move actor from mark to move selection
-                    daoStage.getActorList().set(selectIndex, daoStage.getActorList().get(getMarkIndex()));
-                    // clear actor at mark index
-                    daoStage.getActorList().set(getMarkIndex(), DaoDefs.INIT_STRING_MARKER);
+                    if (getMarkIndex() > DaoDefs.INIT_INTEGER_MARKER) {
+                        Log.d(TAG, "moveActor " + daoStage.getActorList().get(getMarkIndex()) + " from locus " + +getMarkIndex() + " to " + selectIndex);
+                        // move actor from mark to move selection
+                        daoStage.getActorList().set(selectIndex, daoStage.getActorList().get(getMarkIndex()));
+                        // clear actor at mark index
+                        daoStage.getActorList().set(getMarkIndex(), DaoDefs.INIT_STRING_MARKER);
+                    }
                     // reset mark index to select
                     setMarkIndex(selectIndex);
                     // update object
