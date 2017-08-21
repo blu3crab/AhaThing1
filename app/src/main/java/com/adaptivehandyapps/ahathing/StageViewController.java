@@ -314,8 +314,6 @@ public class StageViewController extends View implements
                 mActiveStage = getPlayListService().getActiveStage();
                 if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                     Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
-//                    FloatingActionButton fab = (FloatingActionButton) mParent.findViewById(R.id.fab_lock);
-
                     // create stage view helper
                     mStageViewRing = new StageViewRing(mContext, this);
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();
@@ -461,24 +459,28 @@ public class StageViewController extends View implements
         if (event2.getPointerCount() > 1) {
             Log.d(TAG, "onScroll event2 multi-touch? " + event2.getPointerCount());
         }
-        getRepoProvider().getStageModelRing().shiftFocus(distX/2, distY/2);
-        mActiveStage = getPlayListService().getActiveStage();
-        if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            Log.v(TAG, "onScroll stage type: " + mActiveStage.getStageType());
-            DaoLocusList daoLocusList = mActiveStage.getLocusList();
-            // transform locus to device coords
-            if (mStageViewRing != null) {
-                mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
+        // establish stage lock fab
+        Boolean lock = PrefsUtils.getBooleanPrefs(mContext,PrefsUtils.STAGE_LOCK_KEY);
+        if (!lock) {
+            getRepoProvider().getStageModelRing().shiftFocus(distX / 2, distY / 2);
+            mActiveStage = getPlayListService().getActiveStage();
+            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                Log.v(TAG, "onScroll stage type: " + mActiveStage.getStageType());
+                DaoLocusList daoLocusList = mActiveStage.getLocusList();
+                // transform locus to device coords
+                if (mStageViewRing != null) {
+                    mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
+                } else {
+                    Log.e(TAG, "onScroll finds NULL StageViewRing ");
+                }
             } else {
-                Log.e(TAG, "onScroll finds NULL StageViewRing ");
+                if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
+                else Log.e(TAG, "onScroll UNKNOWN stage type: " + mActiveStage.getStageType());
+                return false;
             }
-        } else {
-            if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
-            else Log.e(TAG, "onScroll UNKNOWN stage type: " + mActiveStage.getStageType());
-            return false;
+            // redraw after shift in focus
+            invalidate();
         }
-
-        invalidate();
         return true;
     }
 
