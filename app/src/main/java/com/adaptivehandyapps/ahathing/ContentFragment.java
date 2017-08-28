@@ -175,6 +175,7 @@ public class ContentFragment extends Fragment {
 
 
         Log.v(TAG, "onCreateView...");
+        Log.d(TAG, PrefsUtils.toString(mParent));
         mInflater = inflater;
         mContainer = container;
 

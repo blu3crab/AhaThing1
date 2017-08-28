@@ -102,6 +102,7 @@ public class PrefsUtils {
     public static void setPrefs(Context context, String key, String value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.edit().putString(key, value).apply();
+        Log.d(TAG,"setPrefs key->" + key + ", value->" + value);
         return;
     }
     public static void setPrefs(Context context, String key, float value) {

@@ -141,8 +141,8 @@ public class MainActivity extends AppCompatActivity
             // assign repo callback
             getRepoProvider().setCallback(getRepoProviderCallback());
             getRepoProvider().setPlayListService(getPlayListService());
-            // bind playlist to repo
-            getPlayListService().bindRepoProvider();
+//            // bind playlist to repo
+//            getPlayListService().bindRepoProvider();
 
             if (mNavMenu != null) {
                 mNavMenu.setPlayListService(getPlayListService());
@@ -508,6 +508,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         mVacating = false;
         Log.v(TAG, "onResume");
+        Log.d(TAG, PrefsUtils.toString(this));
     }
 
     @Override
@@ -522,6 +523,7 @@ public class MainActivity extends AppCompatActivity
         mVacating = true;
         super.onStop();
         Log.v(TAG, "onStop");
+        Log.d(TAG, PrefsUtils.toString(this));
         // Firebase
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
