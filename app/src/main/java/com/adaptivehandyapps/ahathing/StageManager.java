@@ -158,7 +158,7 @@ public class StageManager {
     // Actions
     public Boolean onAction(StageViewRing stageViewRing, String action) {
         Log.d(TAG, "onAction action " + action);
-        // if music not playing, start background music
+        // if music not playing & theatre music is enabled, start background music
         if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
             getSoundManager().startSound(
                     getSoundManager().getMpMusic(),
@@ -168,12 +168,16 @@ public class StageManager {
                     SoundManager.SOUND_START_TIC_NADA);
         }
 
-        // if story exists associating the active actor (or all actor) with the action
+        // if story exists associating the active actor (or all actors) with the action
         if (updatePlaylist(action)) {
             int musicPosition = 0;
 
             // if prereq satisfied
             if (isPreReqSatisfied(stageViewRing)) {
+
+                // if theatre action sounds enabled
+                if (isSoundAction()) {
+                    // if music playing, pause for action sound
 //            if (isSoundMusic())
 //                getSoundManager().pauseSound(
 //                        getSoundManager().getMpMusic(),
@@ -181,9 +185,7 @@ public class StageManager {
 //                        SoundManager.SOUND_VOLUME_HALF,
 //                        SoundManager.SOUND_START_TIC_NADA,
 //                        SoundManager.SOUND_START_TIC_NADA);
-
-                if (isSoundAction()) {
-                    // execute outcome
+                    // play sound associated with action
                     switch (action) {
                         case DaoAction.ACTION_TYPE_SINGLE_TAP:
                             getSoundManager().startSound(
@@ -515,6 +517,15 @@ public class StageManager {
                 if (stageViewRing == null) return false;
                 moveActor(stageViewRing, getTouchX(), getTouchY(), 0.0f);
                 return true;
+            case DaoOutcome.OUTCOME_TYPE_MARKMOVE_ACTOR:
+                // toggle area at selection to fill or clear
+                if (stageViewRing == null) return false;
+                // if mark action not performed
+                if (!markActor(stageViewRing, getTouchX(), getTouchY(), 0.0f)) {
+                    // try moving
+                    moveActor(stageViewRing, getTouchX(), getTouchY(), 0.0f);
+                }
+                return true;
             case DaoOutcome.OUTCOME_TYPE_RESET_EPIC:
                 // clear actors on stage
                 clearActors();
@@ -539,10 +550,12 @@ public class StageManager {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found & actor present
-                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER && !daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_INTEGER_MARKER)) {
+                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER &&
+                        !daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
                     // mark actor
                     setMarkIndex(selectIndex);
                     Log.d(TAG, "markActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
+                    return true;
                 }
             } else {
                 Log.e(TAG, "Oops! stageViewRing NULL or stageModelRing NULL...");
@@ -550,9 +563,8 @@ public class StageManager {
         } else {
             if (daoStage == null) Log.e(TAG, "Oops! No active stage...");
             else Log.e(TAG, "markActor UNKNOWN stage type: " + daoStage.getStageType());
-            return false;
         }
-        return true;
+        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     // select actor at selection
@@ -564,7 +576,8 @@ public class StageManager {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found & actor not present
-                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER && daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER &&
+                        daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
                     if (getMarkIndex() > DaoDefs.INIT_INTEGER_MARKER) {
                         Log.d(TAG, "moveActor " + daoStage.getActorList().get(getMarkIndex()) + " from locus " + +getMarkIndex() + " to " + selectIndex);
                         // move actor from mark to move selection
@@ -576,6 +589,7 @@ public class StageManager {
                     setMarkIndex(selectIndex);
                     // update object
                     getRepoProvider().getDalStage().update(daoStage, true);
+                    return true;
                 }
             } else {
                 Log.e(TAG, "Oops! stageViewRing NULL or stageModelRing NULL...");
@@ -583,9 +597,8 @@ public class StageManager {
         } else {
             if (daoStage == null) Log.e(TAG, "Oops! No active stage...");
             else Log.e(TAG, "moveActor UNKNOWN stage type: " + daoStage.getStageType());
-            return false;
         }
-        return true;
+        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     // toggle area at selection - filling area with active actor or clearing the area

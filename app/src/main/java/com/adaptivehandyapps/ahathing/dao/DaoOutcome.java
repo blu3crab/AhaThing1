@@ -39,6 +39,7 @@ public class DaoOutcome extends DaoBase {
 
 	public static final String OUTCOME_TYPE_MARK_ACTOR = "MarkActor";
 	public static final String OUTCOME_TYPE_MOVE_ACTOR = "MoveActor";
+	public static final String OUTCOME_TYPE_MARKMOVE_ACTOR = "MarkMoveActor";
 
 	public static final String OUTCOME_TYPE_RESET_EPIC = "ResetEpic";
 
@@ -84,6 +85,7 @@ public class DaoOutcome extends DaoBase {
 				OUTCOME_TYPE_TOGGLE_AREA,
 				OUTCOME_TYPE_MARK_ACTOR,
 				OUTCOME_TYPE_MOVE_ACTOR,
+				OUTCOME_TYPE_MARKMOVE_ACTOR,
 				OUTCOME_TYPE_RESET_EPIC
 		));
 		return outcomeTypeList;
