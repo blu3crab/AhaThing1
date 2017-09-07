@@ -57,6 +57,9 @@ public class StageViewRing {
 
     private static final float DEFAULT_RECT_SIZE_DP = 24.0F;
 
+    private static final float DEFAULT_LOWLIGHT_DP = 2.0F;
+    private static final float DEFAULT_HIGHLIGHT_DP = 8.0F;
+
     private Context mContext;
     private StageViewController mParentViewController;
 
@@ -404,7 +407,7 @@ public class StageViewRing {
         drawLocus(canvas);
 
         // draw banner
-        drawBanner(canvas);
+//        drawBanner(canvas);
 
         if (mBoundingRect == null) {
             // set current bounding rect
@@ -417,17 +420,15 @@ public class StageViewRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean drawLocus(Canvas canvas) {
-
         int color;
-
+        // if stage established
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null) {
             Log.v(TAG, "Stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
 
+            // if stage locus list defined
             DaoLocusList daoLocusList = daoStage.getLocusList();
-
             if (daoLocusList != null) {
-
                 Log.v(TAG, "stage actor list -> " + daoStage.getActorList().toString());
 
                 // for each locus
@@ -439,7 +440,6 @@ public class StageViewRing {
                     // find index of locus
                     int i = daoLocusList.locii.indexOf(daoLocus);
                     if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
-                        // TODO: update actor appears to lose attrs(fore color) - invalid actor moniker after update?
                         // if actor present, set selected color & fill
                         DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                         if (daoActor != null) {
@@ -452,6 +452,7 @@ public class StageViewRing {
                         if (daoStage.getPropList().get(i).equals(DaoStage.PROP_TYPE_FORBIDDEN)) {
                             color = DaoStage.PROP_COLOR_FORBIDDEN;
                         }
+                        // TODO: else hint color
                         mPaintMapRect.setStyle(Paint.Style.FILL);
                     }
                     else if (i >= daoStage.getActorList().size() || i >= daoStage.getActorList().size()) {
@@ -461,7 +462,8 @@ public class StageViewRing {
                     }
                     else {
                         // set unselected color & no fill
-                        color = getRingColor(daoLocus);
+                        //color = getRingColor(daoLocus);
+                        mPaintMapRect.setStrokeWidth(DEFAULT_LOWLIGHT_DP);
                         mPaintMapRect.setStyle(Paint.Style.STROKE);
 
                     }
@@ -479,17 +481,30 @@ public class StageViewRing {
                 // if locus is marked, highlight
                 if (mParentViewController.getStageManager().getMarkIndex() != DaoDefs.INIT_INTEGER_MARKER) {
                     int i = mParentViewController.getStageManager().getMarkIndex();
-                    color = mContext.getResources().getColor(R.color.colorLightGrey);
+//                    color = mContext.getResources().getColor(R.color.colorLightGrey);
                     // if actor present, set selected color & fill
                     DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                     if (daoActor != null) {
-                        color = daoActor.getBackColor();
+//                        color = daoActor.getBackColor();
                         Log.d(TAG, "drawMark " + daoStage.getActorList().get(i) + " at locus " + i);
+                        // paint filled rect with primary color
+                        color = daoActor.getBackColor();
+                        mPaintMapRect.setStyle(Paint.Style.FILL);
+                        mPaintMapRect.setColor(color);
+                        canvas.drawOval(mRectList.get(i), mPaintMapRect);
+                        // paint stroke rect in secondary color
+                        color = daoActor.getForeColor();
+                        float strokeWidth = mPaintMapRect.getStrokeWidth();
+                        mPaintMapRect.setStrokeWidth(DEFAULT_HIGHLIGHT_DP);
+                        mPaintMapRect.setStyle(Paint.Style.STROKE);
+                        mPaintMapRect.setColor(color);
+                        canvas.drawOval(mRectList.get(i), mPaintMapRect);
+//                        mPaintMapRect.setStrokeWidth(strokeWidth);
                     }
-                    mPaintMapRect.setColor(color);
-                    mPaintMapRect.setStyle(Paint.Style.FILL);
-                    // draw locus
-                    canvas.drawOval(mRectList.get(i), mPaintMapRect);
+//                    mPaintMapRect.setColor(color);
+//                    mPaintMapRect.setStyle(Paint.Style.FILL);
+//                    // draw locus
+//                    canvas.drawOval(mRectList.get(i), mPaintMapRect);
                 }
                 return true;
             }

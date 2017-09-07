@@ -52,9 +52,6 @@ public class PlayListService extends Service {
     private DaoAction mActiveAction = null;
     private DaoOutcome mActiveOutcome = null;
 
-//    private String mMonikerStage = DaoDefs.INIT_STRING_MARKER;
-
-
     ///////////////////////////////////////////////////////////////////////////
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
@@ -90,12 +87,6 @@ public class PlayListService extends Service {
             Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
             // onServiceConnected try to load prefs
             loadPrefs();
-//            if (!mMonikerStage.equals(DaoDefs.INIT_STRING_MARKER)) {
-//                // set active stage
-//                setActiveStage((DaoStage) getRepoProvider().getDalStage().getDaoRepo().get(mMonikerStage));
-//                Log.d(TAG, "onServiceConnected: setActiveStage for " + mMonikerStage);
-//                mMonikerStage = DaoDefs.INIT_STRING_MARKER;
-//            }
         }
 
         @Override
@@ -398,12 +389,6 @@ public class PlayListService extends Service {
         else {
             Log.e(TAG, "Oops! setActiveStage finds mRepoProviderBound " + mRepoProviderBound);
             if (mRepoProvider != null) Log.e(TAG, "Oops! setActiveStage finds mRepoProviderBound " + mRepoProviderBound + " for mRepoProvider " + mRepoProvider.toString());
-//                if (activeDao != null) {
-//                    // retain stage moniker
-//                    mMonikerStage = activeDao.getMoniker();
-//                }
-//                // bind repo
-//                bindRepoProvider();
         }
 
     }
