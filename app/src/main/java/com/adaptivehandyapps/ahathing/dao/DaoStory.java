@@ -37,9 +37,9 @@ public class DaoStory extends DaoBase {
 	public static final String STORY_POSTOP_NONE = "NOP";
 	public static final String STORY_POSTOP_CURTAIN_CALL = "TallyGameOverCheck";
 
-	@SerializedName("stage")
-	private String stage;
-
+//	@SerializedName("stage")
+//	private String stage;
+//
 	@SerializedName("prereq")
 	private String prereq;
 
@@ -61,7 +61,7 @@ public class DaoStory extends DaoBase {
 	///////////////////////////////////////////////////////////////////////////
 	public DaoStory() {
 		super();
-		this.stage = DaoDefs.INIT_STRING_MARKER;
+//		this.stage = DaoDefs.INIT_STRING_MARKER;
 		this.prereq = DaoDefs.INIT_STRING_MARKER;
 		this.actor = DaoDefs.INIT_STRING_MARKER;
 		this.action = DaoDefs.INIT_STRING_MARKER;
@@ -76,7 +76,7 @@ public class DaoStory extends DaoBase {
 			Long timestamp,
 			List<String> tagList,
 			String reserve1,
-			String stage,
+//			String stage,
 			String prereq,
 			String actor,
 			String action,
@@ -85,7 +85,7 @@ public class DaoStory extends DaoBase {
 			String reserve2
 	) {
 		super(moniker, headline, timestamp, tagList, reserve1);
-		this.stage = stage;
+//		this.stage = stage;
 		this.prereq = prereq;
 		this.actor = actor;
 		this.action = action;
@@ -99,13 +99,13 @@ public class DaoStory extends DaoBase {
 		return serialVersionUID;
 	}
 
-	public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
-    }
+//	public String getStage() {
+//        return stage;
+//    }
+//
+//    public void setStage(String stage) {
+//        this.stage = stage;
+//    }
 
 	public String getPreReq() {
 		return prereq;

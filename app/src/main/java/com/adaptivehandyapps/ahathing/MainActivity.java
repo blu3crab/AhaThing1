@@ -230,14 +230,15 @@ public class MainActivity extends AppCompatActivity
                              // if user photo exists
                              Uri photoUri = user.getPhotoUrl();
                              if (photoUri != null) {
-                                 try {
-                                     // set nav photo to user photo
-                                     String realPath = getRealPathFromURI(photoUri);
-                                     Log.d(TAG, "user photo uri " + photoUri.toString());
-                                     iv_photo.setImageURI(photoUri);
-                                 }
-                                 catch (Exception ex) {
-                                     Log.e(TAG, "onDrawerStateChanged invalid photo URI exception: " + ex.getMessage());
+                                 // TODO: get photo of user
+//                                 try {
+//                                     // set nav photo to user photo
+////                                     String realPath = getRealPathFromURI(photoUri);
+//                                     Log.d(TAG, "user photo uri " + photoUri.toString());
+//                                     iv_photo.setImageURI(photoUri);
+//                                 }
+//                                 catch (Exception ex) {
+//                                     Log.e(TAG, "onDrawerStateChanged invalid photo URI exception: " + ex.getMessage());
 
                                      // TODO: prompt for photo
                                      Uri uri = Uri.parse("@drawable/bluecrab48");
@@ -263,7 +264,7 @@ public class MainActivity extends AppCompatActivity
                                                  }
                                              });
 
-                                 }
+//                                 }
                              }
                          }
                          TextView tv_name = (TextView) findViewById(R.id.tv_navname);

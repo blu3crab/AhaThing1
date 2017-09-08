@@ -584,9 +584,11 @@ public class PlayListService extends Service {
                                     mRepoProvider.getDalEpic().update(daoEpic, true);
                                 }
                                 return true;
-                            } else {
+                            }
+                            else {
                                 DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory);
-                                String monikerStage = daoStory.getStage();
+//                                String monikerStage = daoStory.getStage();
+                                String monikerStage = daoEpic.getStage();
                                 // if stage undefined
                                 if (mRepoProvider.getDalStage().getDaoRepo().get(monikerStage) == null) {
                                     // undefined Stage detected
@@ -602,7 +604,8 @@ public class PlayListService extends Service {
                                     // stage defined - allow multiple stages?
                                     // if flag TRUE to force story stage to active stage & story stage not active stage
                                     if (forceToActiveStage && (getActiveStage() != null && !monikerStage.equals(getActiveStage().getMoniker()))) {
-                                        ((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
+                                        ((DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
+//                                        ((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
                                         Log.e(TAG, "Multiple Stages " + monikerStage + " in Story " + monikerStory + " (Stage reset to " + getActiveStage().getMoniker() + ") Story updated...");
                                         mRepoProvider.getDalStory().update(daoStory, true);
                                         return true;

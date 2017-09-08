@@ -159,16 +159,21 @@ public class DaoMakerUiHandler {
                     headline = mActiveEpic.getHeadline();
 
                     mActiveStage = null;
-                    mTagList = new ArrayList<>(mActiveEpic.getTagList());
-                    if (mTagList != null && mTagList.size() > 0) {
-                        mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
-                        if (mActiveStory != null) {
-                            String stageMoniker = mActiveStory.getStage();
-                            mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
-                        }
-                    }
+                    String stageMoniker = mActiveEpic.getStage();
+                    mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
                     // xfer object to view
                     mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
+
+//                    mTagList = new ArrayList<>(mActiveEpic.getTagList());
+//                    if (mTagList != null && mTagList.size() > 0) {
+//                        mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
+//                        if (mActiveStory != null) {
+//                            String stageMoniker = mActiveStory.getStage();
+//                            mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
+//                        }
+//                    }
+//                    // xfer object to view
+//                    mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
                 }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {

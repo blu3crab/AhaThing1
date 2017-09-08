@@ -39,6 +39,7 @@ import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
@@ -299,14 +300,40 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromEpic(DaoEpic daoEpic, DaoStage daoStage) {
 
-        List<String> tagNameList = new ArrayList<>();
-        List<String> tagLabelList = new ArrayList<>();
-        List<Integer> tagImageResIdList = new ArrayList<>();
-        List<Integer> tagBgColorList = new ArrayList<>();
-
+//        List<String> tagNameList = new ArrayList<>();
+//        List<String> tagLabelList = new ArrayList<>();
+//        List<Integer> tagImageResIdList = new ArrayList<>();
+//        List<Integer> tagBgColorList = new ArrayList<>();
+//
         // set epic views visible
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
         ll.setVisibility(View.VISIBLE);
+
+        // Stage spinner
+        // dereference repo dao list
+        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mParent.getRepoProvider().getDalStage().getDaoRepo().getDaoList();
+        List<String> stageNameList = new ArrayList<>();
+        // for each stage in repo
+        for (DaoStage stage : daoStageList) {
+            // build list of names
+            stageNameList.add(stage.getMoniker());
+        }
+        mStageListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                android.R.layout.simple_list_item_1,
+                stageNameList);
+
+        mSpinnerStages = (Spinner) mRootView.findViewById(R.id.spinner_stages);
+        if (mStageListAdapter != null && mSpinnerStages != null) {
+            mSpinnerStages.setAdapter(mStageListAdapter);
+            if (stageNameList.contains(daoEpic.getStage())) {
+                int i = stageNameList.indexOf(daoEpic.getStage());
+                mSpinnerStages.setSelection(i);
+            }
+        } else {
+            // null list adapter or spinner
+            Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
+            return false;
+        }
 
         // tally progress
         mTallySeekbar = (SeekBar) mRootView.findViewById(R.id.seekbar_tally);
@@ -334,9 +361,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // establish listener
         mTicSeekbar.setOnSeekBarChangeListener(this);
 
-        // default list item color to not selected
-        int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-        // stories list
+        // set local stories list for reverse xfer in fromEpic
         mStoryList = new ArrayList<>(daoEpic.getTagList());
         // check that all stories in epic exist
         List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
@@ -344,6 +369,117 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             Log.e(TAG, "Oops!  Orphan Story in Epic...");
             mParent.getPlayListService().repairAll(true, true);
         }
+        // establish storylist button
+        handleStoryListButton();
+//        // load story list spinner
+//        loadStoryList();
+//        // dereference story repo dao list - all stories
+//        List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
+//        // for each story in repo
+//        for (DaoStory story : daoStoryList) {
+//            // build list of story names, labels & images
+//            tagNameList.add(story.getMoniker());
+//            if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
+//                tagLabelList.add(story.getHeadline());
+//            }
+//            else {
+//                tagLabelList.add("epic headline activity here...");
+//            }
+//            int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
+//            tagImageResIdList.add(imageResId);
+//            // story is in tag list - set selected color
+//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//            if (mStoryList.contains(story.getMoniker())) {
+//                // highlight list item
+//                bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+//            }
+//            tagBgColorList.add(bgColor);
+//        }
+//
+//        // instantiate list adapter
+//        int resId = R.layout.tag_list_item;
+//        mStoryListAdapter =
+//                new TagListAdapter(mRootView.getContext(),
+//                        resId,
+//                        tagNameList,
+//                        tagLabelList,
+//                        tagImageResIdList,
+//                        tagBgColorList);
+//
+//        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stories);
+//        if (mStoryListAdapter != null && lv != null) {
+//            lv.setAdapter(mStoryListAdapter);
+//        } else {
+//            Log.e(TAG, "NULL mStoryListAdapter? " + mStoryListAdapter + ", R.id.listview? " + lv);
+//            return false;
+//        }
+//        // establish listener
+//        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+//        {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapter, View v, int position,
+//                                    long arg3)
+//            {
+//                String value = (String)adapter.getItemAtPosition(position);
+//                Log.d(TAG,"handleTagList item " + value + " at position " + position);
+//                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+//
+//                // if taglist contains selection
+//                if (mStoryList.contains(value)) {
+//                    // find epic in taglist & remove
+//                    int i = mStoryList.indexOf(value);
+//                    mStoryList.remove(i);
+//                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
+//                }
+//                else {
+//                    // add selection to taglist
+//                    mStoryList.add(value);
+//                    // set color selected
+//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+//                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mStoryList.size()-1));
+//                }
+//
+//                v.setBackgroundColor(bgColor);
+//            }
+//        });
+
+        // display starboard list
+        List<DaoEpicStarBoard> starBoardList = daoEpic.getStarBoardList();
+        for (DaoEpicStarBoard starBoard : starBoardList) {
+            Log.d(TAG, starBoard.toString());
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleStoryListButton() {
+        // establish create button visibility & click listener
+        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_storylist);
+        buttonCreate.setVisibility(View.VISIBLE);
+        // button handlers
+        buttonCreate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v(TAG, "buttonStoryList.setOnClickListener: ");
+                // TODO: flip back to epic visible
+                // set epic views invisible
+                LinearLayout ll_epic = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
+                ll_epic.setVisibility(View.GONE);
+                // set storylist views visible
+                LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_storylist);
+                ll.setVisibility(View.VISIBLE);
+                // load story list spinner
+                loadStoryList();
+            }
+        });
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean loadStoryList() {
+        List<String> tagNameList = new ArrayList<>();
+        List<String> tagLabelList = new ArrayList<>();
+        List<Integer> tagImageResIdList = new ArrayList<>();
+        List<Integer> tagBgColorList = new ArrayList<>();
+
         // dereference story repo dao list - all stories
         List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
         // for each story in repo
@@ -359,7 +495,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
             tagImageResIdList.add(imageResId);
             // story is in tag list - set selected color
-            bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             if (mStoryList.contains(story.getMoniker())) {
                 // highlight list item
                 bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
@@ -413,9 +549,9 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
                 v.setBackgroundColor(bgColor);
             }
         });
-
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
     @Override
     public void onProgressChanged(SeekBar seekbar, int progress,
                                   boolean fromUser) {
@@ -452,31 +588,31 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_story);
         ll.setVisibility(View.VISIBLE);
 
-        // Stage spinner
-        // dereference repo dao list
-        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mParent.getRepoProvider().getDalStage().getDaoRepo().getDaoList();
-        List<String> stageNameList = new ArrayList<>();
-        // for each stage in repo
-        for (DaoStage stage : daoStageList) {
-            // build list of names
-            stageNameList.add(stage.getMoniker());
-        }
-        mStageListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
-                android.R.layout.simple_list_item_1,
-                stageNameList);
-
-        mSpinnerStages = (Spinner) mRootView.findViewById(R.id.spinner_stages);
-        if (mStageListAdapter != null && mSpinnerStages != null) {
-            mSpinnerStages.setAdapter(mStageListAdapter);
-            if (stageNameList.contains(daoStory.getStage())) {
-                int i = stageNameList.indexOf(daoStory.getStage());
-                mSpinnerStages.setSelection(i);
-            }
-        } else {
-            // null list adapter or spinner
-            Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
-            return false;
-        }
+//        // Stage spinner
+//        // dereference repo dao list
+//        List<DaoStage> daoStageList = (List<DaoStage>)(List<?>) mParent.getRepoProvider().getDalStage().getDaoRepo().getDaoList();
+//        List<String> stageNameList = new ArrayList<>();
+//        // for each stage in repo
+//        for (DaoStage stage : daoStageList) {
+//            // build list of names
+//            stageNameList.add(stage.getMoniker());
+//        }
+//        mStageListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+//                android.R.layout.simple_list_item_1,
+//                stageNameList);
+//
+//        mSpinnerStages = (Spinner) mRootView.findViewById(R.id.spinner_stages);
+//        if (mStageListAdapter != null && mSpinnerStages != null) {
+//            mSpinnerStages.setAdapter(mStageListAdapter);
+//            if (stageNameList.contains(daoStory.getStage())) {
+//                int i = stageNameList.indexOf(daoStory.getStage());
+//                mSpinnerStages.setSelection(i);
+//            }
+//        } else {
+//            // null list adapter or spinner
+//            Log.e(TAG, "NULL mStageListAdapter? " + mStageListAdapter + ", R.id.spinner_stages? " + mSpinnerStages);
+//            return false;
+//        }
         // prereq spinner
         List<String> prereqList = new ArrayList<>();
         prereqList.add(DaoStory.STORY_PREREQ_NONE);
@@ -851,6 +987,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // update with edited values
         activeEpic.setMoniker(editedMoniker);
         activeEpic.setHeadline(headline);
+        Log.d(TAG, "toEpic selected stage " + mSpinnerStages.getSelectedItem().toString());
+        activeEpic.setStage(mSpinnerStages.getSelectedItem().toString());
 //        activeEpic.setTagList(tagList);
         activeEpic.setTagList(mStoryList);
         mParent.getPlayListService().setActiveEpic(activeEpic);
@@ -886,8 +1024,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // update with edited values
         activeStory.setMoniker(editedMoniker);
         activeStory.setHeadline(headline);
-        Log.d(TAG, "toStory selected stage " + mSpinnerStages.getSelectedItem().toString());
-        activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
+//        Log.d(TAG, "toStory selected stage " + mSpinnerStages.getSelectedItem().toString());
+//        activeStory.setStage(mSpinnerStages.getSelectedItem().toString());
         Log.d(TAG, "toStory selected prereq " + mSpinnerPreReqs.getSelectedItem().toString());
         activeStory.setPreReq(mSpinnerPreReqs.getSelectedItem().toString());
         Log.d(TAG, "toStory selected actor " + mSpinnerActors.getSelectedItem().toString());

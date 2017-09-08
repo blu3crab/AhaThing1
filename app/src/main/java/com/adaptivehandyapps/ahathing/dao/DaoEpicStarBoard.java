@@ -73,6 +73,10 @@ public class DaoEpicStarBoard {
 		return serialVersionUID;
 	}
 
+	public String toString() {
+		return "moniker: " + getStarMoniker() + ", deviceId: " + getDeviceId() + ", tally/tic: " + getTally() + "/" + getTic();
+	}
+
 	public String getStarMoniker() {
 		return starMoniker;
 	}

@@ -45,6 +45,9 @@ public class DaoEpic extends DaoBase {
 	@SerializedName("epicType")			// determines how to tally: SumWithTic if sum>limit || tic>limit -> true
 	private String epicType;
 
+	@SerializedName("stage")
+	private String stage;
+
 	@SerializedName("starBoardList")	// stars are active actors on a particular device
 	private List<DaoEpicStarBoard> starBoardList;
 
@@ -61,6 +64,7 @@ public class DaoEpic extends DaoBase {
 		super();
 
 		this.epicType = DaoDefs.INIT_STRING_MARKER;
+		this.stage = DaoDefs.INIT_STRING_MARKER;
 		this.starBoardList = new ArrayList<>();
 		this.tallyLimit = EPIC_TALLY_LIMIT_DEFAULT;
 		this.ticLimit = EPIC_TIC_LIMIT_DEFAULT;
@@ -75,6 +79,7 @@ public class DaoEpic extends DaoBase {
 			List<String> tagList,
 			String reserve1,
 			String epicType,
+			String stage,
 			List<DaoEpicStarBoard> starBoardList,
 			Integer tallyLimit,
 			Integer ticLimit,
@@ -83,6 +88,7 @@ public class DaoEpic extends DaoBase {
 		super(moniker, headline, timestamp, tagList, reserve1);
 
 		this.epicType = epicType;
+		this.stage = stage;
 		this.starBoardList = starBoardList;
 		this.tallyLimit = tallyLimit;
 		this.ticLimit = ticLimit;
@@ -296,6 +302,14 @@ public class DaoEpic extends DaoBase {
 	}
 	public void setEpicType(String epicType) {
 		this.epicType = epicType;
+	}
+
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
 	}
 
 	public List<DaoEpicStarBoard> getStarBoardList() {
