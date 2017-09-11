@@ -108,8 +108,6 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_gravity="center_horizontal"
@@ -118,18 +116,16 @@
         <CheckBox android:id="@+id/cb_remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorNew"
             android:checked="false"
-            android:text="Remove Original When Moniker Changed"/>
+            android:text="Remove Original"/>
 
     </LinearLayout>
     <!-- last update -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_gravity="center_horizontal"
@@ -341,6 +337,31 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         android:orientation="vertical">
+        <!-- story list - epic settings toggle button -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/button_daomaker_storylist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:visibility="gone"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNewAccent"
+                android:background="@color/colorNew"
+                android:text="Show Story List"/>
+        </LinearLayout>
         <!-- stage -->
         <LinearLayout
             android:id="@+id/ll_stagelist"
@@ -435,62 +456,6 @@
                 >
             </SeekBar>
         </LinearLayout>
-        <!-- story list button -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal">
-
-            <!-- create/destroy/cancel buttons -->
-            <Button style="@style/Widget.AppCompat.Button.Colored"
-                android:id="@+id/button_daomaker_storylist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:paddingLeft="@dimen/activity_horizontal_padding"
-                android:paddingRight="@dimen/activity_horizontal_padding"
-                android:visibility="gone"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/colorNewAccent"
-                android:background="@color/colorNew"
-                android:text="Story List"/>
-        </LinearLayout>
-        <!-- story list
-        <LinearLayout
-            android:id="@+id/ll_stories"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_padding"
-                android:paddingRight="@dimen/activity_horizontal_padding"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorNew"
-                android:text="Selected tags highlighted:" />
-
-            <ListView
-                android:id="@+id/listview_stories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:background="@color/colorBrightGreen"
-                android:textColor="@color/colorBrightGreen"
-                />
-        </LinearLayout>
-        -->
     </LinearLayout>
 
     <!-- storylist -->
@@ -504,6 +469,31 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         android:orientation="vertical">
+        <!-- story list - epic settings toggle button -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/button_daomaker_epicsettings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:visibility="gone"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorNewAccent"
+                android:background="@color/colorNew"
+                android:text="Show Epic Settings"/>
+        </LinearLayout>
         <!-- story list -->
         <LinearLayout
             android:id="@+id/ll_stories"
@@ -550,35 +540,6 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:visibility="gone"
             android:orientation="vertical">
-            <!-- stage
-            <LinearLayout
-                android:id="@+id/ll_stagelist"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/activity_horizontal_padding"
-                    android:paddingRight="@dimen/activity_horizontal_padding"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorNew"
-                    android:text="Stage:" />
-
-                <Spinner
-                    android:id="@+id/spinner_stages"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:background="@color/colorTagListNotSelected"
-                    android:textColor="@color/colorBrightGreen"
-                    >
-                </Spinner>
-            </LinearLayout>
-            -->
             <!-- prereq -->
             <LinearLayout
                 android:id="@+id/ll_prereqlist"
@@ -989,32 +950,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!--
-    <LinearLayout
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical">
-
-
-        <CheckBox android:id="@+id/checkbox_meat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="story1"
-            android:onClick="onCheckboxClicked"/>
-        <CheckBox android:id="@+id/checkbox_cheese"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="story"
-            android:onClick="onCheckboxClicked"/>
-
-    </LinearLayout>
--->
     <com.adaptivehandyapps.ahathing.DaoMakerViewController
         android:id="@+id/iv_map_setter"
         android:layout_gravity="center_horizontal"

@@ -300,11 +300,6 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromEpic(DaoEpic daoEpic, DaoStage daoStage) {
 
-//        List<String> tagNameList = new ArrayList<>();
-//        List<String> tagLabelList = new ArrayList<>();
-//        List<Integer> tagImageResIdList = new ArrayList<>();
-//        List<Integer> tagBgColorList = new ArrayList<>();
-//
         // set epic views visible
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
         ll.setVisibility(View.VISIBLE);
@@ -371,77 +366,6 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         }
         // establish storylist button
         handleStoryListButton();
-//        // load story list spinner
-//        loadStoryList();
-//        // dereference story repo dao list - all stories
-//        List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
-//        // for each story in repo
-//        for (DaoStory story : daoStoryList) {
-//            // build list of story names, labels & images
-//            tagNameList.add(story.getMoniker());
-//            if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-//                tagLabelList.add(story.getHeadline());
-//            }
-//            else {
-//                tagLabelList.add("epic headline activity here...");
-//            }
-//            int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-//            tagImageResIdList.add(imageResId);
-//            // story is in tag list - set selected color
-//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//            if (mStoryList.contains(story.getMoniker())) {
-//                // highlight list item
-//                bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-//            }
-//            tagBgColorList.add(bgColor);
-//        }
-//
-//        // instantiate list adapter
-//        int resId = R.layout.tag_list_item;
-//        mStoryListAdapter =
-//                new TagListAdapter(mRootView.getContext(),
-//                        resId,
-//                        tagNameList,
-//                        tagLabelList,
-//                        tagImageResIdList,
-//                        tagBgColorList);
-//
-//        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stories);
-//        if (mStoryListAdapter != null && lv != null) {
-//            lv.setAdapter(mStoryListAdapter);
-//        } else {
-//            Log.e(TAG, "NULL mStoryListAdapter? " + mStoryListAdapter + ", R.id.listview? " + lv);
-//            return false;
-//        }
-//        // establish listener
-//        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
-//        {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapter, View v, int position,
-//                                    long arg3)
-//            {
-//                String value = (String)adapter.getItemAtPosition(position);
-//                Log.d(TAG,"handleTagList item " + value + " at position " + position);
-//                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//
-//                // if taglist contains selection
-//                if (mStoryList.contains(value)) {
-//                    // find epic in taglist & remove
-//                    int i = mStoryList.indexOf(value);
-//                    mStoryList.remove(i);
-//                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
-//                }
-//                else {
-//                    // add selection to taglist
-//                    mStoryList.add(value);
-//                    // set color selected
-//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-//                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mStoryList.size()-1));
-//                }
-//
-//                v.setBackgroundColor(bgColor);
-//            }
-//        });
 
         // display starboard list
         List<DaoEpicStarBoard> starBoardList = daoEpic.getStarBoardList();
@@ -452,22 +376,43 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean handleStoryListButton() {
-        // establish create button visibility & click listener
-        final Button buttonCreate = (Button) mRootView.findViewById(R.id.button_daomaker_storylist);
-        buttonCreate.setVisibility(View.VISIBLE);
+        // establish button visibility & click listener
+        final Button button = (Button) mRootView.findViewById(R.id.button_daomaker_storylist);
+        button.setVisibility(View.VISIBLE);
         // button handlers
-        buttonCreate.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonStoryList.setOnClickListener: ");
-                // TODO: flip back to epic visible
                 // set epic views invisible
                 LinearLayout ll_epic = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
                 ll_epic.setVisibility(View.GONE);
                 // set storylist views visible
                 LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_storylist);
                 ll.setVisibility(View.VISIBLE);
+                // load toggle button
+                handleEpicSettingsButton();
                 // load story list spinner
                 loadStoryList();
+            }
+        });
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean handleEpicSettingsButton() {
+        // establish  button visibility & click listener
+        final Button button = (Button) mRootView.findViewById(R.id.button_daomaker_epicsettings);
+        button.setVisibility(View.VISIBLE);
+        // button handlers
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v(TAG, "buttonEpicSettings.setOnClickListener: ");
+                // set storylist views invisible
+                LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_storylist);
+                ll.setVisibility(View.GONE);
+                // set epic views visible
+                LinearLayout ll_epic = (LinearLayout) mRootView.findViewById(R.id.ll_epic);
+                ll_epic.setVisibility(View.VISIBLE);
             }
         });
 
@@ -965,7 +910,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toEpic(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange, List<String> tagList) {
+    public Boolean toEpic(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoEpic activeEpic = null;
         // xfer view to object

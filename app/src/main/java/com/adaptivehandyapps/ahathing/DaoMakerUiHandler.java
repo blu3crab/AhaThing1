@@ -163,17 +163,6 @@ public class DaoMakerUiHandler {
                     mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
                     // xfer object to view
                     mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
-
-//                    mTagList = new ArrayList<>(mActiveEpic.getTagList());
-//                    if (mTagList != null && mTagList.size() > 0) {
-//                        mActiveStory = (DaoStory) mParent.getRepoProvider().getDalStory().getDaoRepo().get(mTagList.get(0));
-//                        if (mActiveStory != null) {
-//                            String stageMoniker = mActiveStory.getStage();
-//                            mActiveStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(stageMoniker);
-//                        }
-//                    }
-//                    // xfer object to view
-//                    mDaoMakerViewXfer.fromEpic(mActiveEpic, mActiveStage);
                 }
             }
             else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
@@ -273,8 +262,11 @@ public class DaoMakerUiHandler {
         TextView tv_last_update = (TextView) mRootView.findViewById(R.id.tv_last_update);
         tv_last_update.setText(date);
 
-        // establish tag list
-        handleTagList(objType);
+        // if audit, build tag list of audit entries
+        if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
+            // establish tag list
+            handleTagList(objType);
+        }
 
         if (!op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_SHOWLIST)) {
             // establish button handlers
@@ -314,96 +306,7 @@ public class DaoMakerUiHandler {
         List<Integer> tagImageResIdList = new ArrayList<>();
         List<Integer> tagBgColorList = new ArrayList<>();
 
-        if (objType.equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
-//            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
-//            ll.setVisibility(View.VISIBLE);
-//            // default list item color to not selected
-//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//            // dereference epic repo dao list
-//            List<DaoEpic> daoEpicList = (List<DaoEpic>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getDaoList();
-//            List<String> daoEpicMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalEpic().getDaoRepo().getMonikerList();
-//            if (!daoEpicMonikerList.containsAll(mTagList)) {
-//                Log.e(TAG, "Oops!  Orphan Epic in Theatre, repairing...");
-//                mParent.getPlayListService().repairAll(true, true);
-//            }
-//            // for each epic in repo
-//            for (DaoEpic epic : daoEpicList) {
-//                // build list of epic names, labels & images
-//                tagNameList.add(epic.getMoniker());
-//                if (!epic.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-//                    tagLabelList.add(epic.getHeadline());
-//                }
-//                else {
-//                    tagLabelList.add("epic headline activity here...");
-//                }
-//                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-//                tagImageResIdList.add(imageResId);
-//                // epic is in tag list - set selected color
-//                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//                if (mTagList.contains(epic.getMoniker())) {
-//                    // highlight list item
-//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-//                }
-//                tagBgColorList.add(bgColor);
-//            }
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-//            // build list of story names, labels & images
-//            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
-//            ll.setVisibility(View.VISIBLE);
-//            // default list item color to not selected
-//            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//            // dereference story repo dao list
-//            List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
-//            List<String> daoStoryMonikerList = (List<String>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getMonikerList();
-//            if (!daoStoryMonikerList.containsAll(mTagList)) {
-//                Log.e(TAG, "Oops!  Orphan Story in Epic...");
-//                mParent.getPlayListService().repairAll(true, true);
-//            }
-//            // for each story in repo
-//            for (DaoStory story : daoStoryList) {
-//                // build list of story names, labels & images
-//                tagNameList.add(story.getMoniker());
-//                if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-//                    tagLabelList.add(story.getHeadline());
-//                }
-//                else {
-//                    tagLabelList.add("epic headline activity here...");
-//                }
-//                int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-//                tagImageResIdList.add(imageResId);
-//                // story is in tag list - set selected color
-//                bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-//                if (mTagList.contains(story.getMoniker())) {
-//                    // highlight list item
-//                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-//                }
-//                tagBgColorList.add(bgColor);
-//            }
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
-            // no tag list
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER)) {
-            // no tag list
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER)) {
-            // no tag list
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER)) {
-            // no tag list
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
-            // no tag list
-            return true;
-        }
-        else if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
+        if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
             LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
             ll.setVisibility(View.VISIBLE);
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
@@ -416,6 +319,9 @@ public class DaoMakerUiHandler {
                 tagImageResIdList.add(imageResId);
                 tagBgColorList.add(bgColor);
             }
+        }
+        else {
+            return false;
         }
 
         // instantiate list adapter
@@ -491,7 +397,7 @@ public class DaoMakerUiHandler {
                     mDaoMakerViewXfer.toTheatre(op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange, mTagList);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER)) {
-                    mDaoMakerViewXfer.toEpic(op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange, mTagList);
+                    mDaoMakerViewXfer.toEpic(op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_STORY_MONIKER)) {
                     mDaoMakerViewXfer.toStory (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
