@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker MAY 2017
  *
@@ -14,10 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 5/24/2017.
-//
+ */
+package com.adaptivehandyapps.ahathing;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -34,11 +32,13 @@ import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
 
 import java.util.List;
-
+////////////////////////////////////////////////////////////////////////////
+// StageManager: manage stage actions and outcomes
 public class StageManager {
     private static final String TAG = StageManager.class.getSimpleName();
 
     private Context mContext;
+//    private StageViewController mParentViewController;
     private MainActivity mParent;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ public class StageManager {
 
     ///////////////////////////////////////////////////////////////////////////
     // Actions
-    public Boolean onAction(StageViewRing stageViewRing, String action) {
+    public Boolean onAction(StageViewRing stageViewRing, StageModelRing stageModelRing, String action) {
         Log.d(TAG, "onAction action " + action);
         // if music not playing & theatre music is enabled, start background music
         if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
@@ -237,7 +237,7 @@ public class StageManager {
                     // deliver outcome
                     DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
                     if (daoOutcome != null) {
-                        onOutcome(stageViewRing, daoOutcome.getMoniker());
+                        onOutcome(stageViewRing, stageModelRing, daoOutcome.getMoniker());
                     }
                     else {
                         Log.e(TAG,"Oops! no active outcome...");
@@ -475,19 +475,19 @@ public class StageManager {
     // Outcomes
     ///////////////////////////////////////////////////////////////////////////
     // Actions
-    public Boolean onOutcome(StageViewRing stageViewRing, String outcome) {
+    public Boolean onOutcome(StageViewRing stageViewRing, StageModelRing stageModelRing, String outcome) {
         Log.d(TAG, "onOutcome action " + outcome);
         // execute outcome
         switch (outcome) {
             case DaoOutcome.OUTCOME_TYPE_TOGGLE:
                 // toggle selection
                 if (stageViewRing == null) return false;
-                toggleActorSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, false);
+                toggleActorSelection(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f, false);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_PLUS:
                 if (stageViewRing == null) return false;
                 // toggle selection plus adjacent
-                toggleActorSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f, true);
+                toggleActorSelection(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f, true);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_PATH:
                 if (stageViewRing == null) return false;
@@ -505,25 +505,25 @@ public class StageManager {
             case DaoOutcome.OUTCOME_TYPE_TOGGLE_AREA:
                 // toggle area at selection to fill or clear
                 if (stageViewRing == null) return false;
-                toggleAreaSelection(stageViewRing, getTouchX(), getTouchY(), 0.0f);
+                toggleAreaSelection(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_MARK_ACTOR:
                 // toggle area at selection to fill or clear
                 if (stageViewRing == null) return false;
-                markActor(stageViewRing, getTouchX(), getTouchY(), 0.0f);
+                markActor(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_MOVE_ACTOR:
                 // toggle area at selection to fill or clear
                 if (stageViewRing == null) return false;
-                moveActor(stageViewRing, getTouchX(), getTouchY(), 0.0f);
+                moveActor(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f);
                 return true;
             case DaoOutcome.OUTCOME_TYPE_MARKMOVE_ACTOR:
                 // toggle area at selection to fill or clear
                 if (stageViewRing == null) return false;
                 // if mark action not performed
-                if (!markActor(stageViewRing, getTouchX(), getTouchY(), 0.0f)) {
+                if (!markActor(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f)) {
                     // try moving
-                    moveActor(stageViewRing, getTouchX(), getTouchY(), 0.0f);
+                    moveActor(stageViewRing, stageModelRing, getTouchX(), getTouchY(), 0.0f);
                 }
                 return true;
             case DaoOutcome.OUTCOME_TYPE_RESET_EPIC:
@@ -542,11 +542,12 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // select actor at selection
-    public Boolean markActor(StageViewRing stageViewRing, float touchX, float touchY, float z) {
+    public Boolean markActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
+                             float touchX, float touchY, float z) {
         Log.d(TAG, "markActor touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            if (stageViewRing != null && getRepoProvider().getStageModelRing() != null) {
+            if (stageViewRing != null && stageModelRing != null) {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found & actor present
@@ -568,11 +569,12 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // select actor at selection
-    public Boolean moveActor(StageViewRing stageViewRing, float touchX, float touchY, float z) {
+    public Boolean moveActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
+                             float touchX, float touchY, float z) {
         Log.d(TAG, "moveActor touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            if (stageViewRing != null && getRepoProvider().getStageModelRing() != null) {
+            if (stageViewRing != null && stageModelRing != null) {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found & actor not present
@@ -602,11 +604,12 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // toggle area at selection - filling area with active actor or clearing the area
-    public Boolean toggleAreaSelection(StageViewRing stageViewRing, float touchX, float touchY, float z) {
+    public Boolean toggleAreaSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
+                                       float touchX, float touchY, float z) {
         Log.d(TAG, "toggleAreaSelection touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-            if (stageViewRing != null && getRepoProvider().getStageModelRing() != null) {
+            if (stageViewRing != null && stageModelRing != null) {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
                 // if touch found
@@ -620,7 +623,7 @@ public class StageManager {
                         // set actor at locus
                         daoStage.getActorList().set(selectIndex, actorMoniker);
                         // build ring list around selection
-                        List<Integer> r1IndexList = getRepoProvider().getStageModelRing().findRing(selectIndex);
+                        List<Integer> r1IndexList = stageModelRing.findRing(selectIndex);
                         // for each locus in ring 1 list
                         for (Integer r1 : r1IndexList) {
                             // if not forbidden
@@ -628,7 +631,7 @@ public class StageManager {
                                 // set actor at locus
                                 daoStage.getActorList().set(r1, actorMoniker);
                                 // build ring list
-                                List<Integer> r2IndexList = getRepoProvider().getStageModelRing().findRing(r1);
+                                List<Integer> r2IndexList = stageModelRing.findRing(r1);
                                 for (Integer r2 : r2IndexList) {
                                     if (!daoStage.getPropList().get(r2).equals(DaoStage.PROP_TYPE_FORBIDDEN)) {
                                         daoStage.getActorList().set(r2, actorMoniker);
@@ -685,7 +688,8 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toggleActorSelection(StageViewRing stageViewRing, float touchX, float touchY, float z, Boolean plus) {
+    public Boolean toggleActorSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
+                                        float touchX, float touchY, float z, Boolean plus) {
         Log.d(TAG, "toggleActorSelection touch (x,y) " + touchX + ", " + touchY);
 //        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
         DaoStage daoStage = getPlayListService().getActiveStage();
@@ -702,8 +706,8 @@ public class StageManager {
                         }
                         // if selecting plus ring
                         if (plus) {
-                            if (getRepoProvider().getStageModelRing() != null) {
-                                List<Integer> ringIndexList = getRepoProvider().getStageModelRing().findRing(selectIndex);
+                            if (stageModelRing != null) {
+                                List<Integer> ringIndexList = stageModelRing.findRing(selectIndex);
                                 // toggle each rect in ring list
                                 for (Integer i : ringIndexList) {
                                     if (!daoStage.toggleActorList(getPlayListService().getActiveActor().getMoniker(), i)) {

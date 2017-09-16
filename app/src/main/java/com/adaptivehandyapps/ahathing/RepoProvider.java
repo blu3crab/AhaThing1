@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -37,13 +37,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-//
-// Created by mat on 1/20/2017.
-//
 ///////////////////////////////////////////////////////////////////////////
-// Repository provider
+// RepoProvider: Repository provider service manages remote & local Firebase
 public class RepoProvider extends Service {
-//    public class RepoProvider{
     private static final String TAG = RepoProvider.class.getSimpleName();
 
     private Context mContext;
@@ -65,8 +61,8 @@ public class RepoProvider extends Service {
     private Boolean mIsFirebaseReady = false;
     private DatabaseReference mDatabaseReference;
 
-    // TODO: refactor to DalStage?
-    private StageModelRing mStageModelRing;
+//    // TODO: refactor to DalStage?
+//    private StageModelRing mStageModelRing;
 
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -221,12 +217,12 @@ public class RepoProvider extends Service {
     public DaoAuditRepo getDaoAuditRepo() { return mDaoAuditRepo; }
 
     // TODO: refactor to DalStage?
-    public StageModelRing getStageModelRing() {
-        return mStageModelRing;
-    }
-    public void setStageModelRing(StageModelRing stageModelRing) {
-        this.mStageModelRing = stageModelRing;
-    }
+//    public StageModelRing getStageModelRing() {
+//        return mStageModelRing;
+//    }
+//    public void setStageModelRing(StageModelRing stageModelRing) {
+//        this.mStageModelRing = stageModelRing;
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // firebase helpers

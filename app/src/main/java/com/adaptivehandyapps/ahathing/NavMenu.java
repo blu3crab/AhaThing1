@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker APR 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 4/5/2017.
-//
 
 import android.support.design.widget.NavigationView;
 import android.util.Log;
@@ -32,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
+// NavMenu: build Nav menu & submenus
 public class NavMenu {
     private static final String TAG = "NavMenu";
 

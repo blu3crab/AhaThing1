@@ -154,11 +154,14 @@ public class StageViewRing {
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
-            // TODO: refactor to use StageModelRing?
+            // create new stage model
+            mParentViewController.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+            mParentViewController.getStageModelRing().buildModel(daoStage);
+            Log.d(TAG, "NEW StageModelRing at " + mParentViewController.getStageModelRing().toString());
             // create bounding rect
             initBoundingRect(daoStage);
             // ensure stage model bounding rect set
-            getRepoProvider().getStageModelRing().setBoundingRect(getBoundingRect());
+            mParentViewController.getStageModelRing().setBoundingRect(getBoundingRect());
             // establish stage lock fab
             Boolean lock = PrefsUtils.getBooleanPrefs(mContext,PrefsUtils.STAGE_LOCK_KEY);
             String lockImage = "ic_lock_open_black_48dp";
@@ -306,7 +309,7 @@ public class StageViewRing {
     public float vertToDeviceX(Long vertX, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
 //        float dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
-        float dx = (getCanvasWidth() / 2) - getRepoProvider().getStageModelRing().getFocusX();
+        float dx = (getCanvasWidth() / 2) - mParentViewController.getStageModelRing().getFocusX();
         // shift x,y from abstract locus center to device screen center
         float x = vertX.floatValue() + dx;
         // scale by applying dist from dev center by scale factor
@@ -328,7 +331,7 @@ public class StageViewRing {
         x = x - dx;
         // derive delta x,y to shift from abstract locus center to device screen center
 //        dx = (getCanvasWidth() / 2) - StageModelRing.RING_CENTER_X.floatValue();
-        dx = (getCanvasWidth() / 2) - getRepoProvider().getStageModelRing().getFocusX();
+        dx = (getCanvasWidth() / 2) - mParentViewController.getStageModelRing().getFocusX();
         // shift x,y from device screen center to abstract locus center
         x = x - dx;
         vertX = (long) x;
@@ -339,7 +342,7 @@ public class StageViewRing {
     public float vertToDeviceY(Long vertY, float scaleFactor) {
         // derive delta x,y to shift from abstract locus center to device screen center
 //        float dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
-        float dy = (getCanvasHeight() / 2) - getRepoProvider().getStageModelRing().getFocusY();
+        float dy = (getCanvasHeight() / 2) - mParentViewController.getStageModelRing().getFocusY();
         // shift x,y from abstract locus center to device screen center
         float y = vertY.floatValue() + dy;
         // scale by applying dist from dev center by scale factor
@@ -360,7 +363,7 @@ public class StageViewRing {
         y = y - dy;
         // derive delta x,y to shift from abstract locus center to device screen center
 //        dy = (getCanvasHeight() / 2) - StageModelRing.RING_CENTER_Y.floatValue();
-        dy = (getCanvasHeight() / 2) - getRepoProvider().getStageModelRing().getFocusY();
+        dy = (getCanvasHeight() / 2) - mParentViewController.getStageModelRing().getFocusY();
         // shift x,y from device screen center to abstract locus center
         y = y - dy;
         vertY = (long) y;

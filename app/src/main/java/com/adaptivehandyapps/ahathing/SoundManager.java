@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker MAY 2017
  *
@@ -14,29 +14,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 5/24/2017.
-//
+ */
+package com.adaptivehandyapps.ahathing;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.util.Log;
 
-import com.adaptivehandyapps.ahathing.dao.DaoAction;
-import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
-import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
-import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStory;
-
-import java.util.List;
-
+////////////////////////////////////////////////////////////////////////////
+// SoundManager: manage sound play
 public class SoundManager {
     private static final String TAG = SoundManager.class.getSimpleName();
 
@@ -50,6 +38,7 @@ public class SoundManager {
     public static final int SOUND_START_TIC_NADA = 0;
 
     private Context mContext;
+//    private StageViewController mParentViewController;
     private MainActivity mParent;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -142,6 +131,7 @@ public class SoundManager {
     public SoundManager(Context context) {
 
         mContext = context;
+//        mParentViewController = parentViewController;
         mParent = (MainActivity) context;
         if (mParent != null) {
             Log.v(TAG, "SoundManager ready with parent " + mParent.toString() + "...");

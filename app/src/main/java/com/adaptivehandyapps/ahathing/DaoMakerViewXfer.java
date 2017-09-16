@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 1/6/2017.
-//
 
 import android.util.Log;
 import android.view.View;
@@ -49,6 +46,8 @@ import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 import java.util.ArrayList;
 import java.util.List;
 
+///////////////////////////////////////////////////////////////////////////
+// DaoMakerViewXfer: transfer to/from DAO and view
 public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = DaoMakerViewXfer.class.getSimpleName();
 

@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 1/9/2017.
-//
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -48,7 +45,13 @@ import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+///////////////////////////////////////////////////////////////////////////
+// StageViewController: extends View to manage interactions with stage view
+//  HAS A
+//      StageViewRing - draw view
+// TODO: new StageModelRing with StageViewRing
+//      *StageViewModel - model math operations on stage
+//          * new via PlayListService into RepoProvider for storage
 public class StageViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
@@ -63,6 +66,8 @@ public class StageViewController extends View implements
 
     private Context mContext;
     private MainActivity mParent;
+
+    private StageModelRing mStageModelRing;
 
     private DaoStage mActiveStage;
 
@@ -116,6 +121,25 @@ public class StageViewController extends View implements
     public StageManager getStageManager() {
         return mParent.getStageManager();
     }
+
+//    ///////////////////////////////////////////////////////////////////////////
+//    private SoundManager mSoundManager;
+//    public SoundManager getSoundManager() {
+//        return mSoundManager;
+//    }
+//    public void setSoundManager(SoundManager soundManager) {
+//        this.mSoundManager = soundManager;
+//    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    private StageManager mStageManager;
+//    public StageManager getStageManager() {
+//        return mStageManager;
+//    }
+//    public void setStageManager(StageManager stageManager) {
+//        this.mStageManager = stageManager;
+//    }
+//    ///////////////////////////////////////////////////////////////////////////
+
 
     private StageViewRing mStageViewRing;
     public StageViewRing getStageViewRing() {
@@ -199,6 +223,11 @@ public class StageViewController extends View implements
         // init draw resources
         initDrawResources();
 
+//        // establish sound manager
+//        mSoundManager = new SoundManager(mContext, this);
+//        // establish stage manager
+//        mStageManager = new StageManager(mContext, this);
+//
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -266,7 +295,6 @@ public class StageViewController extends View implements
     public float getScaleFactor() {
         return mScaleFactor;
     }
-
     private void setScaleFactor(float scaleFactor) {
         this.mScaleFactor = scaleFactor;
         PrefsUtils.setPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY, scaleFactor);
@@ -275,7 +303,6 @@ public class StageViewController extends View implements
     public int getMinorTextSize() {
         return mMinorTextSize;
     }
-
     private void setMinorTextSize(int minorTextSize) {
         Log.d(TAG, "setMinorTextSize from " + this.mMinorTextSize + " to " + minorTextSize);
         this.mMinorTextSize = minorTextSize;
@@ -284,10 +311,16 @@ public class StageViewController extends View implements
     public int getMajorTextSize() {
         return mMajorTextSize;
     }
-
     private void setMajorTextSize(int majorTextSize) {
         Log.d(TAG, "setMajorTextSize from " + this.mMajorTextSize + " to " + majorTextSize);
         this.mMajorTextSize = majorTextSize;
+    }
+
+    public StageModelRing getStageModelRing() {
+        return mStageModelRing;
+    }
+    public void setStageModelRing(StageModelRing stageModelRing) {
+        this.mStageModelRing = stageModelRing;
     }
     ///////////////////////////////////////////////////////////////////////////
     @Override
@@ -309,6 +342,11 @@ public class StageViewController extends View implements
             // get scale factor
             setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
             Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));
+//            // establish sound manager
+//            mSoundManager = new SoundManager(mContext, this);
+//            // establish stage manager
+//            mStageManager = new StageManager(mContext, this);
+
             // TODO: support multiple stage gracefully
             if (getPlayListService() != null) {
                 mActiveStage = getPlayListService().getActiveStage();
@@ -428,7 +466,7 @@ public class StageViewController extends View implements
         setEvent2(event2);
         setTouchX(event1.getX());
         setTouchY(event1.getY());
-        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_FLING);
+        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_FLING);
         invalidate();
 
         return true;
@@ -442,7 +480,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
+        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
         invalidate();
     }
 
@@ -462,7 +500,8 @@ public class StageViewController extends View implements
         // establish stage lock fab
         Boolean lock = PrefsUtils.getBooleanPrefs(mContext,PrefsUtils.STAGE_LOCK_KEY);
         if (!lock) {
-            getRepoProvider().getStageModelRing().shiftFocus(distX / 2, distY / 2);
+//            getRepoProvider().getStageModelRing().shiftFocus(distX / 2, distY / 2);
+            getStageModelRing().shiftFocus(distX / 2, distY / 2);
             mActiveStage = getPlayListService().getActiveStage();
             if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
                 Log.v(TAG, "onScroll stage type: " + mActiveStage.getStageType());
@@ -505,7 +544,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
+        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
         invalidate();
         return true;
     }
@@ -518,7 +557,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
+        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
         invalidate();
         return true;
     }

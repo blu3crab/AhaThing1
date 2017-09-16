@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 1/6/2017.
-//
 
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -48,6 +45,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
+// DaoMakerUiHandler: create, edit, destroy selected DAO
+//      HAS A
+//          DaoMakerXfer - xfer to/from DAO and view
+//          DaoMakerViewController - stub for custom view
+//          TagListAdapter - generic taglist adapter
 public class DaoMakerUiHandler {
     private static final String TAG = "DaoMakerUiHandler";
 

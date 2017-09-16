@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 4/13/2017.
-//
 
 import android.app.Service;
 import android.content.ComponentName;
@@ -39,6 +36,7 @@ import com.adaptivehandyapps.ahathing.dao.DaoStory;
 import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
 
 ///////////////////////////////////////////////////////////////////////////
+// PlayListService: manages local active playlist
 public class PlayListService extends Service {
     private static final String TAG = PlayListService.class.getSimpleName();
 
@@ -377,10 +375,10 @@ public class PlayListService extends Service {
                 // extract moniker
                 String moniker = activeDao.getMoniker();
 
-                // create new stage model, view, controller
-                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-                mRepoProvider.getStageModelRing().buildModel(activeDao);
-                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
+//                // create new stage model, view, controller
+//                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+//                mRepoProvider.getStageModelRing().buildModel(activeDao);
+//                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
                 // set prefs & active object
                 PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, moniker);
             }

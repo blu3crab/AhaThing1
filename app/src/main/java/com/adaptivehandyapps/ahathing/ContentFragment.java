@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -35,10 +35,10 @@ import android.view.ViewGroup;
 
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
-/**
- * Created by matuc on 12/22/2016.
- */
-
+///////////////////////////////////////////////////////////////////////////
+// ContentFragment: manage the flow of fragments based on op, objtype, moniker
+// - stage view presents ongoing epic
+// - daoMaker creates, updates, destroys data object
 public class ContentFragment extends Fragment {
 
     private static final String TAG = "ContentFragment";

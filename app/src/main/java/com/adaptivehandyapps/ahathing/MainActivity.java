@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -28,9 +28,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -55,6 +53,24 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 ///////////////////////////////////////////////////////////////////////////
+// MainActivity
+//      implements NavigationView
+//          NavMenu - build NavMenu & sub menus
+//          NavItem - parses nav selection extracting op, objtype, moniker
+//      services (bound)
+//          RepoProvider - manage FireBase remote & local repo
+//          PlayListService - manage local active playlist
+//      fragment management
+//          ContentFragment - present fragments based on current op, objtype, moniker
+//      helpers
+//          PrefsUtils - manages preferences
+//      HAS A objects
+//          StageManager - execute stage actions, outcomes
+//          SoundManager - play sounds
+//      auth
+//          FireBase auth listener
+//          signin
+//
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 

@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-//
-// Created by mat on 1/9/2017.
-//
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -40,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+///////////////////////////////////////////////////////////////////////////
+// DaoMakerViewController: stub for custom view within DaoMaker
 // TODO: rationalize STUB for touch view inside DaoMakerUiHandler
 public class DaoMakerViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {

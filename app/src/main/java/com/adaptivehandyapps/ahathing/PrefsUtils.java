@@ -1,5 +1,5 @@
 /*
- * Project: Things
+ * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
  * Origination: M.A.Tucker JAN 2017
  *
@@ -17,10 +17,6 @@
  */
 package com.adaptivehandyapps.ahathing;
 
-/**
- * Created by mat on 6/27/2015.
- */
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -30,7 +26,8 @@ import com.adaptivehandyapps.ahathing.ahautils.TimeUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 
 import java.util.regex.Pattern;
-
+////////////////////////////////////////////////////////////////////////////
+// PrefsUtils: manage preferences
 public class PrefsUtils {
 
     public static final String TAG = "PrefsUtils";
