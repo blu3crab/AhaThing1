@@ -277,7 +277,7 @@ public class StageManager {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean isPreReqSatisfied(StageViewRing stageViewRing) {
+    private Boolean isPreReqSatisfied(StageViewRing stageViewRing) {
         DaoStory activeStory = getPlayListService().getActiveStory();
         if (stageViewRing != null && activeStory != null && getPlayListService().getActiveActor() != null) {
             if (activeStory.getPreReq().equals(DaoDefs.INIT_STRING_MARKER) ||
@@ -329,7 +329,7 @@ public class StageManager {
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean onPostOp() {
+    private Boolean onPostOp() {
         DaoStory activeStory = getPlayListService().getActiveStory();
         if (activeStory != null) {
             // return true if no post-op defined
@@ -376,7 +376,7 @@ public class StageManager {
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
+    private Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
 //    public static Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
         final Context context = c;
         final DaoEpic daoEpic = epic;
@@ -425,7 +425,7 @@ public class StageManager {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean updatePlaylist(String action) {
+    private Boolean updatePlaylist(String action) {
         Log.d(TAG, "updatePlaylist action " + action);
             // if story exists associating the active actor (or all actor) with the action
             DaoStory daoStory = isStory(action);
@@ -443,7 +443,7 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // if active actor is associated with incoming action - return story
-    public DaoStory isStory(String action) {
+    private DaoStory isStory(String action) {
         DaoEpic activeEpic = getPlayListService().getActiveEpic();
         if (activeEpic != null) {
             // for each story in epic
@@ -473,9 +473,7 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // Outcomes
-    ///////////////////////////////////////////////////////////////////////////
-    // Actions
-    public Boolean onOutcome(StageViewRing stageViewRing, StageModelRing stageModelRing, String outcome) {
+    private Boolean onOutcome(StageViewRing stageViewRing, StageModelRing stageModelRing, String outcome) {
         Log.d(TAG, "onOutcome action " + outcome);
         // execute outcome
         switch (outcome) {
@@ -533,16 +531,11 @@ public class StageManager {
             default:
                 Log.e(TAG, "Oops! Unknown outcome? " + outcome);
         }
-        // TODO: if outcome positive, update repo
-        // update object
-//        getRepoProvider().getDalStage().update(daoStage, true);
-
-
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     // select actor at selection
-    public Boolean markActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
+    private Boolean markActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
                              float touchX, float touchY, float z) {
         Log.d(TAG, "markActor touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
@@ -569,7 +562,7 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // select actor at selection
-    public Boolean moveActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
+    private Boolean moveActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
                              float touchX, float touchY, float z) {
         Log.d(TAG, "moveActor touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
@@ -604,7 +597,7 @@ public class StageManager {
     }
     ///////////////////////////////////////////////////////////////////////////
     // toggle area at selection - filling area with active actor or clearing the area
-    public Boolean toggleAreaSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
+    private Boolean toggleAreaSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
                                        float touchX, float touchY, float z) {
         Log.d(TAG, "toggleAreaSelection touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
@@ -659,7 +652,7 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean togglePropSelection(StageViewRing stageViewRing, float touchX, float touchY, float z) {
+    private Boolean togglePropSelection(StageViewRing stageViewRing, float touchX, float touchY, float z) {
         Log.d(TAG, "togglPropSelection touch (x,y) " + touchX + ", " + touchY);
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
@@ -688,7 +681,7 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toggleActorSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
+    private Boolean toggleActorSelection(StageViewRing stageViewRing, StageModelRing stageModelRing,
                                         float touchX, float touchY, float z, Boolean plus) {
         Log.d(TAG, "toggleActorSelection touch (x,y) " + touchX + ", " + touchY);
 //        int selectIndex = DaoDefs.INIT_INTEGER_MARKER;
@@ -738,7 +731,7 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean toggleActorPath(StageViewRing stageViewRing, float velocityX, float velocityY,
+    private Boolean toggleActorPath(StageViewRing stageViewRing, float velocityX, float velocityY,
                                    float event1X, float event1Y, float event2X, float event2Y) {
 
         // sum velocity ignoring direction (sign)
@@ -798,7 +791,7 @@ public class StageManager {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    public Boolean clearActors() {
+    private Boolean clearActors() {
         DaoStage daoStage = getPlayListService().getActiveStage();
         if (daoStage != null && daoStage.setActorList(DaoDefs.INIT_STRING_MARKER)) {
             // update object

@@ -61,9 +61,6 @@ public class RepoProvider extends Service {
     private Boolean mIsFirebaseReady = false;
     private DatabaseReference mDatabaseReference;
 
-//    // TODO: refactor to DalStage?
-//    private StageModelRing mStageModelRing;
-
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     // playlist service

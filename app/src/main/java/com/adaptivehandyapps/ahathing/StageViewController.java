@@ -122,25 +122,6 @@ public class StageViewController extends View implements
         return mParent.getStageManager();
     }
 
-//    ///////////////////////////////////////////////////////////////////////////
-//    private SoundManager mSoundManager;
-//    public SoundManager getSoundManager() {
-//        return mSoundManager;
-//    }
-//    public void setSoundManager(SoundManager soundManager) {
-//        this.mSoundManager = soundManager;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-//    private StageManager mStageManager;
-//    public StageManager getStageManager() {
-//        return mStageManager;
-//    }
-//    public void setStageManager(StageManager stageManager) {
-//        this.mStageManager = stageManager;
-//    }
-//    ///////////////////////////////////////////////////////////////////////////
-
-
     private StageViewRing mStageViewRing;
     public StageViewRing getStageViewRing() {
         return mStageViewRing;
@@ -342,16 +323,12 @@ public class StageViewController extends View implements
             // get scale factor
             setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
             Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));
-//            // establish sound manager
-//            mSoundManager = new SoundManager(mContext, this);
-//            // establish stage manager
-//            mStageManager = new StageManager(mContext, this);
 
             // TODO: support multiple stage gracefully
-            if (getPlayListService() != null) {
+            if (getPlayListService() != null && getStageViewRing() == null) {
                 mActiveStage = getPlayListService().getActiveStage();
                 if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                    Log.v(TAG, "RepoProvider stage type: " + mActiveStage.getStageType());
+                    Log.v(TAG, "onMeasure NEW stage view type: " + mActiveStage.getStageType());
                     // create stage view helper
                     mStageViewRing = new StageViewRing(mContext, this);
                     DaoLocusList daoLocusList = mActiveStage.getLocusList();
