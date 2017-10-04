@@ -1,7 +1,7 @@
 /*
  * Project: AhaThing1
  * Contributor(s): M.A.Tucker, Adaptive Handy Apps, LLC
- * Origination: M.A.Tucker JAN 2017
+ * Origination: M.A.Tucker SEP 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -34,26 +32,21 @@ import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
-import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoLocus;
-import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
-import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
-import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStory;
+import com.adaptivehandyapps.ahathing.dao.DaoStarGate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 ///////////////////////////////////////////////////////////////////////////
-// StageViewController: extends View to manage interactions with stage view
+// StarGateViewController: extends View to manage interactions with StarGate view
 //  HAS A
-//      StageViewRing - draw view
-//          *StageModelRing - model math operations on stage
-public class StageViewController extends View implements
+//      StarGateView - draw view
+//          *StarGateViewModel - model math operations on StarGate
+public class StarGateViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-    private static final String TAG = StageViewController.class.getSimpleName();
+    private static final String TAG = StarGateViewController.class.getSimpleName();
 
     public static final float DEFAULT_SCALE_FACTOR = 1.0F;
 
@@ -65,9 +58,7 @@ public class StageViewController extends View implements
     private Context mContext;
     private MainActivity mParent;
 
-    private StageModelRing mStageModelRing;
-
-    private DaoStage mActiveStage;
+    private StarGateModel mStarGateModel;
 
     private Boolean mInitLoad = true;
 
@@ -84,7 +75,7 @@ public class StageViewController extends View implements
     // pinch zoom support - scale factor ranges from .1 to 1.9
     private float mRawScaleFactor = DEFAULT_SCALE_FACTOR;   // retain raw scale factor to test for change
     private float mScaleFactor = DEFAULT_SCALE_FACTOR;
-    private ScaleGestureDetector mScaleGestureDetector;
+//    private ScaleGestureDetector mScaleGestureDetector;
 
     // gesture marker: onLongPress, onSingleTapConfirmed, onDoubleTap, onScale
     private boolean mGestureDetected = false;
@@ -116,16 +107,16 @@ public class StageViewController extends View implements
         return mParent.getRepoProvider();
     }
 
-    public StageManager getStageManager() {
-        return mParent.getStageManager();
+    public StarGateManager getStarGateManager() {
+        return mParent.getStarGateManager();
     }
 
-    private StageViewRing mStageViewRing;
-    public StageViewRing getStageViewRing() {
-        return mStageViewRing;
+    private StarGateView mStarGateView;
+    public StarGateView getStarGateView() {
+        return mStarGateView;
     }
-    public void setStageViewRing(StageViewRing stageViewRing) {
-        this.mStageViewRing = stageViewRing;
+    public void setStarGateView(StarGateView StarGateView) {
+        this.mStarGateView = StarGateView;
     }
 
     public float getTouchX() {
@@ -133,7 +124,7 @@ public class StageViewController extends View implements
     }
     public void setTouchX(float touchX) {
         this.mTouchX = touchX;
-        if (getStageManager() != null) getStageManager().setTouchX(touchX);
+        if (getStarGateManager() != null) getStarGateManager().setTouchX(touchX);
     }
 
     public float getTouchY() {
@@ -141,7 +132,7 @@ public class StageViewController extends View implements
     }
     public void setTouchY(float touchY) {
         this.mTouchY = touchY;
-        if (getStageManager() != null) getStageManager().setTouchY(touchY);
+        if (getStarGateManager() != null) getStarGateManager().setTouchY(touchY);
     }
 
     public float getVelocityX() {
@@ -149,7 +140,7 @@ public class StageViewController extends View implements
     }
     public void setVelocityX(float velocityX) {
         this.mVelocityX = velocityX;
-        if (getStageManager() != null) getStageManager().setVelocityX(velocityX);
+        if (getStarGateManager() != null) getStarGateManager().setVelocityX(velocityX);
     }
 
     public float getVelocityY() {
@@ -157,7 +148,7 @@ public class StageViewController extends View implements
     }
     public void setVelocityY(float velocityY) {
         this.mVelocityY = velocityY;
-        if (getStageManager() != null) getStageManager().setVelocityY(velocityY);
+        if (getStarGateManager() != null) getStarGateManager().setVelocityY(velocityY);
     }
 
     public MotionEvent getEvent1() {
@@ -165,7 +156,7 @@ public class StageViewController extends View implements
     }
     public void setEvent1(MotionEvent event1) {
         this.mEvent1 = event1;
-        if (getStageManager() != null) getStageManager().setEvent1(event1);
+        if (getStarGateManager() != null) getStarGateManager().setEvent1(event1);
     }
 
     public MotionEvent getEvent2() {
@@ -173,20 +164,20 @@ public class StageViewController extends View implements
     }
     public void setEvent2(MotionEvent event2) {
         this.mEvent2 = event2;
-        if (getStageManager() != null) getStageManager().setEvent2(event2);
+        if (getStarGateManager() != null) getStarGateManager().setEvent2(event2);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // constructors
-    public StageViewController(Context context) {
+    public StarGateViewController(Context context) {
         super(context);
-        Log.d(TAG, "StageViewController constructor init context...");
+        Log.d(TAG, "StarGateViewController constructor init context...");
         init(context);
     }
 
-    public StageViewController(Context context, AttributeSet attrs) {
+    public StarGateViewController(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.d(TAG, "StageViewController constructor init context/attrs...");
+        Log.d(TAG, "StarGateViewController constructor init context/attrs...");
         init(context);
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -195,25 +186,19 @@ public class StageViewController extends View implements
         mContext = context;
         mParent = (MainActivity) context;
         if (mParent != null) {
-            Log.v(TAG, "StageViewController ready with parent " + mParent.toString() + "...");
+            Log.v(TAG, "StarGateViewController ready with parent " + mParent.toString() + "...");
         } else {
-            Log.e(TAG, "Oops!  StageViewController Parent context (MainActivity) NULL!");
+            Log.e(TAG, "Oops!  StarGateViewController Parent context (MainActivity) NULL!");
         }
         // init draw resources
         initDrawResources();
 
-//        // establish sound manager
-//        mSoundManager = new SoundManager(mContext, this);
-//        // establish stage manager
-//        mStageManager = new StageManager(mContext, this);
-//
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean initDrawResources() {
 
         // adjust text size
-        // TODO: refactor to getDensity()
         setDensity(getResources().getDisplayMetrics().density);
         setMinorTextSize(Math.round(DEFAULT_MINOR_TEXT_SIZE_DP * getDensity()));
         setMajorTextSize(Math.round(DEFAULT_MAJOR_TEXT_SIZE_DP * getDensity()));
@@ -222,12 +207,12 @@ public class StageViewController extends View implements
         mPaintMinorText = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintMinorText.setStyle(Paint.Style.FILL);
         mPaintMinorText.setTextSize(getMinorTextSize());
-        mPaintMinorText.setColor(getResources().getColor(R.color.colorStagePrimary));
+        mPaintMinorText.setColor(getResources().getColor(R.color.colorStarGatePrimary));
         // major text paint
         mPaintMajorText = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintMajorText.setStyle(Paint.Style.FILL);
         mPaintMajorText.setTextSize(getMajorTextSize());
-        mPaintMajorText.setColor(getResources().getColor(R.color.colorStagePrimary));
+        mPaintMajorText.setColor(getResources().getColor(R.color.colorStarGatePrimary));
 //        mPaintMajorText.setColor(Color.rgb(255, 255, 255));
 
         // Instantiate the gesture detector with the
@@ -240,8 +225,8 @@ public class StageViewController extends View implements
         // set long press enabled
         mDetector.setIsLongpressEnabled(true);
 
-        // pinch zoom support
-        mScaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+//        // pinch zoom support
+//        mScaleGestureDetector = new ScaleGestureDetector(mContext, new ScaleListener());
 
         return true;
     }
@@ -295,11 +280,11 @@ public class StageViewController extends View implements
         this.mMajorTextSize = majorTextSize;
     }
 
-    public StageModelRing getStageModelRing() {
-        return mStageModelRing;
+    public StarGateModel getStarGateModel() {
+        return mStarGateModel;
     }
-    public void setStageModelRing(StageModelRing stageModelRing) {
-        this.mStageModelRing = stageModelRing;
+    public void setStarGateModel(StarGateModel StarGateModel) {
+        this.mStarGateModel = StarGateModel;
     }
     ///////////////////////////////////////////////////////////////////////////
     @Override
@@ -322,20 +307,10 @@ public class StageViewController extends View implements
             setScaleFactor(PrefsUtils.getFloatPrefs(mContext, PrefsUtils.SCALE_FACTOR_KEY));
             Log.d(TAG, "onMeasure scale factor = " + Float.toString(getScaleFactor()));
 
-            // TODO: support multiple stage gracefully
-            if (getPlayListService() != null && getStageViewRing() == null) {
-                mActiveStage = getPlayListService().getActiveStage();
-                if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                    Log.v(TAG, "onMeasure NEW stage view type: " + mActiveStage.getStageType());
-                    // create stage view helper
-                    mStageViewRing = new StageViewRing(mContext, this);
-                    DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                    // transform locus to device coords
-                    mStageViewRing.transformLocus(daoLocusList, mScaleFactor);
-                } else {
-                    if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
-                    else Log.e(TAG, "Oops!  UNKNOWN stage type: " + mActiveStage.getStageType());
-                }
+            if (getStarGateView() == null) {
+                    Log.v(TAG, "onMeasure NEW StarGateView... ");
+                    // create StarGate view helper
+                    mStarGateView = new StarGateView(mContext, this);
             }
         }
 
@@ -355,8 +330,8 @@ public class StageViewController extends View implements
         Log.d(TAG, "onTouchEvent: " + event.toString());
         // gesture detector
         this.mDetector.onTouchEvent(event);
-        // pinch-zoom gesture detector
-        mScaleGestureDetector.onTouchEvent(event);
+//        // pinch-zoom gesture detector
+//        mScaleGestureDetector.onTouchEvent(event);
 
         // get pointer index from the event object
         int pointerIndex = event.getActionIndex();
@@ -433,15 +408,13 @@ public class StageViewController extends View implements
                 ", \n(1) raw X,Y " + event1.getX() + ", " + event1.getY() +
                 ", \n(2) raw X,Y " + event2.getX() + ", " + event2.getY() +
                 ", \ndelta raw X,Y " + (event2.getX() - event1.getX()) + ", " + (event2.getY() - event1.getY()) );
-//        getStageManager().toggleActorPath(velocityX, velocityY, event1.getX(), event1.getY(), event2.getX(), event2.getY());
-
         setVelocityX(velocityX);
         setVelocityY(velocityY);
         setEvent1(event1);
         setEvent2(event2);
         setTouchX(event1.getX());
         setTouchY(event1.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_FLING);
+        getStarGateManager().onAction(getStarGateView(), getStarGateModel(), DaoAction.ACTION_TYPE_FLING);
         invalidate();
 
         return true;
@@ -455,7 +428,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
+        getStarGateManager().onAction(getStarGateView(), getStarGateModel(), DaoAction.ACTION_TYPE_LONG_PRESS);
         invalidate();
     }
 
@@ -471,29 +444,6 @@ public class StageViewController extends View implements
         }
         if (event2.getPointerCount() > 1) {
             Log.d(TAG, "onScroll event2 multi-touch? " + event2.getPointerCount());
-        }
-        // establish stage lock fab
-        Boolean lock = PrefsUtils.getBooleanPrefs(mContext,PrefsUtils.STAGE_LOCK_KEY);
-        if (!lock) {
-//            getRepoProvider().getStageModelRing().shiftFocus(distX / 2, distY / 2);
-            getStageModelRing().shiftFocus(distX / 2, distY / 2);
-            mActiveStage = getPlayListService().getActiveStage();
-            if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                Log.v(TAG, "onScroll stage type: " + mActiveStage.getStageType());
-                DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                // transform locus to device coords
-                if (mStageViewRing != null) {
-                    mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
-                } else {
-                    Log.e(TAG, "onScroll finds NULL StageViewRing ");
-                }
-            } else {
-                if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
-                else Log.e(TAG, "onScroll UNKNOWN stage type: " + mActiveStage.getStageType());
-                return false;
-            }
-            // redraw after shift in focus
-            invalidate();
         }
         return true;
     }
@@ -519,7 +469,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
+        getStarGateManager().onAction(getStarGateView(), getStarGateModel(), DaoAction.ACTION_TYPE_SINGLE_TAP);
         invalidate();
         return true;
     }
@@ -532,7 +482,7 @@ public class StageViewController extends View implements
         mGestureDetected = true;
         setTouchX(event.getX());
         setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
+        getStarGateManager().onAction(getStarGateView(), getStarGateModel(), DaoAction.ACTION_TYPE_DOUBLE_TAP);
         invalidate();
         return true;
     }
@@ -543,40 +493,6 @@ public class StageViewController extends View implements
         Log.d(TAG, "onDoubleTapEvent(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         return true;
     }
-
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-            // prevent scaling too small or too large
-            setScaleFactor(Math.max(0.1f, Math.min(mScaleFactor, 1.9f)));
-            Log.v(TAG, "ScaleListener : " + getScaleFactor() + ", detector: " + detector.getScaleFactor());
-            mGestureDetected = true;
-
-            // if scale factor changed
-            if (mRawScaleFactor != detector.getScaleFactor()) {
-                mRawScaleFactor = detector.getScaleFactor();
-                // check stage type to find stage view helper
-                mActiveStage = getPlayListService().getActiveStage();
-                if (mActiveStage != null && mActiveStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                    Log.v(TAG, "onScale stage type: " + mActiveStage.getStageType());
-                    DaoLocusList daoLocusList = mActiveStage.getLocusList();
-                    // transform locus to device coords
-                    if (mStageViewRing != null) {
-                        mStageViewRing.transformLocus(daoLocusList, getScaleFactor());
-                    } else {
-                        Log.e(TAG, "onScale finds NULL StageViewRing ");
-                    }
-                } else {
-                    if (mActiveStage == null) Log.e(TAG, "Oops!  no active stage...");
-                    else Log.e(TAG, "onScale UNKNOWN stage type: " + mActiveStage.getStageType());
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-    ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     @Override
     protected void onDraw(Canvas canvas) {
@@ -586,31 +502,9 @@ public class StageViewController extends View implements
         canvas.drawColor(Color.TRANSPARENT);
 //        canvas.drawColor(Color.BLUE);
 
-        if (mStageViewRing != null) {
-            mStageViewRing.onDraw(canvas);
+        if (mStarGateView != null) {
+            mStarGateView.onDraw(canvas);
         }
     }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean drawText(Canvas canvas, String text, Paint paint, float x, float y) {
-        float textPaintSize = paint.getTextSize();
-
-        String greeting = text;
-        float textWidth = paint.measureText(greeting);
-
-        // if text overflows canvas, decrement until text size underfills screen width
-        while (textWidth > canvas.getWidth() && textPaintSize > DECREMENT_TEXT_SIZE_DP) {
-            textPaintSize -= DECREMENT_TEXT_SIZE_DP;
-            paint.setTextSize(textPaintSize);
-            textWidth = paint.measureText(greeting);
-        }
-
-        // center text
-//        float x = (canvas.getWidth()/2) - (textWidth/2);
-//        canvas.drawText(greeting, x + getPaddingLeft(), getPaddingTop()*16, paint);
-//        canvas.drawText(greeting, x + getPaddingLeft(), y, paint);
-        canvas.drawText(greeting, x, y, paint);
-        return true;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-
 }

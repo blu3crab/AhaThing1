@@ -29,6 +29,7 @@ import com.adaptivehandyapps.ahathing.dal.DalActor;
 import com.adaptivehandyapps.ahathing.dal.DalEpic;
 import com.adaptivehandyapps.ahathing.dal.DalOutcome;
 import com.adaptivehandyapps.ahathing.dal.DalStage;
+import com.adaptivehandyapps.ahathing.dal.DalStarGate;
 import com.adaptivehandyapps.ahathing.dal.DalStory;
 import com.adaptivehandyapps.ahathing.dal.DalTheatre;
 import com.adaptivehandyapps.ahathing.dao.DaoAuditRepo;
@@ -46,6 +47,7 @@ public class RepoProvider extends Service {
     private OnRepoProviderRefresh mCallback = null; //call back interface
 
     // data access layer
+    private DalStarGate mDalStarGate;
     private DalTheatre mDalTheatre;
     private DalEpic mDalEpic;
     private DalStory mDalStory;
@@ -75,6 +77,7 @@ public class RepoProvider extends Service {
         Log.d(TAG, "setPlayListService " + mPlayListService);
         if (isFirebaseReady()) {
             // establish firebase listeners
+            getDalStarGate().setListener();
             getDalTheatre().setListener();
             getDalEpic().setListener();
             getDalStory().setListener();
@@ -118,6 +121,7 @@ public class RepoProvider extends Service {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean init() {
         // instantiate DAL for each object type
+        setDalStarGate(new DalStarGate(this));
         setDalTheatre(new DalTheatre(this));
         setDalEpic(new DalEpic(this));
         setDalStory(new DalStory(this));
@@ -160,6 +164,13 @@ public class RepoProvider extends Service {
 
     public void setCallback(OnRepoProviderRefresh callback) {
         this.mCallback = callback;
+    }
+
+    public DalStarGate getDalStarGate() {
+        return mDalStarGate;
+    }
+    public void setDalStarGate(DalStarGate dalStarGate) {
+        this.mDalStarGate = dalStarGate;
     }
 
     public DalTheatre getDalTheatre() {

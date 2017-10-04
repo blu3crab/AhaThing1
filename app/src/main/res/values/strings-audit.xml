@@ -1,5 +1,7 @@
 <resources>
     <string name="actor_RepoProvider">RepoProvider</string>
+    <string name="actor_updateStarGate">updateStarGate</string>
+    <string name="actor_removeStarGate">removeStarGate</string>
     <string name="actor_updateTheatre">updateTheatre</string>
     <string name="actor_removeTheatre">removeTheatre</string>
     <string name="actor_updateEpic">updateEpic</string>

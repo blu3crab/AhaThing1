@@ -566,8 +566,23 @@ public class PlayListService extends Service {
                     return true;
                 }
                 else {
+                    // dereference epic
                     DaoEpic daoEpic = (DaoEpic)mRepoProvider.getDalEpic().getDaoRepo().get(monikerEpic);
                     if (daoEpic != null) {
+                        // if stage undefined, alert
+                        String monikerStage = daoEpic.getStage();
+                        // if stage undefined
+                        if (mRepoProvider.getDalStage().getDaoRepo().get(monikerStage) == null) {
+                            // undefined Stage detected
+                            Log.e(TAG, "Undefined Stage " + monikerStage + " in Epic " + monikerEpic + " (remove " + removeIfUndefined + ")");
+                            if (removeIfUndefined) {
+                                // update epic?
+//                                daoEpic.getTagList().remove(monikerStory);
+//                                Log.e(TAG, "Undefined Stage " + monikerStage + " in Story " + monikerStory + " (Story removed)...");
+//                                mRepoProvider.getDalEpic().update(daoEpic, true);
+                            }
+                            return true;
+                        }
                         // for each story in epic tag list
                         for (String monikerStory : daoEpic.getTagList()) {
                             // if story undefined
@@ -585,69 +600,45 @@ public class PlayListService extends Service {
                             }
                             else {
                                 DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory);
-//                                String monikerStage = daoStory.getStage();
-                                String monikerStage = daoEpic.getStage();
-                                // if stage undefined
-                                if (mRepoProvider.getDalStage().getDaoRepo().get(monikerStage) == null) {
-                                    // undefined Stage detected
-                                    Log.e(TAG, "Undefined Stage " + monikerStage + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
+                                // actor
+                                String monikerActor = daoStory.getActor();
+                                if (mRepoProvider.getDalActor().getDaoRepo().get(monikerActor) == null) {
+                                    // undefined Actor detected
+                                    Log.e(TAG, "Undefined Actor " + monikerActor + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
                                     if (removeIfUndefined) {
                                         // remove story from epic tag list
                                         daoEpic.getTagList().remove(monikerStory);
-                                        Log.e(TAG, "Undefined Stage " + monikerStage + " in Story " + monikerStory + " (Story removed)...");
+                                        Log.e(TAG, "Undefined Actor " + monikerActor + " in Story " + monikerStory + " (Story removed)...");
                                         mRepoProvider.getDalEpic().update(daoEpic, true);
                                     }
                                     return true;
-                                } else {
-                                    // stage defined - allow multiple stages?
-                                    // if flag TRUE to force story stage to active stage & story stage not active stage
-                                    if (forceToActiveStage && (getActiveStage() != null && !monikerStage.equals(getActiveStage().getMoniker()))) {
-                                        ((DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
-//                                        ((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(monikerStory)).setStage(getActiveStage().getMoniker());
-                                        Log.e(TAG, "Multiple Stages " + monikerStage + " in Story " + monikerStory + " (Stage reset to " + getActiveStage().getMoniker() + ") Story updated...");
-                                        mRepoProvider.getDalStory().update(daoStory, true);
+                                }
+                                else {
+                                    // action
+                                    String monikerAction = daoStory.getAction();
+                                    if (mRepoProvider.getDalAction().getDaoRepo().get(monikerAction) == null) {
+                                        // undefined Actor detected
+                                        Log.e(TAG, "Undefined Actor " + monikerAction + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
+                                        if (removeIfUndefined) {
+                                            // remove story from epic tag list
+                                            daoEpic.getTagList().remove(monikerStory);
+                                            Log.e(TAG, "Undefined Action " + monikerAction + " in Story " + monikerStory + " (Story removed)...");
+                                            mRepoProvider.getDalEpic().update(daoEpic, true);
+                                        }
                                         return true;
                                     } else {
-                                        // actor
-                                        String monikerActor = daoStory.getActor();
-                                        if (mRepoProvider.getDalActor().getDaoRepo().get(monikerActor) == null) {
-                                            // undefined Actor detected
-                                            Log.e(TAG, "Undefined Actor " + monikerActor + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
+                                        // outcome
+                                        String monikerOutcome = daoStory.getOutcome();
+                                        if (mRepoProvider.getDalOutcome().getDaoRepo().get(monikerOutcome) == null) {
+                                            // undefined Outcome detected
+                                            Log.e(TAG, "Undefined Outcome " + monikerOutcome + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
                                             if (removeIfUndefined) {
                                                 // remove story from epic tag list
                                                 daoEpic.getTagList().remove(monikerStory);
-                                                Log.e(TAG, "Undefined Actor " + monikerActor + " in Story " + monikerStory + " (Story removed)...");
+                                                Log.e(TAG, "Undefined Outcome " + monikerOutcome + " in Story " + monikerStory + " (Story removed)...");
                                                 mRepoProvider.getDalEpic().update(daoEpic, true);
                                             }
                                             return true;
-                                        } else {
-                                            // action
-                                            String monikerAction = daoStory.getAction();
-                                            if (mRepoProvider.getDalAction().getDaoRepo().get(monikerAction) == null) {
-                                                // undefined Actor detected
-                                                Log.e(TAG, "Undefined Actor " + monikerAction + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
-                                                if (removeIfUndefined) {
-                                                    // remove story from epic tag list
-                                                    daoEpic.getTagList().remove(monikerStory);
-                                                    Log.e(TAG, "Undefined Action " + monikerAction + " in Story " + monikerStory + " (Story removed)...");
-                                                    mRepoProvider.getDalEpic().update(daoEpic, true);
-                                                }
-                                                return true;
-                                            } else {
-                                                // outcome
-                                                String monikerOutcome = daoStory.getOutcome();
-                                                if (mRepoProvider.getDalOutcome().getDaoRepo().get(monikerOutcome) == null) {
-                                                    // undefined Outcome detected
-                                                    Log.e(TAG, "Undefined Outcome " + monikerOutcome + " in Story " + monikerStory + " (remove " + removeIfUndefined + ")");
-                                                    if (removeIfUndefined) {
-                                                        // remove story from epic tag list
-                                                        daoEpic.getTagList().remove(monikerStory);
-                                                        Log.e(TAG, "Undefined Outcome " + monikerOutcome + " in Story " + monikerStory + " (Story removed)...");
-                                                        mRepoProvider.getDalEpic().update(daoEpic, true);
-                                                    }
-                                                    return true;
-                                                }
-                                            }
                                         }
                                     }
                                 }

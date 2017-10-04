@@ -28,27 +28,32 @@ import java.lang.annotation.RetentionPolicy;
 ///////////////////////////////////////////////////////////////////////////
 //
 // Theatre[1..N]
-// Story[1..N]
-//      nickname
-//      creation date
-//      Stage[1..N]
-//          dimensions
-//              Vert[1..N]
-//                  location
-//                  connections to other Verts to form paths
-//          Prop[1..N]
-//              attributes at Verts
-//                  undiscovered(hidden)/discovered(visible)
-//      Actor[1..N]
+//      Epic[1..N]
 //          nickname
-//          attributes
-//          Avatar[1..N]
-//              type
-//              capabilities
-//      Action[1..N]
-//          Avatar navigation on stage
-//          conflict creation
-//          conflict resolution
+//          creation date
+//          Stage[1..N]
+//              dimensions
+//                  Vert[1..N]
+//                      location
+//                      connections to other Verts to form paths
+//              Prop[1..N]
+//                  attributes at Verts
+//                      undiscovered(hidden)/discovered(visible)
+//          Story[1..N]
+//              Actor[1..N]
+//                  nickname
+//                  attributes
+//                  Avatar[1..N]
+//                      type
+//                      capabilities
+//              Action[1..N]
+//                  nickname
+//                  attributes
+//                  mapped from incoming event (e.g. touch)
+//              Outcome[1..N]
+//                  nickname
+//                  attributes
+//                  results in stage updates
 //
 ///////////////////////////////////////////////////////////////////////////
 public class DaoDefs {
@@ -66,6 +71,7 @@ public class DaoDefs {
     @Retention(RetentionPolicy.SOURCE)
     // dao object types
     @IntDef({DAOOBJ_TYPE_UNKNOWN,
+            DAOOBJ_TYPE_STARGATE,
             DAOOBJ_TYPE_THEATRE,
             DAOOBJ_TYPE_EPIC,
             DAOOBJ_TYPE_STORY,
@@ -79,17 +85,19 @@ public class DaoDefs {
     public @interface DaoObjType {}
 
     public static final int DAOOBJ_TYPE_UNKNOWN = -1;
-    public static final int DAOOBJ_TYPE_THEATRE = 0;
-    public static final int DAOOBJ_TYPE_EPIC = 1;
-    public static final int DAOOBJ_TYPE_STORY = 2;
-    public static final int DAOOBJ_TYPE_STAGE = 3;
-    public static final int DAOOBJ_TYPE_ACTOR = 4;
-    public static final int DAOOBJ_TYPE_ACTION = 5;
-    public static final int DAOOBJ_TYPE_OUTCOME = 6;
-    public static final int DAOOBJ_TYPE_AUDIT = 7;
-    public static final int DAOOBJ_TYPE_RESERVE = 8;
+    public static final int DAOOBJ_TYPE_STARGATE = 0;
+    public static final int DAOOBJ_TYPE_THEATRE = 1;
+    public static final int DAOOBJ_TYPE_EPIC = 2;
+    public static final int DAOOBJ_TYPE_STORY = 3;
+    public static final int DAOOBJ_TYPE_STAGE = 4;
+    public static final int DAOOBJ_TYPE_ACTOR = 5;
+    public static final int DAOOBJ_TYPE_ACTION = 6;
+    public static final int DAOOBJ_TYPE_OUTCOME = 7;
+    public static final int DAOOBJ_TYPE_AUDIT = 8;
+    public static final int DAOOBJ_TYPE_RESERVE = 9;
 
     public static final String DAOOBJ_TYPE_UNKNOWN_MONIKER = "Unknown";
+    public static final String DAOOBJ_TYPE_STARGATE_MONIKER = "StarGate";
     public static final String DAOOBJ_TYPE_THEATRE_MONIKER = "Theatre";
     public static final String DAOOBJ_TYPE_EPIC_MONIKER = "Epic";
     public static final String DAOOBJ_TYPE_STORY_MONIKER = "Story";
@@ -101,6 +109,7 @@ public class DaoDefs {
     public static final String DAOOBJ_TYPE_RESERVE_MONIKER = "Reserve";
 
     public static final int DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID = R.drawable.ic_format_clear_black_48dp;
+    public static final int DAOOBJ_TYPE_STARGATE_IMAGE_RESID = R.drawable.ic_flare_black_48dp;
     public static final int DAOOBJ_TYPE_THEATRE_IMAGE_RESID = R.drawable.ic_local_movies_black_48dp;
     public static final int DAOOBJ_TYPE_EPIC_IMAGE_RESID = R.drawable.ic_burst_mode_black_48dp;
     public static final int DAOOBJ_TYPE_STORY_IMAGE_RESID = R.drawable.ic_play_circle_filled_black_48dp;
@@ -121,34 +130,37 @@ public class DaoDefs {
     // get object type
     public static @DaoObjType
     Integer getDaoObjType(Integer type) {
-        @DaoObjType Integer daoPipeObjType = DAOOBJ_TYPE_UNKNOWN;
+        @DaoObjType Integer daoObjType = DAOOBJ_TYPE_UNKNOWN;
         switch (type){
             case DAOOBJ_TYPE_UNKNOWN:
-                daoPipeObjType = DAOOBJ_TYPE_UNKNOWN;
+                daoObjType = DAOOBJ_TYPE_UNKNOWN;
+                break;
+            case DAOOBJ_TYPE_STARGATE:
+                daoObjType = DAOOBJ_TYPE_STARGATE;
                 break;
             case DAOOBJ_TYPE_THEATRE:
-                daoPipeObjType = DAOOBJ_TYPE_THEATRE;
+                daoObjType = DAOOBJ_TYPE_THEATRE;
                 break;
             case DAOOBJ_TYPE_EPIC:
-                daoPipeObjType = DAOOBJ_TYPE_EPIC;
+                daoObjType = DAOOBJ_TYPE_EPIC;
                 break;
             case DAOOBJ_TYPE_STORY:
-                daoPipeObjType = DAOOBJ_TYPE_STORY;
+                daoObjType = DAOOBJ_TYPE_STORY;
                 break;
             case DAOOBJ_TYPE_STAGE:
-                daoPipeObjType = DAOOBJ_TYPE_STAGE;
+                daoObjType = DAOOBJ_TYPE_STAGE;
                 break;
             case DAOOBJ_TYPE_ACTOR:
-                daoPipeObjType = DAOOBJ_TYPE_ACTOR;
+                daoObjType = DAOOBJ_TYPE_ACTOR;
                 break;
             case DAOOBJ_TYPE_ACTION:
-                daoPipeObjType = DAOOBJ_TYPE_ACTION;
+                daoObjType = DAOOBJ_TYPE_ACTION;
                 break;
             case DAOOBJ_TYPE_RESERVE:
-                daoPipeObjType = DAOOBJ_TYPE_RESERVE;
+                daoObjType = DAOOBJ_TYPE_RESERVE;
                 break;
         }
-        return daoPipeObjType;
+        return daoObjType;
     }
     ///////////////////////////////////////////////////////////////////////////
 }

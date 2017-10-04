@@ -59,7 +59,7 @@ public class NavMenu {
 
     ///////////////////////////////////////////////////////////////////////////
     // build nav menu
-    public Boolean build(NavigationView navigationView) {
+    public Boolean build(NavigationView navigationView, String starName) {
 
         // append active object to menu title
         String prefix = DaoDefs.INIT_STRING_MARKER;
@@ -69,7 +69,12 @@ public class NavMenu {
         int objTypeCount = DaoDefs.DAOOBJ_TYPE_RESERVE;
         for (int i = 0; i < objTypeCount; i++) {
             String activeName = DaoDefs.INIT_STRING_MARKER;
-            if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
+            if (i == DaoDefs.DAOOBJ_TYPE_STARGATE) {
+                iconId = DaoDefs.DAOOBJ_TYPE_STARGATE_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                activeName = starName;
+            }
+            else if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
                 if (getPlayListService().getActiveTheatre() != null) {

@@ -81,6 +81,36 @@ public class MainActivity extends AppCompatActivity
     private boolean mVacating = false;
 
     ///////////////////////////////////////////////////////////////////////////
+
+    private Activity mActivity;
+    private NavigationView mNavigationView;
+    private DrawerLayout mDrawerLayout;
+    private NavMenu mNavMenu;
+    private NavItem mNavItem;
+
+    private String mContentOp = DaoDefs.INIT_STRING_MARKER;
+    private String mContentObjType = DaoDefs.INIT_STRING_MARKER;
+    private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
+
+    // Firebase auth
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private String mStarName;
+
+    public String getStarName() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String starName = "Signin Here!";
+        if (user != null) {
+            if (user.getDisplayName() != null) Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
+            // update firebase user profile with display name derived from email
+            starName = updateFirebaseDisplayNameFromEmail(user, user.getEmail());
+
+            this.mStarName = starName;
+        }
+        return starName;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     private SoundManager mSoundManager;
     public SoundManager getSoundManager() {
         return mSoundManager;
@@ -95,6 +125,14 @@ public class MainActivity extends AppCompatActivity
     }
     public void setStageManager(StageManager stageManager) {
         this.mStageManager = stageManager;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private StarGateManager mStarGateManager;
+    public StarGateManager getStarGateManager() {
+        return mStarGateManager;
+    }
+    public void setStarGateManager(StarGateManager StarGateManager) {
+        this.mStarGateManager = StarGateManager;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -189,22 +227,6 @@ public class MainActivity extends AppCompatActivity
     public void setRepoProvider(RepoProvider repoProvider) {
         mRepoProvider = repoProvider;
     }
-    ///////////////////////////////////////////////////////////////////////////
-
-    private Activity mActivity;
-    private NavigationView mNavigationView;
-    private DrawerLayout mDrawerLayout;
-    private NavMenu mNavMenu;
-    private NavItem mNavItem;
-
-    private String mContentOp = DaoDefs.INIT_STRING_MARKER;
-    private String mContentObjType = DaoDefs.INIT_STRING_MARKER;
-    private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
-
-    // Firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
     ///////////////////////////////////////////////////////////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -304,10 +326,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        // instantiate nav  menu & item
-        mNavMenu = new NavMenu();
-        mNavItem = new NavItem();
-
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -327,12 +345,20 @@ public class MainActivity extends AppCompatActivity
                     // TODO: clear database, listeners, etc.?
                     if (getRepoProvider() != null) getRepoProvider().removeFirebaseListener();
                 }
+                // set starname
+                getStarName();
             }
         };
+        // instantiate nav  menu & item
+        mNavMenu = new NavMenu();
+        mNavItem = new NavItem();
+
         // establish sound manager
         mSoundManager = new SoundManager(this);
         // establish stage manager
         mStageManager = new StageManager(this);
+        // establish StarGate manager
+        mStarGateManager = new StarGateManager(this);
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
@@ -344,8 +370,8 @@ public class MainActivity extends AppCompatActivity
 //            Log.d(TAG, "buildNavMenu - Drawer NOT starting to open...");
 //            return false;
 //        }
-       // build nav menu
-        mNavMenu.build(mNavigationView);
+        // build nav menu
+        mNavMenu.build(mNavigationView, getStarName());
 
         // if story ready
         if (getPlayListService().getActiveStory() != null) {
@@ -354,11 +380,15 @@ public class MainActivity extends AppCompatActivity
             mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             mContentMoniker = getPlayListService().getActiveStory().getMoniker();
-            ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
         }
         else {
             Log.d(TAG, "buildNavMenu: Story NOT ready!");
+            // launch stargate
+            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_STARGATE;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+            mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
         }
+        ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
 
         return true;
     }
@@ -414,12 +444,20 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG,"Stage view NOT active! restore stage focus...");
                 // if story available
                 if (getPlayListService().getActiveStory() != null) {
+                    Log.d(TAG, "onBackPressed: Story ready!");
                     // launch PLAY story
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                     mContentMoniker = getPlayListService().getActiveStory().getMoniker();
-                    ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
                 }
+                else {
+                    Log.d(TAG, "onBackPressed: Story NOT ready!");
+                    // launch stargate
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_STARGATE;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                }
+                ContentFragment.replaceFragment(this, mContentOp, mContentObjType, mContentMoniker);
             }
         }
     }

@@ -20,14 +20,7 @@ package com.adaptivehandyapps.ahathing;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +46,7 @@ public class ContentFragment extends Fragment {
     public static final String ARG_CONTENT_VALUE_OP_EDIT = "edit";
     public static final String ARG_CONTENT_VALUE_OP_PLAY = "play";
     public static final String ARG_CONTENT_VALUE_OP_SHOWLIST = "showlist";
+    public static final String ARG_CONTENT_VALUE_OP_STARGATE = "stargate";
 
     private LayoutInflater mInflater;
     private ViewGroup mContainer;
@@ -69,28 +63,6 @@ public class ContentFragment extends Fragment {
     // playlist service
     PlayListService mPlayListService;
     boolean mPlayListBound = false;
-//
-//    /** Defines callbacks for service binding, passed to bindService() */
-//    public ServiceConnection mPlayListConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className,
-//                                       IBinder service) {
-//            // We've bound to LocalService, cast the IBinder and get LocalService instance
-//            PlayListService.LocalBinder binder = (PlayListService.LocalBinder) service;
-//            mPlayListService = binder.getService();
-//            mPlayListBound = true;
-//            Log.d(TAG, "onServiceConnected: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-//            // if services bound refresh the view
-//            if (mPlayListBound && mRepoProviderBound) refresh();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            mPlayListBound = false;
-//        }
-//    };
-//
     public PlayListService getPlayListService() {
         return mPlayListService;
     }
@@ -102,28 +74,6 @@ public class ContentFragment extends Fragment {
     // repo provider service
     RepoProvider mRepoProvider;
     boolean mRepoProviderBound = false;
-//
-//    /** Defines callbacks for service binding, passed to bindService() */
-//    public ServiceConnection mRepoProviderConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className,
-//                                       IBinder service) {
-//            // We've bound to LocalService, cast the IBinder and get LocalService instance
-//            RepoProvider.LocalBinder binder = (RepoProvider.LocalBinder) service;
-//            mRepoProvider = binder.getService();
-//            mRepoProviderBound = true;
-//            Log.d(TAG, "onServiceConnected: mRepoProviderBound " + mRepoProviderBound + ", mRepoProviderService " + mRepoProvider);
-//            // if services bound refresh the view
-//            if (mPlayListBound && mRepoProviderBound) refresh();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            mRepoProviderBound = false;
-//        }
-//    };
-//
     public RepoProvider getRepoProvider() {
         return mRepoProvider;
     }
@@ -139,16 +89,6 @@ public class ContentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // binding to services results in much thrashing & unbinding conumdrums
-        // bind to playlist service
-//        Intent intentPlayListService = new Intent(getActivity(), PlayListService.class);
-//        getActivity().bindService(intentPlayListService, mPlayListConnection, Context.BIND_AUTO_CREATE);
-//        Log.d(TAG, "onCreateView: mPlayListBound " + mPlayListBound + ", mPlayListService " + mPlayListService);
-//
-//        // bind to repo provider service
-//        Intent intentRepoProviderService = new Intent(getActivity(), RepoProvider.class);
-//        getActivity().bindService(intentRepoProviderService, mRepoProviderConnection, Context.BIND_AUTO_CREATE);
-//        Log.d(TAG, "onCreateView: mRepoProviderBound " + mRepoProviderBound + ", mRepoProvider " + mRepoProvider);
         // de-reference parent activity
         MainActivity mParent = (MainActivity) getActivity();
 
@@ -173,7 +113,6 @@ public class ContentFragment extends Fragment {
             mRepoProviderBound = false;
         }
 
-
         Log.v(TAG, "onCreateView...");
         Log.d(TAG, PrefsUtils.toString(mParent));
         mInflater = inflater;
@@ -192,8 +131,18 @@ public class ContentFragment extends Fragment {
                 mContentId = R.layout.content_stage;
                 mParent.setStageViewActive(true);
             }
-            else {
+            else if (mContentOp.equals(ARG_CONTENT_VALUE_OP_STARGATE)) {
+                mContentId = R.layout.content_stargate;
+                mParent.setStageViewActive(false);
+            }
+            else if (mContentOp.equals(ARG_CONTENT_VALUE_OP_NEW) ||
+                     mContentOp.equals(ARG_CONTENT_VALUE_OP_EDIT) ||
+                     mContentOp.equals(ARG_CONTENT_VALUE_OP_SHOWLIST)) {
                 mContentId = R.layout.content_daomaker;
+                mParent.setStageViewActive(false);
+            }
+            else {
+                mContentId = R.layout.content_splash;
                 mParent.setStageViewActive(false);
             }
         }
@@ -250,12 +199,20 @@ public class ContentFragment extends Fragment {
             @Override
             public void onContentHandlerResult(String op, String objType, String moniker) {
                 Log.v(TAG, "onContentHandlerResult: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
-                // if story available
+                // if story available, override DaoMaker settings
                 if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+                    Log.d(TAG, "OnContentHandlerResult: Story ready!");
                     // DaoMakerUiHandler completes - launch PLAY story
                     mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
                     mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+                }
+                else {
+                    Log.d(TAG, "OnContentHandlerResult: Story NOT ready!");
+                    // launch stargate
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_STARGATE;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
                 }
                 // replace fragment with PLAY story
                 replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);

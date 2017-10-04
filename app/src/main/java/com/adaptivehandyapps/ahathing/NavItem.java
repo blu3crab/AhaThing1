@@ -69,7 +69,13 @@ public class NavItem {
 
         mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NADA;
         // check split for top level object: active theatre, story, stage, etc...
-        if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
+        if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER)) {
+            // launch STARGATE
+            mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_STARGATE;
+            mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+            mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+        }
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
             if (getPlayListService().getActiveTheatre() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
