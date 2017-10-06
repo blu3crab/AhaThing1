@@ -58,6 +58,7 @@ public class StarGateViewController extends View implements
     private Context mContext;
     private MainActivity mParent;
 
+    private StarGateView mStarGateView;
     private StarGateModel mStarGateModel;
 
     private Boolean mInitLoad = true;
@@ -98,7 +99,7 @@ public class StarGateViewController extends View implements
     ));
 
     ///////////////////////////////////////////////////////////////////////////
-    // setters/getters
+    // external dependencies getters
     public PlayListService getPlayListService() {
         return mParent.getPlayListService();
     }
@@ -110,8 +111,8 @@ public class StarGateViewController extends View implements
     public StarGateManager getStarGateManager() {
         return mParent.getStarGateManager();
     }
-
-    private StarGateView mStarGateView;
+    ///////////////////////////////////////////////////////////////////////////
+    // view & model setters/getters
     public StarGateView getStarGateView() {
         return mStarGateView;
     }
@@ -119,6 +120,15 @@ public class StarGateViewController extends View implements
         this.mStarGateView = StarGateView;
     }
 
+    public StarGateModel getStarGateModel() {
+        return mStarGateModel;
+    }
+    public void setStarGateModel(StarGateModel StarGateModel) {
+        this.mStarGateModel = StarGateModel;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // touch setters/getters
     public float getTouchX() {
         return mTouchX;
     }
@@ -231,7 +241,7 @@ public class StarGateViewController extends View implements
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    // getters/setters
+    // onMeasure getters/setters
     public int getCanvasWidth() {
         return mCanvasWidth;
     }
@@ -280,12 +290,6 @@ public class StarGateViewController extends View implements
         this.mMajorTextSize = majorTextSize;
     }
 
-    public StarGateModel getStarGateModel() {
-        return mStarGateModel;
-    }
-    public void setStarGateModel(StarGateModel StarGateModel) {
-        this.mStarGateModel = StarGateModel;
-    }
     ///////////////////////////////////////////////////////////////////////////
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -310,7 +314,7 @@ public class StarGateViewController extends View implements
             if (getStarGateView() == null) {
                     Log.v(TAG, "onMeasure NEW StarGateView... ");
                     // create StarGate view helper
-                    mStarGateView = new StarGateView(mContext, this);
+                    setStarGateView(new StarGateView(mContext, this));
             }
         }
 
@@ -498,10 +502,10 @@ public class StarGateViewController extends View implements
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Clear canvas
-        canvas.drawColor(Color.TRANSPARENT);
-//        canvas.drawColor(Color.BLUE);
+        // update model
+        getStarGateManager().updateModel(getStarGateModel());
 
+        // draw view
         if (mStarGateView != null) {
             mStarGateView.onDraw(canvas);
         }

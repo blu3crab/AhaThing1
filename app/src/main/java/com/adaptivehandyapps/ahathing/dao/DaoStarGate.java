@@ -27,24 +27,6 @@ public class DaoStarGate extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String STARGATE_ACTIVITY_SIGNIN = "signin";
-	public static final String STARGATE_MONIKER_SIGNIN = "Sign In";
-
-	public static final String STARGATE_ACTIVITY_SIGNOUT = "signout";
-	public static final String STARGATE_MONIKER_SIGNOUT = "Sign Out";
-
-	public static final String STARGATE_ACTIVITY_INVITE = "invite";
-	public static final String STARGATE_MONIKER_INVITE = "Invite";
-
-	public static final String STARGATE_ACTIVITY_REVOKE = "revoke";
-	public static final String STARGATE_MONIKER_REVOKE = "Revoke";
-
-	public static final String STARGATE_ACTIVITY_ACCEPT = "accept";
-	public static final String STARGATE_MONIKER_ACCEPT = "Accept";
-
-	public static final String STARGATE_ACTIVITY_DECLINE = "decline";
-	public static final String STARGATE_MONIKER_DECLINE = "Decline";
-
 	@SerializedName("starMoniker")	// star is active actor on a particular deviceId
 	private String starMoniker;
 	@SerializedName("deviceId")		// deviceId where star are active

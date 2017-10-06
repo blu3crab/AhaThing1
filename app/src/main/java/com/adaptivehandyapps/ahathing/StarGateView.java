@@ -71,7 +71,7 @@ public class StarGateView {
     private int mMajorTextSize = DEFAULT_MAJOR_TEXT_SIZE_DP;
 
     // pinch zoom support - scale factor ranges from .1 to 1.9
-    private float mScaleFactor = 2.5f;
+    private float mScaleFactor = 2.75f;
 
     ///////////////////////////////////////////////////////////////////////////
     // list of rects cooresponding to locus translated to device coords
@@ -282,9 +282,6 @@ public class StarGateView {
         // Clear canvas
         canvas.drawColor(Color.TRANSPARENT);
 
-        // update model
-        getStarGateManager().updateModel(getStarGateModel());
-
         // draw locii
         drawLocus(canvas);
 
@@ -304,7 +301,6 @@ public class StarGateView {
                     // find index of locus
                     int i = daoLocusList.locii.indexOf(daoLocus);
                     if (i >= 0 && i < daoLocusList.locii.size()) {
-                        color = getStarGateModel().getForeColorList().get(i);
                         // paint filled rect with primary color
                         color = getStarGateModel().getForeColorList().get(i);
                         mPaintMapRect.setStyle(Paint.Style.FILL);
@@ -319,6 +315,7 @@ public class StarGateView {
                         canvas.drawOval(mRectList.get(i), mPaintMapRect);
                     }
                     else {
+                        Log.e(TAG, "drawLocus invalid inx " + i + " with size " + daoLocusList.locii.size());
                         // set unselected color & no fill to signal incoherence
                         color = mContext.getResources().getColor(R.color.colorLightGrey);
                         mPaintMapRect.setColor(color);
@@ -329,10 +326,17 @@ public class StarGateView {
                     }
 
                     // annotate w/ name
-                    mPaintMinorText.setColor(color);
-                    String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
-                    id = id.substring(1);
-                    drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                    if (!getStarGateModel().getActivityList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        mPaintMajorText.setColor(Color.BLACK);
+                        String activity = getStarGateModel().getActivityList().get(i);
+                        drawText(canvas, activity, mPaintMajorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                    }
+                    else {
+                        mPaintMinorText.setColor(Color.BLACK);
+                        String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
+                        id = id.substring(1);
+                        drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                    }
                 }
                 return true;
             }

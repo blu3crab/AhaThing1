@@ -117,6 +117,7 @@ public class StarGateModel {
     ///////////////////////////////////////////////////////////////////////////
     // constructor
     public StarGateModel() {
+        // build model
         buildModel();
     }
 

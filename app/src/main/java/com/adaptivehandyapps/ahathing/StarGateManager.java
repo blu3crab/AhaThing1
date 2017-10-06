@@ -38,6 +38,15 @@ import java.util.List;
 public class StarGateManager {
     private static final String TAG = StarGateManager.class.getSimpleName();
 
+    public static final String STARGATE_ACTIVITY_PLAY = "Play!";
+    public static final String STARGATE_ACTIVITY_SIGNIN = "SignIn";
+    public static final String STARGATE_ACTIVITY_SIGNOUT = "SignOut";
+    public static final String STARGATE_ACTIVITY_INVITE = "Invite";
+    public static final String STARGATE_ACTIVITY_REVOKE = "Revoke";
+    public static final String STARGATE_ACTIVITY_ACCEPT = "Accept";
+    public static final String STARGATE_ACTIVITY_DECLINE = "Decline";
+    public static final String STARGATE_ACTIVITY_CHAT = "Chat";
+
     private Context mContext;
     private MainActivity mParent;
 
@@ -157,6 +166,9 @@ public class StarGateManager {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean updateModel(StarGateModel starGateModel) {
         Log.d(TAG, "updateModel...");
+        starGateModel.getActivityList().set(0, STARGATE_ACTIVITY_PLAY);
+        starGateModel.getForeColorList().set(0, mContext.getResources().getColor(R.color.colorStarGateAccent));
+        starGateModel.getBackColorList().set(0, mContext.getResources().getColor(R.color.colorStarGatePrimary));
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////

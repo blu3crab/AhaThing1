@@ -46,6 +46,7 @@ import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoStarGate;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -95,19 +96,21 @@ public class MainActivity extends AppCompatActivity
     // Firebase auth
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private String mStarName;
 
-    public String getStarName() {
+    // stargate
+    private DaoStarGate daoStarGate = new DaoStarGate();
+
+    public String getStarMoniker() { return daoStarGate.getStarMoniker(); }
+    public String setStarMoniker() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String starName = "Signin Here!";
-        if (user != null) {
-            if (user.getDisplayName() != null) Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
-            // update firebase user profile with display name derived from email
-            starName = updateFirebaseDisplayNameFromEmail(user, user.getEmail());
-
-            this.mStarName = starName;
+        String starMoniker = "Signin Here!";
+        if (user != null && user.getDisplayName() != null) {
+            Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
+            // update StarMoniker
+            daoStarGate.setStarMoniker(user.getDisplayName());
+            starMoniker = user.getDisplayName();
         }
-        return starName;
+        return starMoniker;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -345,8 +348,8 @@ public class MainActivity extends AppCompatActivity
                     // TODO: clear database, listeners, etc.?
                     if (getRepoProvider() != null) getRepoProvider().removeFirebaseListener();
                 }
-                // set starname
-                getStarName();
+                // set StarMoniker
+                setStarMoniker();
             }
         };
         // instantiate nav  menu & item
@@ -371,7 +374,7 @@ public class MainActivity extends AppCompatActivity
 //            return false;
 //        }
         // build nav menu
-        mNavMenu.build(mNavigationView, getStarName());
+        mNavMenu.build(mNavigationView, setStarMoniker());
 
         // if story ready
         if (getPlayListService().getActiveStory() != null) {
