@@ -24,11 +24,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
+import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
@@ -140,11 +142,13 @@ public class StarGateView {
         mPaintMinorText = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintMinorText.setStyle(Paint.Style.FILL);
         mPaintMinorText.setTextSize(mParentViewController.getMinorTextSize());
+        mPaintMinorText.setTypeface(Typeface.SANS_SERIF);
         mPaintMinorText.setColor(context.getResources().getColor(R.color.colorStarGatePrimary));
         // major text paint
         mPaintMajorText = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintMajorText.setStyle(Paint.Style.FILL);
         mPaintMajorText.setTextSize(mParentViewController.getMajorTextSize());
+        mPaintMajorText.setTypeface(Typeface.SANS_SERIF);
         mPaintMajorText.setColor(context.getResources().getColor(R.color.colorStarGatePrimary));
 //        mPaintMajorText.setColor(Color.rgb(255, 255, 255));
 
@@ -325,18 +329,26 @@ public class StarGateView {
                         canvas.drawOval(mRectList.get(i), mPaintMapRect);
                     }
 
-                    // annotate w/ name
+                    // annotate w/ activity or label
+                    Paint paint;
+                    String label;
+                    int width;
                     if (!getStarGateModel().getActivityList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
                         mPaintMajorText.setColor(Color.BLACK);
-                        String activity = getStarGateModel().getActivityList().get(i);
-                        drawText(canvas, activity, mPaintMajorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                        paint = mPaintMajorText;
+                        label = getStarGateModel().getActivityList().get(i);
+                        width = StringUtils.getPaintTextWidth(label, mPaintMajorText);
                     }
                     else {
                         mPaintMinorText.setColor(Color.BLACK);
-                        String id = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
-                        id = id.substring(1);
-                        drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
+                        paint = mPaintMinorText;
+                        label = daoLocus.getNickname().substring(daoLocus.getNickname().indexOf("L"));
+                        label = label.substring(1);
+                        width = StringUtils.getPaintTextWidth(label, mPaintMinorText);
                     }
+                    int x = (int)mRectList.get(i).centerX() - (width/2);
+//                    Log.v(TAG, "drawLocus text width " + width + " offset X at " + x + " with center X at " + mRectList.get(i).centerX());
+                    drawText(canvas, label, paint, x, mRectList.get(i).centerY());
                 }
                 return true;
             }

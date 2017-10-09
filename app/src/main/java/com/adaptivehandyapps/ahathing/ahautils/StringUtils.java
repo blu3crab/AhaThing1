@@ -1,5 +1,5 @@
 /**
- * Copyright © 2015 Intelligent Water Management Inc.
+ * Copyright © 2015 Adaptive Handy Apps, LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-// Project: Brain Pipes
-// Contributor(s): M.A.Tucker
-// Origination: M.A.Tucker NOV 2015
 package com.adaptivehandyapps.ahathing.ahautils;
 
-/**
- * Created by mat on 6/27/2015.
- */
-
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -32,6 +28,31 @@ import java.util.List;
 public class StringUtils {
 
     public static final String TAG = "StringUtils";
+
+    ///////////////////////////////////////////////////////////////////////////
+    // get text width & height based on paint
+    public static int getPaintTextWidth(String text, Paint paint) {
+//        String finalVal ="Hello";
+//        Paint paint = new Paint();
+//        paint.setTextSize(18);
+//        paint.setColor(Color.BLACK);
+//        paint.setStyle(Paint.Style.FILL);
+
+        Rect result = new Rect();
+        paint.getTextBounds(text, 0, text.length(), result);
+
+//        Log.d("WIDTH        :", String.valueOf(result.width()));
+//        Log.d("HEIGHT       :", String.valueOf(result.height()));
+        return result.width();
+    }
+    public static int getPaintTextHeight(String text, Paint paint) {
+        Rect result = new Rect();
+        paint.getTextBounds(text, 0, text.length(), result);
+
+//        Log.d("WIDTH        :", String.valueOf(result.width()));
+//        Log.d("HEIGHT       :", String.valueOf(result.height()));
+        return result.height();
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // map event action to string

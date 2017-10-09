@@ -1,5 +1,5 @@
 /**
- * Copyright © 2015 Intelligent Water Management Inc.
+ * Copyright © 2015 Adaptive Handy Apps, LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-// Project: Brain Pipes
-// Contributor(s): M.A.Tucker
-// Origination: M.A.Tucker NOV 2015
 package com.adaptivehandyapps.ahathing.ahautils;
 
 import android.app.Activity;
