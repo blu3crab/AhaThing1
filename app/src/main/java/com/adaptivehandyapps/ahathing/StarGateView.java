@@ -87,6 +87,16 @@ public class StarGateView {
 
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
+    private float getScaleFactor() {
+        return mScaleFactor;
+    }
+    private float setScaleFactor(float scaleFactor) {
+//        // exponentially expand scale factor
+//        Double power = Math.pow(scaleFactor, 2);
+//        mScaleFactor = power.floatValue();
+        mScaleFactor = scaleFactor;
+        return mScaleFactor;
+    }
 
     public int getCanvasWidth() {
         return mCanvasWidth;
@@ -121,10 +131,15 @@ public class StarGateView {
         setCanvasWidth(mParentViewController.getCanvasWidth());
         setCanvasHeight(mParentViewController.getCanvasHeight());
         setDensity(mParentViewController.getDensity());
+        Log.d(TAG, "width=" + getCanvasWidth() + ", height=" + getCanvasHeight() + ", density=" + getDensity());
 
+        // set scale factor
+        float min = Math.min(getCanvasWidth(), getCanvasHeight());
+        float rawScaleFactor = (min/3)/StarGateModel.LOCUS_DIST.floatValue();
+        setScaleFactor(rawScaleFactor);
         // create new StarGate model
         mParentViewController.setStarGateModel(new StarGateModel());
-        Log.d(TAG, "NEW StarGateModel at " + mParentViewController.getStarGateModel().toString() + " with scale factor " + getScaleFactor());
+        Log.d(TAG, "NEW StarGateModel at " + mParentViewController.getStarGateModel().toString() + " with scale factor " + getScaleFactor() + "(raw)" + rawScaleFactor);
         transformLocus(getStarGateModel().getLocusList(), getScaleFactor());
 
         // init local objects
@@ -163,19 +178,6 @@ public class StarGateView {
         mPaintBoundingRect.setColor(Color.CYAN);
 
         return true;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // getters/setters/helpers
-    private float getScaleFactor() {
-        return mScaleFactor;
-    }
-
-    private float setScaleFactor(float scaleFactor) {
-        // exponentially expand scale factor
-        Double power = Math.pow(scaleFactor, 2);
-        mScaleFactor = power.floatValue();
-        return mScaleFactor;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -255,8 +257,8 @@ public class StarGateView {
     ///////////////////////////////////////////////////////////////////////////
     public List<RectF> transformLocus(DaoLocusList daoLocusList, float scaleFactor) {
         Log.v(TAG, "transformLocus for " + scaleFactor + "...");
-        // set scale factor
-        setScaleFactor(scaleFactor);
+//        // set scale factor
+//        setScaleFactor(scaleFactor);
         // create rect list
         mRectList = new ArrayList<>();
         // for each locus

@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+
+    public static final String STAR_MONIKER_NADA = "Signin Here!";
+
     private static final Integer REQUEST_CODE_GALLERY = 1;
     private static final Boolean FORCE_PHOTO_SELECTION = true;
 
@@ -103,13 +106,14 @@ public class MainActivity extends AppCompatActivity
     public String getStarMoniker() { return daoStarGate.getStarMoniker(); }
     public String setStarMoniker() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String starMoniker = "Signin Here!";
+        String starMoniker = STAR_MONIKER_NADA;
         if (user != null && user.getDisplayName() != null) {
             Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
-            // update StarMoniker
-            daoStarGate.setStarMoniker(user.getDisplayName());
+            // update StarMoniker with display name
             starMoniker = user.getDisplayName();
         }
+        // update StarMoniker
+        daoStarGate.setStarMoniker(starMoniker);
         return starMoniker;
     }
 
@@ -350,6 +354,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 // set StarMoniker
                 setStarMoniker();
+                // if StarGateManager model exists
+                if (getStarGateManager().getStarGateModel() != null) {
+                    // update existing StarGateManager model
+                    getStarGateManager().updateModel(getStarGateManager().getStarGateModel());
+                }
             }
         };
         // instantiate nav  menu & item
@@ -366,7 +375,7 @@ public class MainActivity extends AppCompatActivity
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
     ///////////////////////////////////////////////////////////////////////////////////////////
-    private Boolean buildNavMenu() {
+    public Boolean buildNavMenu() {
 
 //        if( !mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
 //            // Drawer starting to open
@@ -406,6 +415,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onNavigationItemSelected itemname: " + itemname + ", split:" + itemSplit[0]);
 //        for static menu items, extract id & compare to resource
 //        int id = item.getItemId();
+        // TODO: check double replace fragment?
         // parse nav item - returns update trigger
         if (mNavItem.parse(itemname, itemSplit)) {
             // update nav menu
@@ -630,7 +640,7 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh interior...");
                 if (!mVacating) {
                     Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh not vacating...buildNavMenu");
-                    // ensure playlist is not bound to repo
+                    // ensure playlist is bound to repo
                     if (!getPlayListService().isRepoProviderBound()) {
                         // bind playlist to repo
                         getPlayListService().bindRepoProvider();

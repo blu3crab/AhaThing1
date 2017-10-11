@@ -20,36 +20,72 @@ package com.adaptivehandyapps.ahathing;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
+import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
+import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
+import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
-import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
-import com.adaptivehandyapps.ahathing.dao.DaoStory;
-
-import java.util.List;
 
 ////////////////////////////////////////////////////////////////////////////
 // StarGateManager: manage StarGate actions and outcomes
 public class StarGateManager {
     private static final String TAG = StarGateManager.class.getSimpleName();
 
+    // activity types
+    @IntDef({ACTIVITY_TYPE_UNKNOWN,
+            ACTIVITY_TYPE_PLAY,
+            ACTIVITY_TYPE_SIGNING,
+            ACTIVITY_TYPE_INVITE,
+            ACTIVITY_TYPE_ACCEPT,
+            ACTIVITY_TYPE_CHAT
+    })
+    public @interface DaoObjType {}
+
+    public static final int ACTIVITY_TYPE_UNKNOWN = -1;
+    public static final int ACTIVITY_TYPE_PLAY = 0;
+    public static final int ACTIVITY_TYPE_SIGNING = 5;
+    public static final int ACTIVITY_TYPE_INVITE = 1;
+    public static final int ACTIVITY_TYPE_ACCEPT = 2;
+    public static final int ACTIVITY_TYPE_CHAT = 3;
+
     public static final String STARGATE_ACTIVITY_PLAY = "Play!";
     public static final String STARGATE_ACTIVITY_SIGNIN = "SignIn";
     public static final String STARGATE_ACTIVITY_SIGNOUT = "SignOut";
     public static final String STARGATE_ACTIVITY_INVITE = "Invite";
-    public static final String STARGATE_ACTIVITY_REVOKE = "Revoke";
+    public static final String STARGATE_ACTIVITY_UNINVITE = "UnInvite";
     public static final String STARGATE_ACTIVITY_ACCEPT = "Accept";
     public static final String STARGATE_ACTIVITY_DECLINE = "Decline";
     public static final String STARGATE_ACTIVITY_CHAT = "Chat";
 
+    private static final int STARGATE_SIGNIN_GOOGLE = 0;
+    private static final int STARGATE_SIGNIN_EMAIL = 1;
+    private static final int STARGATE_SIGNIN_ANON = 2;
+    private static final int STARGATE_SIGNIN_OPTIONS = 3;
+
     private Context mContext;
     private MainActivity mParent;
 
+    private StarGateView mStarGateView;
+    private StarGateModel mStarGateModel;
+
+    private Boolean mPlayActive = false;
+    private Boolean mSignInActive = false;
+    private Boolean mSignOutActive = false;
+    private Boolean mInviteActive = false;
+    private Boolean mAcceptActive = false;
+    private Boolean mChatActive = false;
     ///////////////////////////////////////////////////////////////////////////
     // touch position
     private float mTouchX = 0.0f;
@@ -61,17 +97,48 @@ public class StarGateManager {
 
     private int mMarkIndex = DaoDefs.INIT_INTEGER_MARKER;
     ///////////////////////////////////////////////////////////////////////////
-    // setters/getters
-    private PlayListService getPlayListService() {
-        return mParent.getPlayListService();
+    // service setters/getters
+
+    public Context getContext() {
+        return mContext;
     }
-    private RepoProvider getRepoProvider() {
-        return mParent.getRepoProvider();
-    }
-    private SoundManager getSoundManager() {
-        return mParent.getSoundManager();
+    public void setContext(Context context) {
+        this.mContext = context;
     }
 
+    public MainActivity getParent() {
+        return mParent;
+    }
+    public void setParent(MainActivity parent) {
+        this.mParent = parent;
+    }
+
+    private PlayListService getPlayListService() {
+        return getParent().getPlayListService();
+    }
+    private RepoProvider getRepoProvider() {
+        return getParent().getRepoProvider();
+    }
+    private SoundManager getSoundManager() {
+        return getParent().getSoundManager();
+    }
+
+    public StarGateView getStarGateView() {
+        return mStarGateView;
+    }
+    public void setStarGateView(StarGateView starGateView) {
+        this.mStarGateView = starGateView;
+    }
+
+    public StarGateModel getStarGateModel() {
+        return mStarGateModel;
+    }
+    public void setStarGateModel(StarGateModel starGateModel) {
+        this.mStarGateModel = starGateModel;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // sound settings
     private Boolean isSoundFlourish() {
         if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
             return getPlayListService().getActiveTheatre().getSoundFlourish();
@@ -91,6 +158,53 @@ public class StarGateManager {
         return false;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // activity setters/getters
+
+    public Boolean getPlayActive() {
+        return mPlayActive;
+    }
+    public void setPlayActive(Boolean playActive) {
+        this.mPlayActive = playActive;
+    }
+
+    public Boolean getSignInActive() {
+        return mSignInActive;
+    }
+    public void setSignInActive(Boolean signingActive) {
+        this.mSignInActive = signingActive;
+    }
+
+    public Boolean getSignOutActive() {
+        return mSignOutActive;
+    }
+    public void setSignOutActive(Boolean signingActive) {
+        this.mSignOutActive = signingActive;
+    }
+
+    public Boolean getInviteActive() {
+        return mInviteActive;
+    }
+    public void setInviteActive(Boolean inviteActive) {
+        this.mInviteActive = inviteActive;
+    }
+
+    public Boolean getAcceptActive() {
+        return mAcceptActive;
+    }
+    public void setAcceptActive(Boolean acceptActive) {
+        this.mAcceptActive = acceptActive;
+    }
+
+    public Boolean getChatActive() {
+        return mChatActive;
+    }
+    public void setChatActive(Boolean chatActive) {
+        this.mChatActive = chatActive;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // touch setters/getters
     public float getTouchX() {
         return mTouchX;
     }
@@ -144,10 +258,10 @@ public class StarGateManager {
     ///////////////////////////////////////////////////////////////////////////
     public StarGateManager(Context context) {
 
-        mContext = context;
-        mParent = (MainActivity) context;
-        if (mParent != null) {
-            Log.v(TAG, "StarGateManager ready with parent " + mParent.toString() + "...");
+        setContext(context);
+        setParent ((MainActivity) context);
+        if (getParent() != null) {
+            Log.v(TAG, "StarGateManager ready with parent " + getParent().toString() + "...");
             if (getSoundManager() != null && isSoundMusic()) {
                 getSoundManager().startSound(
                         getSoundManager().getMpMusic(),
@@ -166,15 +280,79 @@ public class StarGateManager {
     ///////////////////////////////////////////////////////////////////////////
     public Boolean updateModel(StarGateModel starGateModel) {
         Log.d(TAG, "updateModel...");
-        starGateModel.getActivityList().set(0, STARGATE_ACTIVITY_PLAY);
-        starGateModel.getForeColorList().set(0, mContext.getResources().getColor(R.color.colorStarGateAccent));
-        starGateModel.getBackColorList().set(0, mContext.getResources().getColor(R.color.colorStarGatePrimary));
+        setStarGateModel(starGateModel);
+        // if stage active, enable play selection
+        setPlayActive(getPlayListService().isActiveStage());
+        starGateModel.getActivityList().set(ACTIVITY_TYPE_PLAY, STARGATE_ACTIVITY_PLAY);
+        if (getPlayActive()) {
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_PLAY, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_PLAY, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+        }
+        else {
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_PLAY, getContext().getResources().getColor(R.color.colorBrightGrey));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_PLAY, getContext().getResources().getColor(R.color.colorDarkGrey));
+        }
+        // if star active
+        if (!getParent().getStarMoniker().equals(DaoDefs.INIT_STRING_MARKER) &&
+                !getParent().getStarMoniker().equals(getParent().STAR_MONIKER_NADA)) {
+            // disable signin & enable signout activity
+            setSignInActive(false);
+            setSignOutActive(true);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_SIGNING, STARGATE_ACTIVITY_SIGNOUT);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_SIGNING, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_SIGNING, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+            // enable invite activity
+            setInviteActive(true);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_INVITE, STARGATE_ACTIVITY_INVITE);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_INVITE, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_INVITE, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+            // enable chat activity
+            setInviteActive(true);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_CHAT, STARGATE_ACTIVITY_CHAT);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_CHAT, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_CHAT, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+        }
+        else {
+            // disable signout & enable signin activity
+            setSignOutActive(false);
+            setSignInActive(true);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_SIGNING, STARGATE_ACTIVITY_SIGNIN);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_SIGNING, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_SIGNING, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+            // disable invite activity
+            setInviteActive(false);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_INVITE, STARGATE_ACTIVITY_INVITE);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_INVITE, getContext().getResources().getColor(R.color.colorBrightGrey));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_INVITE, getContext().getResources().getColor(R.color.colorDarkGrey));
+            // disable chat activity
+            setInviteActive(false);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_CHAT, STARGATE_ACTIVITY_CHAT);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_CHAT, getContext().getResources().getColor(R.color.colorBrightGrey));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_CHAT, getContext().getResources().getColor(R.color.colorDarkGrey));
+        }
+        // if invitation received
+        if (getSignInActive() && getAcceptActive()) {
+            // enable accept activity
+            // TODO: setInviteActive(true);  incoming notification enables accept activity
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_ACCEPT, STARGATE_ACTIVITY_ACCEPT);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_ACCEPT, getContext().getResources().getColor(R.color.colorStarGateAccent));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_ACCEPT, getContext().getResources().getColor(R.color.colorStarGatePrimary));
+        }
+        else {
+            // disable accept activity
+            setAcceptActive(false);
+            starGateModel.getActivityList().set(ACTIVITY_TYPE_ACCEPT, STARGATE_ACTIVITY_ACCEPT);
+            starGateModel.getForeColorList().set(ACTIVITY_TYPE_ACCEPT, getContext().getResources().getColor(R.color.colorBrightGrey));
+            starGateModel.getBackColorList().set(ACTIVITY_TYPE_ACCEPT, getContext().getResources().getColor(R.color.colorDarkGrey));
+        }
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
     // Actions
     public Boolean onAction(StarGateView starGateView, StarGateModel starGateModel, String action) {
         Log.d(TAG, "onAction action " + action);
+        setStarGateModel(starGateModel);
+        setStarGateView(starGateView);
         // if music not playing & theatre music is enabled, start background music
         if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
             getSoundManager().startSound(
@@ -186,7 +364,7 @@ public class StarGateManager {
         }
 
         // if an activity is associated with action
-        if (onActivity(action)) {
+        if (onActivity(action, getTouchX(), getTouchY(), 0.0f)) {
             // if theatre action sounds enabled
             if (isSoundAction()) {
                 // play sound associated with action
@@ -237,59 +415,134 @@ public class StarGateManager {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean onActivity(String action) {
-        Log.d(TAG, "onActivity action " + action);
+    private Boolean onActivity(String action, float touchX, float touchY, float z) {
+        Log.d(TAG, "onActivity action " + action + " touch (x,y) " + touchX + ", " + touchY);
+
+        // get activity
+        int activity = getStarGateView().getRingIndex(touchX, touchY, z);
+        // if valid activity selection
+        if (activity != DaoDefs.INIT_INTEGER_MARKER) {
+            switch (activity) {
+                case ACTIVITY_TYPE_PLAY:
+                    if (getPlayActive()) {
+                        // rebuild nav menu triggering launch stage fragment
+                        getParent().buildNavMenu();
+                    }
+                    break;
+                case ACTIVITY_TYPE_SIGNING:
+                    if (getSignInActive()) {
+                        getParent().startActivity(new Intent(getParent(), GoogleSignInActivity.class));
+                    }
+                    else if (getSignOutActive()) {
+                        getParent().startActivity(new Intent(getParent(), GoogleSignInActivity.class));
+                    }
+                    break;
+                case ACTIVITY_TYPE_INVITE:
+                    if (getInviteActive()) {
+
+                    }
+                    break;
+                case ACTIVITY_TYPE_ACCEPT:
+                    if (getAcceptActive()) {
+
+                    }
+                    break;
+                case ACTIVITY_TYPE_CHAT:
+                    if (getChatActive()) {
+
+                    }
+                    break;
+                default:
+                    Log.e(TAG, "onActivity finds invalid activity index = " + activity);
+            }
+            return true;
+        }
+
         return false;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
-//    public static Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
-        final Context context = c;
-        final DaoEpic daoEpic = epic;
-        final DaoStage daoStage = stage;
+    ///////////////////////////////////////////////////////////////////////////////
+    public Boolean alertSignInOptions() {
+        // alert for power options
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle(getContext().getString(R.string.signin_title));
+        alert.setMessage(getContext().getString(R.string.signin_message));
 
+        // establish layout for rado group
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
 
-        // post alert dialog
-        new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage("Play an encore?")
-                .setNegativeButton("Encore!", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - negative...");
-                        // restart epic with all current stars
-                        // TODO: separate clear stage from reset tally/tic
-                        daoEpic.resetEpicStageTallyTic(daoStage, true, true);
-//                        daoEpic.resetStarBoard();
-                        // update repo
-                        getRepoProvider().getDalEpic().update(daoEpic, true);
-                        getRepoProvider().getDalStage().update(daoStage, true);
+        String radioText = "Nada";
+        int color;
+        final RadioButton[] rb = new RadioButton[STARGATE_SIGNIN_OPTIONS];
+        RadioGroup rg = new RadioGroup(getContext()); //create the RadioGroup
+        rg.setOrientation(RadioGroup.VERTICAL);//or RadioGroup.VERTICAL
 
-                    }
-                })
-                .setNeutralButton("Go Back.", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - neutral...");
-                        // leave it be...
-                    }
-                })
-                .setPositiveButton("Sign me out.", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - positive...");
+        for(int i = 0; i < STARGATE_SIGNIN_OPTIONS; i++){
+            rb[i]  = new RadioButton(getContext());
+            rg.addView(rb[i]); //the RadioButtons are added to the radioGroup instead of the layout
+            switch (i) {
+                case STARGATE_SIGNIN_GOOGLE:
+                    radioText = getContext().getString(R.string.action_googleauth);
+                    break;
+                case STARGATE_SIGNIN_EMAIL:
+                    radioText = getContext().getString(R.string.action_emailauth);
+                    break;
+                case STARGATE_SIGNIN_ANON:
+                    radioText = getContext().getString(R.string.action_anonauth);
+                    break;
+                default:
+                    break;
+            }
+            rb[i].setText(radioText);
+        }
+        rg.check(STARGATE_SIGNIN_GOOGLE);
+        layout.addView(rg);//add RadioGroup to the layout
 
-                        // remove this star from starboard
-                        int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
-                        daoEpic.removeStar(daoStage, starInx);
-                        getRepoProvider().getDalEpic().update(daoEpic, true);
-                        getRepoProvider().getDalStage().update(daoStage, true);
+        TextView tv = new TextView(getContext());
+        tv.setText("Please choose authentication method.");
+        layout.addView(tv);
 
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
-        ;
+        alert.setView(layout);
+
+        final RadioGroup radioGroup = rg;
+        alert.setPositiveButton(STARGATE_ACTIVITY_SIGNIN, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // ok
+                int radioButtonID = radioGroup.getCheckedRadioButtonId();
+                View radioButton = radioGroup.findViewById(radioButtonID);
+                int option = radioGroup.indexOfChild(radioButton);
+                Log.d(TAG,"SignIn with selection " + option);
+                // launch selected auth method
+                switch (option) {
+                    case STARGATE_SIGNIN_GOOGLE:
+                        getParent().startActivity(new Intent(getParent(), GoogleSignInActivity.class));
+                        break;
+                    case STARGATE_SIGNIN_EMAIL:
+                        getParent().startActivity(new Intent(getParent(), EmailPasswordActivity.class));
+                        break;
+                    case STARGATE_SIGNIN_ANON:
+                        getParent().startActivity(new Intent(getParent(), AnonymousAuthActivity.class));
+                        break;
+                    default:
+                        Log.e(TAG,"alertSignInOptions unknown option " + option);
+                }
+            }
+        });
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+                Log.d(TAG,"SignIn cancelled...");
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = alert.create();
+        alertDialog.show();
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.holo_blue_dark);
+
         return true;
     }
+    ///////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////
 }
