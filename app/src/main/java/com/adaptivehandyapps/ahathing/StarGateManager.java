@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -30,6 +31,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.adaptivehandyapps.ahathing.ahautils.DevUtils;
 import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
@@ -37,11 +39,18 @@ import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
+import com.adaptivehandyapps.ahathing.dao.DaoStarGate;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.util.List;
 
 ////////////////////////////////////////////////////////////////////////////
 // StarGateManager: manage StarGate actions and outcomes
 public class StarGateManager {
     private static final String TAG = StarGateManager.class.getSimpleName();
+
+    public static final String STAR_MONIKER_NADA = "Signin Here!";
 
     // activity types
     @IntDef({ACTIVITY_TYPE_UNKNOWN,
@@ -136,6 +145,55 @@ public class StarGateManager {
     public void setStarGateModel(StarGateModel starGateModel) {
         this.mStarGateModel = starGateModel;
     }
+
+    // stargate
+    private DaoStarGate mDaoStarGate = new DaoStarGate();
+
+    public String getStarMoniker() { return mDaoStarGate.getMoniker(); }
+
+    public DaoStarGate setStarGate() {
+        // default stargate to inactive (not signed in)
+        String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        String starMoniker = STAR_MONIKER_NADA;
+        String deviceDescription = DevUtils.getDeviceName();
+        String email = DaoDefs.INIT_STRING_MARKER;
+        Boolean active = false;
+        // if firebase user exists
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getDisplayName() != null) {
+            Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
+            // update active StarGate with display name, email
+            starMoniker = user.getDisplayName();
+            email = user.getEmail();
+            active = true;
+        }
+        // create new
+        DaoStarGate daoStarGate = new DaoStarGate();
+        // update StarGate
+        daoStarGate.setMoniker(deviceId);
+        daoStarGate.setStarMoniker(starMoniker);
+        daoStarGate.setDeviceDescription(deviceDescription);
+        daoStarGate.setEmail(email);
+        daoStarGate.setActive(active);
+        Log.d(TAG,daoStarGate.toString());
+        // retain stargate
+        mDaoStarGate = daoStarGate;
+
+        if (getRepoProvider() != null) {
+            // update repo - device id is key to update or add new entry
+            getRepoProvider().getDalStarGate().update(daoStarGate, true);
+
+            // dereference epic repo dao list of all epics
+            List<DaoStarGate> daoStarGateList = (List<DaoStarGate>) (List<?>) getRepoProvider().getDalStarGate().getDaoRepo().getDaoList();
+            // for each stargate in repo
+            for (DaoStarGate starGate : daoStarGateList) {
+                // log
+                Log.d(TAG, "setStarGate -> " + starGate.toString());
+            }
+        }
+        return daoStarGate;
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////
     // sound settings
@@ -293,8 +351,7 @@ public class StarGateManager {
             starGateModel.getBackColorList().set(ACTIVITY_TYPE_PLAY, getContext().getResources().getColor(R.color.colorDarkGrey));
         }
         // if star active
-        if (!getParent().getStarMoniker().equals(DaoDefs.INIT_STRING_MARKER) &&
-                !getParent().getStarMoniker().equals(getParent().STAR_MONIKER_NADA)) {
+        if (!getStarMoniker().equals(DaoDefs.INIT_STRING_MARKER) && !getStarMoniker().equals(STAR_MONIKER_NADA)) {
             // disable signin & enable signout activity
             setSignInActive(false);
             setSignOutActive(true);

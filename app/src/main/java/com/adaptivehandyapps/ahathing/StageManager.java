@@ -26,7 +26,7 @@ import android.view.MotionEvent;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicActorBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
@@ -223,12 +223,12 @@ public class StageManager {
                 DaoEpic daoEpic = getPlayListService().getActiveEpic();
                 DaoStage daoStage = getPlayListService().getActiveStage();
                 if (daoEpic != null && daoStage != null && getPlayListService().getActiveActor() != null) {
-                    int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                    int starInx = daoEpic.getActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
                     if (starInx > -1) {
                         // increment tic for actor
-                        int tic = daoEpic.getStarBoardList().get(starInx).getTic();
-                        daoEpic.getStarBoardList().get(starInx).setTic(++tic);
-                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getStarBoardList().get(starInx).getStarMoniker());
+                        int tic = daoEpic.getActorBoardList().get(starInx).getTic();
+                        daoEpic.getActorBoardList().get(starInx).setTic(++tic);
+                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getActorBoardList().get(starInx).getStarMoniker());
                         // update epic tally based on stage ring locations occupied
                         daoEpic.updateEpicTally(daoStage);
                         // update epic repo
@@ -346,7 +346,7 @@ public class StageManager {
                             // curtains should come down
                             if (daoEpic.isCurtainClose()) {
                                 // bring down the curtain!  prompt for an encore
-                                List<DaoEpicStarBoard> starBoardList = daoEpic.getTallyOrder(false);
+                                List<DaoEpicActorBoard> starBoardList = daoEpic.getTallyOrder(false);
                                 String title = starBoardList.get(0).getStarMoniker() + " dominates the universe of Marbles!";
                                 postCurtainCloseDialog(mContext, title, daoEpic, daoStage);
                             }
@@ -355,8 +355,8 @@ public class StageManager {
                             Log.e(TAG, "Oops!  no active epic...");
                         }
 
-//                    for (String star : daoEpic.getStarList()) {
-//                        int starInx = daoEpic.getStarList().indexOf(star);
+//                    for (String star : daoEpic.getActorList()) {
+//                        int starInx = daoEpic.getActorList().indexOf(star);
 //                        Log.d(TAG, " star " + star + "(" + starInx + ") has tally " + daoEpic.getStarBoardList().get(starInx).getTally());
 //                    }
                     }
@@ -411,8 +411,8 @@ public class StageManager {
                         Log.i(TAG, "curtain closing dialog - positive...");
 
                         // remove this star from starboard
-                        int starInx = daoEpic.getStarList().indexOf(getPlayListService().getActiveActor().getMoniker());
-                        daoEpic.removeStar(daoStage, starInx);
+                        int starInx = daoEpic.getActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                        daoEpic.removeActor(daoStage, starInx);
                         getRepoProvider().getDalEpic().update(daoEpic, true);
                         getRepoProvider().getDalStage().update(daoStage, true);
 

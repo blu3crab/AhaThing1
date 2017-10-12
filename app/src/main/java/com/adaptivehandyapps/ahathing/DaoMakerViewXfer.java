@@ -36,7 +36,7 @@ import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicActorBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStory;
@@ -367,8 +367,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         handleStoryListButton();
 
         // display starboard list
-        List<DaoEpicStarBoard> starBoardList = daoEpic.getStarBoardList();
-        for (DaoEpicStarBoard starBoard : starBoardList) {
+        List<DaoEpicActorBoard> actorBoardList = daoEpic.getActorBoardList();
+        for (DaoEpicActorBoard starBoard : actorBoardList) {
             Log.d(TAG, starBoard.toString());
         }
         return true;
@@ -732,12 +732,12 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
 
         DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
         if (daoEpic != null && daoActor != null) {
-            // if actor is a star, check star checkbox
-            if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
-                Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
-                CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
-                cbStar.setChecked(true);
-            }
+//            // if actor is a star, check star checkbox
+//            if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
+//                Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
+//                CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
+//                cbStar.setChecked(true);
+//            }
 
 
             // establish fore color button visibility & click listener
@@ -1049,16 +1049,16 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeActor.setHeadline(headline);
         if (getForeColor() != activeActor.getForeColor()) activeActor.setForeColor(getForeColor());
         if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
-        // if starring on device
-        CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
-        DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
-        if (daoEpic != null && cbStar != null && cbStar.isChecked()) {
-            // add to epic star list
-            daoEpic.setStar(activeActor, DevUtils.getDeviceName(), mParent.getPlayListService().getActiveStage());
-            Log.d(TAG, "toActor: new STAR " + activeActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
-            // update repo
-            mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
-        }
+//        // if starring on device
+//        CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
+//        DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
+//        if (daoEpic != null && cbStar != null && cbStar.isChecked()) {
+//            // add to epic star list
+//            daoEpic.addActorBoard(activeActor);
+//            Log.d(TAG, "toActor: new STAR " + activeActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
+//            // update repo
+//            mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
+//        }
 
         // TODO: setActiveActor on create/update?
         mParent.getPlayListService().setActiveActor(activeActor);

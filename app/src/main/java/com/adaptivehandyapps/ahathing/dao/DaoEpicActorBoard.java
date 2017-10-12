@@ -21,15 +21,13 @@ package com.adaptivehandyapps.ahathing.dao;
 import com.google.gson.annotations.SerializedName;
 
 ///////////////////////////////////////////////////////////////////////////
-public class DaoEpicStarBoard {
+public class DaoEpicActorBoard {
 
-	private static final String TAG = "DaoEpicStarBoard";
+	private static final String TAG = DaoEpicActorBoard.class.getSimpleName();
 	private static final long serialVersionUID = 1L;
 
 	@SerializedName("starMoniker")	// star is active actor on a particular deviceId
 	private String starMoniker;
-	@SerializedName("deviceId")		// deviceId where star are active
-	private String deviceId;
 
 	@SerializedName("tally")		// tally for each actor (aka score)
 	private Integer tally;
@@ -41,26 +39,23 @@ public class DaoEpicStarBoard {
 	private String reserve2;
 
 	///////////////////////////////////////////////////////////////////////////
-	public DaoEpicStarBoard() {
+	public DaoEpicActorBoard() {
 		super();
 
 		this.starMoniker = DaoDefs.INIT_STRING_MARKER;
-		this.deviceId = DaoDefs.INIT_STRING_MARKER;
 		this.tally = DaoDefs.INIT_INTEGER_MARKER;
 		this.tic = DaoDefs.INIT_INTEGER_MARKER;
 
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
 
-	public DaoEpicStarBoard(
+	public DaoEpicActorBoard(
 			String star,
-			String deviceId,
 			Integer tally,
 			Integer tic,
             String reserve2
     ) {
 		this.starMoniker = star;
-		this.deviceId = deviceId;
 		this.tally = tally;
 		this.tic = tic;
 
@@ -74,7 +69,7 @@ public class DaoEpicStarBoard {
 	}
 
 	public String toString() {
-		return "moniker: " + getStarMoniker() + ", deviceId: " + getDeviceId() + ", tally/tic: " + getTally() + "/" + getTic();
+		return "moniker: " + getStarMoniker() + ", tally/tic: " + getTally() + "/" + getTic();
 	}
 
 	public String getStarMoniker() {
@@ -82,13 +77,6 @@ public class DaoEpicStarBoard {
 	}
 	public void setStarMoniker(String starMoniker) {
 		this.starMoniker = starMoniker;
-	}
-
-	public String getDeviceId() {
-		return deviceId;
-	}
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
 	}
 
 	public Integer getTally() {

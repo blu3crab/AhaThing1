@@ -35,15 +35,13 @@ import android.view.View;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
+import com.adaptivehandyapps.ahathing.dao.DaoEpicActorBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
 import com.adaptivehandyapps.ahathing.dao.DaoStage;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.adaptivehandyapps.ahathing.R.drawable.ic_lock_open_black_48dp;
 
 public class StageViewRing {
 
@@ -568,25 +566,25 @@ public class StageViewRing {
             daoEpic.updateEpicTally(daoStage);
 
             // for each star in star board, find max star name length
-            for (DaoEpicStarBoard daoEpicStarBoard : daoEpic.getStarBoardList()) {
+            for (DaoEpicActorBoard daoEpicActorBoard : daoEpic.getActorBoardList()) {
                 // format title: moniker, tally, tic
-                String title = daoEpicStarBoard.getStarMoniker() + "  " +
-                        daoEpicStarBoard.getTally().toString() + "  " +
-                        daoEpicStarBoard.getTic().toString();
+                String title = daoEpicActorBoard.getStarMoniker() + "  " +
+                        daoEpicActorBoard.getTally().toString() + "  " +
+                        daoEpicActorBoard.getTic().toString();
                 float titleWidth = mPaintMinorText.measureText(title);
                 if (titleWidth > maxTitleWidth) maxTitleWidth = titleWidth;
             }
 
             // order starboard by descending (false) tally
-            List<DaoEpicStarBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
+            List<DaoEpicActorBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
             // for each star in star board
-            for (DaoEpicStarBoard daoEpicStarBoard : orderedStarBoard) {
+            for (DaoEpicActorBoard daoEpicActorBoard : orderedStarBoard) {
                 // format title: moniker, tally, tic
-                String title = daoEpicStarBoard.getStarMoniker() + "  " +
-                        daoEpicStarBoard.getTally().toString() + "  " +
-                        daoEpicStarBoard.getTic().toString();
+                String title = daoEpicActorBoard.getStarMoniker() + "  " +
+                        daoEpicActorBoard.getTally().toString() + "  " +
+                        daoEpicActorBoard.getTic().toString();
                 // find actor color
-                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicStarBoard.getStarMoniker());
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicActorBoard.getStarMoniker());
                 if (daoActor != null) {
                     color = daoActor.getForeColor();
                 }
@@ -611,7 +609,7 @@ public class StageViewRing {
                 canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
                 // determine percent progress
-                Integer starTally = daoEpicStarBoard.getTally();
+                Integer starTally = daoEpicActorBoard.getTally();
                 float percentTally = (float) starTally / (float) daoEpic.getTallyLimit();
                 right = xTally + (maxTitleWidth * percentTally);
 
@@ -635,7 +633,7 @@ public class StageViewRing {
                 canvas.drawRect(left, top, right, bottom, mPaintMinorText);
 
                 // determine percent progress finding remaining tics
-                Integer starTic = daoEpicStarBoard.getTic();
+                Integer starTic = daoEpicActorBoard.getTic();
                 float percentTic = ((float) daoEpic.getTicLimit() - (float) starTic) / (float) daoEpic.getTicLimit();
                 right = xTic + (maxTitleWidth * percentTic);
 

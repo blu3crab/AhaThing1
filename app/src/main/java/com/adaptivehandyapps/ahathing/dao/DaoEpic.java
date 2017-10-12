@@ -30,7 +30,7 @@ import java.util.List;
 ///////////////////////////////////////////////////////////////////////////
 public class DaoEpic extends DaoBase {
 
-	private static final String TAG = "DaoEpic";
+	private static final String TAG = DaoEpic.class.getSimpleName();
 	private static final long serialVersionUID = 1L;
 
 	public static final String EPIC_TYPE_NONE = "None";
@@ -48,8 +48,8 @@ public class DaoEpic extends DaoBase {
 	@SerializedName("stage")
 	private String stage;
 
-	@SerializedName("starBoardList")	// stars are active actors on a particular device
-	private List<DaoEpicStarBoard> starBoardList;
+	@SerializedName("actorBoardList")	// stars are active actors on a particular device
+	private List<DaoEpicActorBoard> actorBoardList;
 
 	@SerializedName("tallyLimit")		// tally limit (aka max score)
 	private Integer tallyLimit;
@@ -65,7 +65,7 @@ public class DaoEpic extends DaoBase {
 
 		this.epicType = DaoDefs.INIT_STRING_MARKER;
 		this.stage = DaoDefs.INIT_STRING_MARKER;
-		this.starBoardList = new ArrayList<>();
+		this.actorBoardList = new ArrayList<>();
 		this.tallyLimit = EPIC_TALLY_LIMIT_DEFAULT;
 		this.ticLimit = EPIC_TIC_LIMIT_DEFAULT;
 
@@ -80,7 +80,7 @@ public class DaoEpic extends DaoBase {
 			String reserve1,
 			String epicType,
 			String stage,
-			List<DaoEpicStarBoard> starBoardList,
+			List<DaoEpicActorBoard> actorBoardList,
 			Integer tallyLimit,
 			Integer ticLimit,
             String reserve2
@@ -89,7 +89,7 @@ public class DaoEpic extends DaoBase {
 
 		this.epicType = epicType;
 		this.stage = stage;
-		this.starBoardList = starBoardList;
+		this.actorBoardList = actorBoardList;
 		this.tallyLimit = tallyLimit;
 		this.ticLimit = ticLimit;
 
@@ -98,85 +98,85 @@ public class DaoEpic extends DaoBase {
 
 	///////////////////////////////////////////////////////////////////////////
 	// star registration
-	public Boolean setStar(DaoActor daoActor, String deviceName, DaoStage daoStage) {
+	public Boolean addActorBoard(DaoActor daoActor) {
 
-		// add star, device name, with initial tally & tics
-		if (getStarList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
-			// if star present on same device
-			if (getStarList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
-				Log.d(TAG,"setStar TRUE for existing star " + daoActor.getMoniker() + ".");
-				return true;
-			}
-			else {
-				// if star present but on different device, remove both star & device stale entries
-				int staleStarInx = getStarList().indexOf(deviceName);
-				Log.d(TAG,"setStar removing star " + starBoardList.get(staleStarInx).getStarMoniker() + " at inx " + staleStarInx);
-				removeStar(daoStage, staleStarInx);
-				int staleDeviceInx = getDeviceList().indexOf(deviceName);
-				Log.d(TAG,"setStar removing device " + starBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-				removeStar(daoStage, staleDeviceInx);
-			}
-		}
-		else if (getDeviceList().contains(deviceName)) {
-			// if new star but device is allocated, remove stale device entry
-			int staleDeviceInx = getDeviceList().indexOf(deviceName);
-			Log.d(TAG,"setStar removing device " + starBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-			removeStar(daoStage, staleDeviceInx);
-		}
+//		// add star, device name, with initial tally & tics
+//		if (getActorList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
+//			// if star present on same device
+//			if (getActorList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
+//				Log.d(TAG,"addActorBoard TRUE for existing star " + daoActor.getMoniker() + ".");
+//				return true;
+//			}
+//			else {
+//				// if star present but on different device, remove both star & device stale entries
+//				int staleStarInx = getActorList().indexOf(deviceName);
+//				Log.d(TAG,"addActorBoard removing star " + actorBoardList.get(staleStarInx).getStarMoniker() + " at inx " + staleStarInx);
+//				removeActor(daoStage, staleStarInx);
+//				int staleDeviceInx = getDeviceList().indexOf(deviceName);
+//				Log.d(TAG,"addActorBoard removing device " + actorBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
+//				removeActor(daoStage, staleDeviceInx);
+//			}
+//		}
+//		else if (getDeviceList().contains(deviceName)) {
+//			// if new star but device is allocated, remove stale device entry
+//			int staleDeviceInx = getDeviceList().indexOf(deviceName);
+//			Log.d(TAG,"addActorBoard removing device " + actorBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
+//			removeActor(daoStage, staleDeviceInx);
+//		}
 		// create star, device with init tally, tic
-		Log.d(TAG,"setStar adding starBoard for " + daoActor.getMoniker() + " on device " + deviceName);
-		DaoEpicStarBoard daoEpicStarBoard = new DaoEpicStarBoard();
-		daoEpicStarBoard.setStarMoniker(daoActor.getMoniker());
-		daoEpicStarBoard.setDeviceId(deviceName);
-		daoEpicStarBoard.setTally(0);
-		daoEpicStarBoard.setTic(0);
-		starBoardList.add(daoEpicStarBoard);
+		Log.d(TAG,"addActorBoard adding to actorBoard for " + daoActor.getMoniker());
+		DaoEpicActorBoard daoEpicActorBoard = new DaoEpicActorBoard();
+		daoEpicActorBoard.setStarMoniker(daoActor.getMoniker());
+		daoEpicActorBoard.setTally(0);
+		daoEpicActorBoard.setTic(0);
+		actorBoardList.add(daoEpicActorBoard);
 		return true;
 	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public Boolean isStar(DaoActor daoActor, String deviceName) {
+//		// if star & device are present
+//		if (getActorList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
+//			// if star present on same device
+//			if (getActorList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
+//				Log.d(TAG, "isStar TRUE for existing star " + daoActor.getMoniker() + ".");
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 	///////////////////////////////////////////////////////////////////////////
-	public Boolean isStar(DaoActor daoActor, String deviceName) {
-		// if star & device are present
-		if (getStarList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
-			// if star present on same device
-			if (getStarList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
-				Log.d(TAG, "isStar TRUE for existing star " + daoActor.getMoniker() + ".");
-				return true;
-			}
+	// return list of all actors on the actor board
+	public List<String> getActorList() {
+		List<String> actorList = new ArrayList<>();
+		for (DaoEpicActorBoard daoEpicActorBoard : actorBoardList) {
+			actorList.add(daoEpicActorBoard.getStarMoniker());
 		}
-		return false;
+		return actorList;
 	}
+//	///////////////////////////////////////////////////////////////////////////
+//	public List<String> getDeviceList() {
+//		List<String> deviceList = new ArrayList<>();
+//		for (DaoEpicActorBoard daoEpicActorBoard : starBoardList) {
+//			deviceList.add(daoEpicActorBoard.getDeviceId());
+//		}
+//		return deviceList;
+//	}
 	///////////////////////////////////////////////////////////////////////////
-	public List<String> getStarList() {
-		List<String> starList = new ArrayList<>();
-		for (DaoEpicStarBoard daoEpicStarBoard : starBoardList) {
-			starList.add(daoEpicStarBoard.getStarMoniker());
-		}
-		return starList;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public List<String> getDeviceList() {
-		List<String> deviceList = new ArrayList<>();
-		for (DaoEpicStarBoard daoEpicStarBoard : starBoardList) {
-			deviceList.add(daoEpicStarBoard.getDeviceId());
-		}
-		return deviceList;
-	}
-	///////////////////////////////////////////////////////////////////////////
-	public Boolean removeStar(DaoStage daoStage, int staleInx) {
-		if (staleInx < starBoardList.size()) {
+	public Boolean removeActor(DaoStage daoStage, int staleInx) {
+		if (staleInx < actorBoardList.size()) {
 			// scan stage actor list for stale actor - if found, reset stage locus
-			String staleActor = starBoardList.get(staleInx).getStarMoniker();
+			String staleActor = actorBoardList.get(staleInx).getStarMoniker();
 			if (daoStage != null) {
 				if (daoStage.getActorList() != null) {
 					for (String actor : daoStage.getActorList()) {
 						if (actor.equals(staleActor)) {
 							daoStage.getActorList().set(daoStage.getActorList().indexOf(staleActor), DaoDefs.INIT_STRING_MARKER);
-							Log.d(TAG, "removeStar " + staleActor + " at stage locus " + daoStage.getActorList().indexOf(staleActor));
+							Log.d(TAG, "removeActor " + staleActor + " at stage locus " + daoStage.getActorList().indexOf(staleActor));
 						}
 					}
 				}
 			}
-			starBoardList.remove(staleInx);
+			actorBoardList.remove(staleInx);
 			return true;
 		}
 		return false;
@@ -189,14 +189,14 @@ public class DaoEpic extends DaoBase {
             return true;
         }
         // if highest tally is 1/2 to total
-        List<DaoEpicStarBoard> orderedStarBoardList = getTallyOrder(false);
-		if (orderedStarBoardList.size() > 0) {
-			Integer highTally = orderedStarBoardList.get(0).getTally();
+        List<DaoEpicActorBoard> orderedActorBoardList = getTallyOrder(false);
+		if (orderedActorBoardList.size() > 0) {
+			Integer highTally = orderedActorBoardList.get(0).getTally();
 			if (highTally > (getTallyLimit() / 2)) {
 				// tally all others
 				Integer otherTally = 0;
-				for (int i = 1; i < orderedStarBoardList.size(); i++) {
-					otherTally += orderedStarBoardList.get(i).getTally();
+				for (int i = 1; i < orderedActorBoardList.size(); i++) {
+					otherTally += orderedActorBoardList.get(i).getTally();
 				}
 				float percent = (float) otherTally / (float) highTally;
 				Log.d(TAG, "otherTally/highTally " + otherTally + "/" + highTally);
@@ -209,9 +209,9 @@ public class DaoEpic extends DaoBase {
 	public Boolean isEpicTallyAtLimit() {
 		// if tally limit defined
 		if (getTallyLimit() > 0) {
-			for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
+			for (DaoEpicActorBoard daoEpicActorBoard : getActorBoardList()) {
 				// if epic tally for any star > limit
-				if (daoEpicStarBoard.getTally() > getTallyLimit()) {
+				if (daoEpicActorBoard.getTally() > getTallyLimit()) {
 					// return tally at limit
 					return true;
 				}
@@ -222,9 +222,9 @@ public class DaoEpic extends DaoBase {
 	public Boolean isEpicTicAtLimit() {
 		// if tic limit defined
 		if (getTicLimit() > 0) {
-			for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
+			for (DaoEpicActorBoard daoEpicActorBoard : getActorBoardList()) {
 				// if epic tic for any star > limit
-				if (daoEpicStarBoard.getTic() > getTicLimit()) {
+				if (daoEpicActorBoard.getTic() > getTicLimit()) {
 					// return tic at limit
 					return true;
 				}
@@ -232,9 +232,9 @@ public class DaoEpic extends DaoBase {
 		}
 		return false;
 	}
-	public List<DaoEpicStarBoard> getTallyOrder(final Boolean ascending) {
-		Collections.sort(getStarBoardList(), new Comparator<DaoEpicStarBoard>(){
-			public int compare(DaoEpicStarBoard o1, DaoEpicStarBoard o2){
+	public List<DaoEpicActorBoard> getTallyOrder(final Boolean ascending) {
+		Collections.sort(getActorBoardList(), new Comparator<DaoEpicActorBoard>(){
+			public int compare(DaoEpicActorBoard o1, DaoEpicActorBoard o2){
 				if(o1.getTally() == o2.getTally())
 					return 0;
 				// < is ascending,
@@ -243,18 +243,18 @@ public class DaoEpic extends DaoBase {
 				else return o1.getTally() > o2.getTally() ? -1 : 1;
 			}
 		});
-		return getStarBoardList();
+		return getActorBoardList();
 	}
-	public List<DaoEpicStarBoard> getTicOrder() {
-		Collections.sort(getStarBoardList(), new Comparator<DaoEpicStarBoard>(){
-			public int compare(DaoEpicStarBoard o1, DaoEpicStarBoard o2){
+	public List<DaoEpicActorBoard> getTicOrder() {
+		Collections.sort(getActorBoardList(), new Comparator<DaoEpicActorBoard>(){
+			public int compare(DaoEpicActorBoard o1, DaoEpicActorBoard o2){
 				if(o1.getTally() == o2.getTally())
 					return 0;
 				// ascending?
 				return o1.getTic() < o2.getTic() ? -1 : 1;
 			}
 		});
-		return getStarBoardList();
+		return getActorBoardList();
 	}
     public Boolean updateEpicTally(DaoStage daoStage) {
         // TODO: checkbox for cumulative tally option?
@@ -263,11 +263,11 @@ public class DaoEpic extends DaoBase {
 		Boolean updateTally = false;
         // for each vert
         for (String vertActor : daoStage.getActorList()) {
-            int vertActorInx = getStarList().indexOf(vertActor);
+            int vertActorInx = getActorList().indexOf(vertActor);
             if (vertActorInx > -1) {
                 // increment tally for actor
-                int tally = getStarBoardList().get(vertActorInx).getTally();
-                getStarBoardList().get(vertActorInx).setTally(++tally);
+                int tally = getActorBoardList().get(vertActorInx).getTally();
+                getActorBoardList().get(vertActorInx).setTally(++tally);
 				updateTally = true;
             }
         }
@@ -280,16 +280,16 @@ public class DaoEpic extends DaoBase {
 		if (daoStage != null) daoStage.setActorList(DaoDefs.INIT_STRING_MARKER);
 
 		// reset tally & tic list
-        for (DaoEpicStarBoard daoEpicStarBoard : getStarBoardList()) {
-            if (resetTally) daoEpicStarBoard.setTally(0);
-            if (resetTic) daoEpicStarBoard.setTic(0);
+        for (DaoEpicActorBoard daoEpicActorBoard : getActorBoardList()) {
+            if (resetTally) daoEpicActorBoard.setTally(0);
+            if (resetTic) daoEpicActorBoard.setTic(0);
         }
         return true;
     }
     public Boolean resetStarBoard() {
-//		getStarBoardList().clear();
-		List<DaoEpicStarBoard> starBoardList = new ArrayList<>();
-		setStarBoardList(starBoardList);
+//		getActorBoardList().clear();
+		List<DaoEpicActorBoard> actorBoardList = new ArrayList<>();
+		setActorBoardList(actorBoardList);
 		return true;
 	}
 	/////////////////////////////helpers//////////////////////////////////
@@ -312,11 +312,11 @@ public class DaoEpic extends DaoBase {
 		this.stage = stage;
 	}
 
-	public List<DaoEpicStarBoard> getStarBoardList() {
-		return starBoardList;
+	public List<DaoEpicActorBoard> getActorBoardList() {
+		return actorBoardList;
 	}
-	public void setStarBoardList(List<DaoEpicStarBoard> starList) {
-		this.starBoardList = starList;
+	public void setActorBoardList(List<DaoEpicActorBoard> starList) {
+		this.actorBoardList = starList;
 	}
 
 	public Integer getTallyLimit() {

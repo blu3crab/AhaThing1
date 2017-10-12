@@ -17,27 +17,18 @@
  */
 package com.adaptivehandyapps.ahathing;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.view.View;
 
 import com.adaptivehandyapps.ahathing.ahautils.StringUtils;
-import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoEpic;
-import com.adaptivehandyapps.ahathing.dao.DaoEpicStarBoard;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
-import com.adaptivehandyapps.ahathing.dao.DaoStage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,11 +126,11 @@ public class StarGateView {
 
         // set scale factor
         float min = Math.min(getCanvasWidth(), getCanvasHeight());
-        float rawScaleFactor = (min/3)/StarGateModel.LOCUS_DIST.floatValue();
-        setScaleFactor(rawScaleFactor);
+        float scaleFactor = (min/3)/StarGateModel.LOCUS_DIST.floatValue();
+        setScaleFactor(scaleFactor);
         // create new StarGate model
         mParentViewController.setStarGateModel(new StarGateModel());
-        Log.d(TAG, "NEW StarGateModel at " + mParentViewController.getStarGateModel().toString() + " with scale factor " + getScaleFactor() + "(raw)" + rawScaleFactor);
+        Log.d(TAG, "NEW StarGateModel at " + mParentViewController.getStarGateModel().toString() + " with scale factor " + getScaleFactor());
         transformLocus(getStarGateModel().getLocusList(), getScaleFactor());
 
         // init local objects

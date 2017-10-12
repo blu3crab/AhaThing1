@@ -46,7 +46,6 @@ import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
-import com.adaptivehandyapps.ahathing.dao.DaoStarGate;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -75,10 +74,10 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static final String STAR_MONIKER_NADA = "Signin Here!";
-
+//    public static final String STAR_MONIKER_NADA = "Signin Here!";
+//
     private static final Integer REQUEST_CODE_GALLERY = 1;
     private static final Boolean FORCE_PHOTO_SELECTION = true;
 
@@ -100,23 +99,23 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    // stargate
-    private DaoStarGate daoStarGate = new DaoStarGate();
-
-    public String getStarMoniker() { return daoStarGate.getStarMoniker(); }
-    public String setStarMoniker() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String starMoniker = STAR_MONIKER_NADA;
-        if (user != null && user.getDisplayName() != null) {
-            Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
-            // update StarMoniker with display name
-            starMoniker = user.getDisplayName();
-        }
-        // update StarMoniker
-        daoStarGate.setStarMoniker(starMoniker);
-        return starMoniker;
-    }
-
+//    // stargate
+//    private DaoStarGate daoStarGate = new DaoStarGate();
+//
+//    public String getStarMoniker() { return daoStarGate.getStarMoniker(); }
+//    public String addActorBoard() {
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        String starMoniker = STAR_MONIKER_NADA;
+//        if (user != null && user.getDisplayName() != null) {
+//            Log.d(TAG, "Firebase DisplayName " + user.getDisplayName());
+//            // update StarMoniker with display name
+//            starMoniker = user.getDisplayName();
+//        }
+//        // update StarMoniker
+//        daoStarGate.addActorBoard(starMoniker);
+//        return starMoniker;
+//    }
+//
     ///////////////////////////////////////////////////////////////////////////
     private SoundManager mSoundManager;
     public SoundManager getSoundManager() {
@@ -202,8 +201,6 @@ public class MainActivity extends AppCompatActivity
             // assign repo callback
             getRepoProvider().setCallback(getRepoProviderCallback());
             getRepoProvider().setPlayListService(getPlayListService());
-//            // bind playlist to repo
-//            getPlayListService().bindRepoProvider();
 
             if (mNavMenu != null) {
                 mNavMenu.setPlayListService(getPlayListService());
@@ -219,6 +216,8 @@ public class MainActivity extends AppCompatActivity
                 // set navigation menu
                 buildNavMenu();
             }
+            // trigger stargate update for this device
+            getStarGateManager().setStarGate();
         }
 
         @Override
@@ -333,6 +332,17 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
+        // instantiate nav  menu & item
+        mNavMenu = new NavMenu();
+        mNavItem = new NavItem();
+
+        // establish sound manager
+        mSoundManager = new SoundManager(this);
+        // establish stage manager
+        mStageManager = new StageManager(this);
+        // establish StarGate manager
+        mStarGateManager = new StarGateManager(this);
+
         // Firebase auth
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -352,8 +362,8 @@ public class MainActivity extends AppCompatActivity
                     // TODO: clear database, listeners, etc.?
                     if (getRepoProvider() != null) getRepoProvider().removeFirebaseListener();
                 }
-                // set StarMoniker
-                setStarMoniker();
+                // trigger stargate update for this device
+                getStarGateManager().setStarGate();
                 // if StarGateManager model exists
                 if (getStarGateManager().getStarGateModel() != null) {
                     // update existing StarGateManager model
@@ -361,16 +371,16 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-        // instantiate nav  menu & item
-        mNavMenu = new NavMenu();
-        mNavItem = new NavItem();
-
-        // establish sound manager
-        mSoundManager = new SoundManager(this);
-        // establish stage manager
-        mStageManager = new StageManager(this);
-        // establish StarGate manager
-        mStarGateManager = new StarGateManager(this);
+//        // instantiate nav  menu & item
+//        mNavMenu = new NavMenu();
+//        mNavItem = new NavItem();
+//
+//        // establish sound manager
+//        mSoundManager = new SoundManager(this);
+//        // establish stage manager
+//        mStageManager = new StageManager(this);
+//        // establish StarGate manager
+//        mStarGateManager = new StarGateManager(this);
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
@@ -383,7 +393,7 @@ public class MainActivity extends AppCompatActivity
 //            return false;
 //        }
         // build nav menu
-        mNavMenu.build(mNavigationView, setStarMoniker());
+        mNavMenu.build(mNavigationView, getStarGateManager().getStarMoniker());
 
         // if story ready
         if (getPlayListService().getActiveStory() != null) {

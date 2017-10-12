@@ -27,16 +27,17 @@ public class DaoStarGate extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-	@SerializedName("starMoniker")	// star is active actor on a particular deviceId
-	private String starMoniker;
-	@SerializedName("deviceId")		// deviceId where star are active
-	private String deviceId;
-
-	@SerializedName("tally")		// tally for each actor (aka score)
-	private Integer tally;
-
-	@SerializedName("tic")			// tic for each actor (aka turn counter)
-	private Integer tic;
+    // DeviceId base class moniker (key)
+    @SerializedName("starMoniker")			// star moniker - displayname
+    private String starMoniker;
+//	@SerializedName("deviceId")				// deviceId where star signed in
+//	private String deviceId;
+	@SerializedName("deviceDescription")	// device description (manufacturer/model/build)
+	private String deviceDescription;
+	@SerializedName("email")				// email where star signed in
+	private String email;
+	@SerializedName("active")				// star is currently active on device
+	private Boolean active;
 
 	@SerializedName("reserve2")
 	private String reserve2;
@@ -45,9 +46,10 @@ public class DaoStarGate extends DaoBase {
 	public DaoStarGate() {
 		super();
 		this.starMoniker = DaoDefs.INIT_STRING_MARKER;
-		this.deviceId = DaoDefs.INIT_STRING_MARKER;
-		this.tally = DaoDefs.INIT_INTEGER_MARKER;
-		this.tic = DaoDefs.INIT_INTEGER_MARKER;
+//		this.deviceId = DaoDefs.INIT_STRING_MARKER;
+		this.deviceDescription = DaoDefs.INIT_STRING_MARKER;
+		this.email = DaoDefs.INIT_STRING_MARKER;
+		this.active = false;
 
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
@@ -59,51 +61,60 @@ public class DaoStarGate extends DaoBase {
 			List<String> tagList,
 			String reserve1,
 			String star,
-			String deviceId,
-			Integer tally,
-			Integer tic,
+//            String deviceId,
+			String deviceDescription,
+			String email,
+			Boolean active,
 			String reserve2
     ) {
 		super(moniker, headline, timestamp, tagList, reserve1);
 
 		this.starMoniker = star;
-		this.deviceId = deviceId;
-		this.tally = tally;
-		this.tic = tic;
+//		this.deviceId = deviceId;
+		this.deviceDescription = deviceDescription;
+		this.email = email;
+		this.active = active;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 
+	public String toString() {
+		return "StarGate deviceId " + getMoniker() + ", star " + getStarMoniker() +
+				", description " + getDeviceDescription() + ", email " + getEmail() + ", active " + getActive();
+	}
 	public String getStarMoniker() {
 		return starMoniker;
 	}
-
 	public void setStarMoniker(String starMoniker) {
 		this.starMoniker = starMoniker;
 	}
 
-	public String getDeviceId() {
-		return deviceId;
+//	public String getDeviceId() {
+//		return deviceId;
+//	}
+//	public void setDeviceId(String deviceId) {
+//		this.deviceId = deviceId;
+//	}
+
+	public String getDeviceDescription() {
+		return deviceDescription;
+	}
+	public void setDeviceDescription(String deviceDescription) {
+		this.deviceDescription = deviceDescription;
 	}
 
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
-	public Integer getTally() {
-		return tally;
+	public Boolean getActive() {
+		return active;
 	}
-
-	public void setTally(Integer tally) {
-		this.tally = tally;
-	}
-
-	public Integer getTic() {
-		return tic;
-	}
-
-	public void setTic(Integer tic) {
-		this.tic = tic;
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 	public String getReserve2() {
