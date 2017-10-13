@@ -47,6 +47,7 @@ public class ContentFragment extends Fragment {
     public static final String ARG_CONTENT_VALUE_OP_PLAY = "play";
     public static final String ARG_CONTENT_VALUE_OP_SHOWLIST = "showlist";
     public static final String ARG_CONTENT_VALUE_OP_STARGATE = "stargate";
+    public static final String ARG_CONTENT_VALUE_OP_MARQUEE = "marquee";
 
     private LayoutInflater mInflater;
     private ViewGroup mContainer;
@@ -133,6 +134,10 @@ public class ContentFragment extends Fragment {
             }
             else if (mContentOp.equals(ARG_CONTENT_VALUE_OP_STARGATE)) {
                 mContentId = R.layout.content_stargate;
+                mParent.setStageViewActive(false);
+            }
+            else if (mContentOp.equals(ARG_CONTENT_VALUE_OP_MARQUEE)) {
+                mContentId = R.layout.content_marquee;
                 mParent.setStageViewActive(false);
             }
             else if (mContentOp.equals(ARG_CONTENT_VALUE_OP_NEW) ||

@@ -75,6 +75,20 @@ public class NavItem {
             mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
             mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
         }
+        else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_MARQUEE_MONIKER)) {
+            if (getPlayListService().getActiveEpic() != null) {
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_MARQUEE;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_MARQUEE_MONIKER;
+                mContentMoniker = getPlayListService().getActiveEpic().getMoniker();
+            }
+            else {
+                // launch dao maker
+                mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_NEW;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
+                mContentMoniker = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER + mRepoProvider.getDalEpic().getDaoRepo().size();
+            }
+        }
         else if (itemSplit[0].equals(DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER)) {
             if (getPlayListService().getActiveTheatre() != null) {
                 // launch dao maker

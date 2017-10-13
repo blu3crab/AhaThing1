@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,6 +38,8 @@ public class DaoEpic extends DaoBase {
 	public static final String EPIC_TYPE_COMPETE = "Compete";
 	public static final String EPIC_TYPE_COOPERATE = "Cooperate";
 
+	public static final List<String> EPIC_ORDER_LIST = new ArrayList<>(Arrays.asList("Forward","Reverse","Random"));
+
 	public static final Integer EPIC_TALLY_LIMIT_DEFAULT = 24;
 	public static final Integer EPIC_TIC_LIMIT_MAX = 96;
 	public static final Integer EPIC_TIC_LIMIT_DEFAULT = 12;
@@ -50,6 +53,9 @@ public class DaoEpic extends DaoBase {
 
 	@SerializedName("actorBoardList")	// stars are active actors on a particular device
 	private List<DaoEpicActorBoard> actorBoardList;
+
+	@SerializedName("order")
+	private String order;
 
 	@SerializedName("tallyLimit")		// tally limit (aka max score)
 	private Integer tallyLimit;
@@ -66,6 +72,7 @@ public class DaoEpic extends DaoBase {
 		this.epicType = DaoDefs.INIT_STRING_MARKER;
 		this.stage = DaoDefs.INIT_STRING_MARKER;
 		this.actorBoardList = new ArrayList<>();
+		this.order = DaoDefs.INIT_STRING_MARKER;
 		this.tallyLimit = EPIC_TALLY_LIMIT_DEFAULT;
 		this.ticLimit = EPIC_TIC_LIMIT_DEFAULT;
 
@@ -81,6 +88,7 @@ public class DaoEpic extends DaoBase {
 			String epicType,
 			String stage,
 			List<DaoEpicActorBoard> actorBoardList,
+			String order,
 			Integer tallyLimit,
 			Integer ticLimit,
             String reserve2
@@ -90,6 +98,7 @@ public class DaoEpic extends DaoBase {
 		this.epicType = epicType;
 		this.stage = stage;
 		this.actorBoardList = actorBoardList;
+		this.order = order;
 		this.tallyLimit = tallyLimit;
 		this.ticLimit = ticLimit;
 
@@ -317,6 +326,13 @@ public class DaoEpic extends DaoBase {
 	}
 	public void setActorBoardList(List<DaoEpicActorBoard> starList) {
 		this.actorBoardList = starList;
+	}
+
+	public String getOrder() {
+		return order;
+	}
+	public void setOrder(String order) {
+		this.order = order;
 	}
 
 	public Integer getTallyLimit() {

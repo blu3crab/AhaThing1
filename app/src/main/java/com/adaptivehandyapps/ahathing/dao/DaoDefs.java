@@ -72,6 +72,7 @@ public class DaoDefs {
     // dao object types
     @IntDef({DAOOBJ_TYPE_UNKNOWN,
             DAOOBJ_TYPE_STARGATE,
+            DAOOBJ_TYPE_MARQUEE,
             DAOOBJ_TYPE_THEATRE,
             DAOOBJ_TYPE_EPIC,
             DAOOBJ_TYPE_STORY,
@@ -86,18 +87,20 @@ public class DaoDefs {
 
     public static final int DAOOBJ_TYPE_UNKNOWN = -1;
     public static final int DAOOBJ_TYPE_STARGATE = 0;
-    public static final int DAOOBJ_TYPE_THEATRE = 1;
-    public static final int DAOOBJ_TYPE_EPIC = 2;
-    public static final int DAOOBJ_TYPE_STORY = 3;
-    public static final int DAOOBJ_TYPE_STAGE = 4;
-    public static final int DAOOBJ_TYPE_ACTOR = 5;
-    public static final int DAOOBJ_TYPE_ACTION = 6;
-    public static final int DAOOBJ_TYPE_OUTCOME = 7;
-    public static final int DAOOBJ_TYPE_AUDIT = 8;
-    public static final int DAOOBJ_TYPE_RESERVE = 9;
+    public static final int DAOOBJ_TYPE_MARQUEE = 1;
+    public static final int DAOOBJ_TYPE_THEATRE = 2;
+    public static final int DAOOBJ_TYPE_EPIC = 3;
+    public static final int DAOOBJ_TYPE_STORY = 4;
+    public static final int DAOOBJ_TYPE_STAGE = 5;
+    public static final int DAOOBJ_TYPE_ACTOR = 6;
+    public static final int DAOOBJ_TYPE_ACTION = 7;
+    public static final int DAOOBJ_TYPE_OUTCOME = 8;
+    public static final int DAOOBJ_TYPE_AUDIT = 9;
+    public static final int DAOOBJ_TYPE_RESERVE = 10;
 
     public static final String DAOOBJ_TYPE_UNKNOWN_MONIKER = "Unknown";
     public static final String DAOOBJ_TYPE_STARGATE_MONIKER = "StarGate";
+    public static final String DAOOBJ_TYPE_MARQUEE_MONIKER = "Marquee";
     public static final String DAOOBJ_TYPE_THEATRE_MONIKER = "Theatre";
     public static final String DAOOBJ_TYPE_EPIC_MONIKER = "Epic";
     public static final String DAOOBJ_TYPE_STORY_MONIKER = "Story";
@@ -110,6 +113,7 @@ public class DaoDefs {
 
     public static final int DAOOBJ_TYPE_UNKNOWN_IMAGE_RESID = R.drawable.ic_format_clear_black_48dp;
     public static final int DAOOBJ_TYPE_STARGATE_IMAGE_RESID = R.drawable.ic_flare_black_48dp;
+    public static final int DAOOBJ_TYPE_MARQUEE_IMAGE_RESID = R.drawable.ic_person_black_48dp;
     public static final int DAOOBJ_TYPE_THEATRE_IMAGE_RESID = R.drawable.ic_local_movies_black_48dp;
     public static final int DAOOBJ_TYPE_EPIC_IMAGE_RESID = R.drawable.ic_burst_mode_black_48dp;
     public static final int DAOOBJ_TYPE_STORY_IMAGE_RESID = R.drawable.ic_play_circle_filled_black_48dp;

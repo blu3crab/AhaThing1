@@ -149,7 +149,7 @@ public class StarGateManager {
     // stargate
     private DaoStarGate mDaoStarGate = new DaoStarGate();
 
-    public String getStarMoniker() { return mDaoStarGate.getMoniker(); }
+    public String getStarMoniker() { return mDaoStarGate.getStarMoniker(); }
 
     public DaoStarGate setStarGate() {
         // default stargate to inactive (not signed in)

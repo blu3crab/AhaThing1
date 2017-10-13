@@ -74,6 +74,13 @@ public class NavMenu {
                 prefix = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
                 activeName = starName;
             }
+            else if (i == DaoDefs.DAOOBJ_TYPE_MARQUEE) {
+                iconId = DaoDefs.DAOOBJ_TYPE_MARQUEE_IMAGE_RESID;
+                prefix = DaoDefs.DAOOBJ_TYPE_MARQUEE_MONIKER;
+                if (getPlayListService().getActiveEpic() != null) {
+                    activeName = getPlayListService().getActiveEpic().getMoniker();
+                }
+            }
             else if (i == DaoDefs.DAOOBJ_TYPE_THEATRE) {
                 iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
                 prefix = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;

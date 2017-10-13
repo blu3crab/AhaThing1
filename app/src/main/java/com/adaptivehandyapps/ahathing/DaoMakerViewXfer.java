@@ -26,6 +26,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -67,6 +69,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     // epic controls
     private TagListAdapter mStoryListAdapter = null;
     private List<String> mStoryList;
+    private RadioGroup mRadioGroupOrder;
     private SeekBar mTallySeekbar;
     private TextView mTvTally;
     private int mTallyMax = MAX_TALLY_DEFAULT;
@@ -329,6 +332,25 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             return false;
         }
 
+        // order radio group
+        mRadioGroupOrder = (RadioGroup) mRootView.findViewById(R.id.rg_order);
+        // determine order index from daoEpic
+        String order = daoEpic.getOrder();
+        int daoOrderInx = DaoEpic.EPIC_ORDER_LIST.indexOf(order);
+        // if order not valid, default to last valid entry
+        if (daoOrderInx < 0 || daoOrderInx > DaoEpic.EPIC_ORDER_LIST.size()) daoOrderInx = DaoEpic.EPIC_ORDER_LIST.size()-1;
+        // set text based on order list
+        for (int i = 0; i < DaoEpic.EPIC_ORDER_LIST.size(); i++) {
+            RadioButton r = (RadioButton) mRadioGroupOrder.getChildAt(i);
+            r.setText(DaoEpic.EPIC_ORDER_LIST.get(i));
+            if (daoOrderInx == i) {
+                // check dao order setting
+                r.setChecked(true);
+            }
+            else {
+                r.setChecked(false);
+            }
+        }
         // tally progress
         mTallySeekbar = (SeekBar) mRootView.findViewById(R.id.seekbar_tally);
         if (daoStage != null) mTallyMax = daoStage.getLocusList().locii.size();
@@ -936,6 +958,15 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
 //        activeEpic.setTagList(tagList);
         activeEpic.setTagList(mStoryList);
         mParent.getPlayListService().setActiveEpic(activeEpic);
+
+        // set order radio group
+        mRadioGroupOrder = (RadioGroup) mRootView.findViewById(R.id.rg_order);
+        // get checked order index
+        int checkedOrderIndex = mRadioGroupOrder.indexOfChild(mRootView.findViewById(mRadioGroupOrder.getCheckedRadioButtonId()));
+        // if order not valid, default to last valid entry
+        if (checkedOrderIndex < 0 || checkedOrderIndex > DaoEpic.EPIC_ORDER_LIST.size()) checkedOrderIndex = DaoEpic.EPIC_ORDER_LIST.size()-1;
+        activeEpic.setOrder(DaoEpic.EPIC_ORDER_LIST.get(checkedOrderIndex));
+
         // set tally progress
         activeEpic.setTallyLimit(mTallyProgress);
         // tic progress
