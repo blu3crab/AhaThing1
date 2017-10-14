@@ -79,7 +79,7 @@ public class NavItem {
             if (getPlayListService().getActiveEpic() != null) {
                 // launch dao maker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_MARQUEE;
-                mContentObjType = DaoDefs.DAOOBJ_TYPE_MARQUEE_MONIKER;
+                mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
                 mContentMoniker = getPlayListService().getActiveEpic().getMoniker();
             }
             else {

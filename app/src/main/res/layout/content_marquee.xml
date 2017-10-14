@@ -14,7 +14,7 @@
     tools:showIn="@layout/app_bar_main">
 
     <TextView
-        android:id="@+id/tv_title"
+        android:id="@+id/tv_marquee_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -47,7 +47,7 @@
             android:paddingRight="@dimen/activity_horizontal_padding"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorNew"
-            android:text="Stars - selected Star highlighted:" />
+            android:text="Stars - select Star to map to Actor:" />
 
         <ListView
             android:id="@+id/listview_starlist"
@@ -57,6 +57,7 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:background="@color/colorBrightGreen"
             android:textColor="@color/colorBrightGreen"
+            android:choiceMode="singleChoice"
             >
         </ListView>
     </LinearLayout>
@@ -107,7 +108,7 @@
 
         <!-- create/destroy/cancel buttons -->
         <Button style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/button_daomaker_create"
+            android:id="@+id/button_marquee_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -118,22 +119,9 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/colorNewAccent"
             android:background="@color/colorNew"
-            android:text="Create"/>
+            android:text="Update"/>
         <Button
-            android:id="@+id/button_daomaker_destroy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_padding"
-            android:paddingRight="@dimen/activity_horizontal_padding"
-            android:visibility="gone"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorNewAccent"
-            android:background="@color/colorNew"
-            android:text="Destroy"/>
-        <Button
-            android:id="@+id/button_daomaker_cancel"
+            android:id="@+id/button_marquee_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"

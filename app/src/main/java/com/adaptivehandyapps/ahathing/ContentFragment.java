@@ -59,6 +59,7 @@ public class ContentFragment extends Fragment {
     private String mContentMoniker = DaoDefs.INIT_STRING_MARKER;
 
     private DaoMakerUiHandler mDaoMakerUiHandler;
+    private MarqueeUiHandler mMarqueeUiHandler;
 
     ///////////////////////////////////////////////////////////////////////////
     // playlist service
@@ -159,10 +160,9 @@ public class ContentFragment extends Fragment {
             // set the content moniker
             mContentMoniker = getArguments().getString(ARG_CONTENT_KEY_MONIKER);
         }
-        Log.v(TAG, "onCreateView: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
+        Log.v(TAG, "onCreateView inflating: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
         mRootView = mInflater.inflate(mContentId, mContainer, false);
 
-//        mRootView = refresh();
         // if services bound refresh the view
         if (mPlayListBound && mRepoProviderBound) refresh();
         Log.v(TAG, "onCreateView: Refresh if " + mPlayListBound + " && " + mRepoProviderBound);
@@ -170,14 +170,17 @@ public class ContentFragment extends Fragment {
         return mRootView;
     }
     private View refresh() {
-        // inflate to refresh
-//        mRootView = mInflater.inflate(mContentId, mContainer, false);
-//        Log.v(TAG, "refresh inflating " + mContentId + ", Moniker = " + mContentMoniker);
+        // if services bound & non-stage layout, create UI handlers
         if (mPlayListBound && mRepoProviderBound) {
             if (mContentId == R.layout.content_daomaker) {
                 // create new handler & callback
                 mDaoMakerUiHandler = new DaoMakerUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
-                mDaoMakerUiHandler.setOnContentHandlerResultCallback(getOnContentHandlerResultCallback());
+                mDaoMakerUiHandler.setOnContentHandlerResultCallback(getDaoMakerHandlerResultCallback());
+            }
+            else if (mContentId == R.layout.content_marquee) {
+                // create new handler & callback
+                mMarqueeUiHandler = new MarqueeUiHandler(this, mRootView, mContentOp, mContentObjType, mContentMoniker);
+                mMarqueeUiHandler.setOnContentHandlerResultCallback(getMarqueeHandlerResultCallback());
             }
         }
         Log.v(TAG, "refresh invalidating " + mContentId + ", Moniker = " + mContentMoniker);
@@ -196,10 +199,39 @@ public class ContentFragment extends Fragment {
         Log.v(TAG, "onDestroy");
     }
 
-        ///////////////////////////////////////////////////////////////////////////
-    private DaoMakerUiHandler.OnContentHandlerResult getOnContentHandlerResultCallback() {
+    ///////////////////////////////////////////////////////////////////////////
+    private DaoMakerUiHandler.OnContentHandlerResult getDaoMakerHandlerResultCallback() {
         // instantiate callback
         DaoMakerUiHandler.OnContentHandlerResult callback = new DaoMakerUiHandler.OnContentHandlerResult() {
+
+            @Override
+            public void onContentHandlerResult(String op, String objType, String moniker) {
+                Log.v(TAG, "onContentHandlerResult: Op = " + mContentOp + ", ObjType = " + mContentObjType + ", Moniker = " + mContentMoniker);
+                // if story available, override DaoMaker settings
+                if (getPlayListService() != null && getPlayListService().getActiveStory() != null) {
+                    Log.d(TAG, "OnContentHandlerResult: Story ready!");
+                    // DaoMakerUiHandler completes - launch PLAY story
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_PLAY;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
+                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+                }
+                else {
+                    Log.d(TAG, "OnContentHandlerResult: Story NOT ready!");
+                    // launch stargate
+                    mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_STARGATE;
+                    mContentObjType = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                    mContentMoniker = DaoDefs.DAOOBJ_TYPE_STARGATE_MONIKER;
+                }
+                // replace fragment with PLAY story
+                replaceFragment(getActivity(), mContentOp, mContentObjType, mContentMoniker);
+            }
+        };
+        return callback;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private MarqueeUiHandler.OnContentHandlerResult getMarqueeHandlerResultCallback() {
+        // instantiate callback
+        MarqueeUiHandler.OnContentHandlerResult callback = new MarqueeUiHandler.OnContentHandlerResult() {
 
             @Override
             public void onContentHandlerResult(String op, String objType, String moniker) {

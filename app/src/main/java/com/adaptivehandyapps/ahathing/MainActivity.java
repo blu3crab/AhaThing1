@@ -371,16 +371,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-//        // instantiate nav  menu & item
-//        mNavMenu = new NavMenu();
-//        mNavItem = new NavItem();
-//
-//        // establish sound manager
-//        mSoundManager = new SoundManager(this);
-//        // establish stage manager
-//        mStageManager = new StageManager(this);
-//        // establish StarGate manager
-//        mStarGateManager = new StarGateManager(this);
     }
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
