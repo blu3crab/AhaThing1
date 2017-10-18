@@ -416,14 +416,11 @@ public class DaoMakerUiHandler {
                 else if (objType.equals(DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER)) {
                     mDaoMakerViewXfer.toOutcome (op, moniker, editedMoniker, headline, removeOriginalOnMonikerChange);
                 }
-//                else {
-                    // banish fab
-                    FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
-                    fab.setVisibility(View.GONE);
-                    // refresh content view
-                    Log.e(TAG, "buttonCreate.setOnClickListener unknown object - callback...");
-                    if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
-//                }
+                FloatingActionButton fab = (FloatingActionButton) mParent.getActivity().findViewById(R.id.fab_reset);
+                fab.setVisibility(View.GONE);
+                // refresh content view
+                Log.d(TAG, "buttonCreate.setOnClickListener callback invoked...");
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
 
             }
         });

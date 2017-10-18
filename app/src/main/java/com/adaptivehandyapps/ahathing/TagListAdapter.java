@@ -29,9 +29,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by mat on 11/3/2015.
- */
 public class TagListAdapter extends ArrayAdapter<String> {
     private static final String TAG = "TagListAdapter";
 
@@ -55,7 +52,6 @@ public class TagListAdapter extends ArrayAdapter<String> {
         this.mImageResId = imgid;
         this.mBgColor = bgColor;
     }
-    ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     public View getView(int position, View view, ViewGroup parent) {
 
@@ -84,6 +80,37 @@ public class TagListAdapter extends ArrayAdapter<String> {
 
         return rowView;
     }
-
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setName(int position, String text) {
+        if (position >= 0 && position < mItemName.size()) {
+            mItemName.set(position, text);
+            return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setLabel(int position, String text) {
+        if (position >= 0 && position < mItemLabel.size()) {
+            mItemLabel.set(position, text);
+            return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setImageResId(int position, int resId) {
+        if (position >= 0 && position < mImageResId.size()) {
+            mImageResId.set(position, resId);
+            return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Boolean setBgColor(int position, int bgColor) {
+        if (position >= 0 && position < mBgColor.size()) {
+            mBgColor.set(position, bgColor);
+            return true;
+        }
+        return false;
+    }
     ///////////////////////////////////////////////////////////////////////////
 }

@@ -65,6 +65,8 @@ public class DaoDefs {
     public static final Long INIT_LONG_MARKER = -1l;
     public static final Double INIT_DOUBLE_MARKER = -1.0;
 
+    public static final String ANY_ACTOR_MARKER = "*";
+
     public static final int LOGO_IMAGE_RESID = R.drawable.bluecrab48;
     //
     // @DaoDefs.ObjType int type = DaoDefs.getObjType(some object);

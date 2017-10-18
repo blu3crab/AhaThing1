@@ -228,7 +228,7 @@ public class StageManager {
                         // increment tic for actor
                         int tic = daoEpic.getActorBoardList().get(starInx).getTic();
                         daoEpic.getActorBoardList().get(starInx).setTic(++tic);
-                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getActorBoardList().get(starInx).getStarMoniker());
+                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getActorBoardList().get(starInx).getActorMoniker());
                         // update epic tally based on stage ring locations occupied
                         daoEpic.updateEpicTally(daoStage);
                         // update epic repo
@@ -347,7 +347,7 @@ public class StageManager {
                             if (daoEpic.isCurtainClose()) {
                                 // bring down the curtain!  prompt for an encore
                                 List<DaoEpicActorBoard> starBoardList = daoEpic.getTallyOrder(false);
-                                String title = starBoardList.get(0).getStarMoniker() + " dominates the universe of Marbles!";
+                                String title = starBoardList.get(0).getActorMoniker() + " dominates the universe of Marbles!";
                                 postCurtainCloseDialog(mContext, title, daoEpic, daoStage);
                             }
                         }
@@ -453,7 +453,7 @@ public class StageManager {
                 if (daoStory != null && getPlayListService().getActiveActor() != null) {
                     Log.v(TAG, "test story " + daoStory);
                     // if any actor or active actor  &&  action match
-                    if ((daoStory.getActor().contains("*") ||
+                    if ((daoStory.getActor().contains(DaoDefs.ANY_ACTOR_MARKER) ||
                             daoStory.getActor().equals(getPlayListService().getActiveActor().getMoniker())) &&
                             daoStory.getAction().equals(action)) {
                         Log.v(TAG, "returning outcome " + daoStory.getOutcome());

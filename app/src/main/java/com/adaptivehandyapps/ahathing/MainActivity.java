@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity
 //    // stargate
 //    private DaoStarGate daoStarGate = new DaoStarGate();
 //
-//    public String getStarMoniker() { return daoStarGate.getStarMoniker(); }
+//    public String getActorMoniker() { return daoStarGate.getActorMoniker(); }
 //    public String addActorBoard() {
 //        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 //        String starMoniker = STAR_MONIKER_NADA;

@@ -568,7 +568,7 @@ public class StageViewRing {
             // for each star in star board, find max star name length
             for (DaoEpicActorBoard daoEpicActorBoard : daoEpic.getActorBoardList()) {
                 // format title: moniker, tally, tic
-                String title = daoEpicActorBoard.getStarMoniker() + "  " +
+                String title = daoEpicActorBoard.getActorMoniker() + "  " +
                         daoEpicActorBoard.getTally().toString() + "  " +
                         daoEpicActorBoard.getTic().toString();
                 float titleWidth = mPaintMinorText.measureText(title);
@@ -580,11 +580,11 @@ public class StageViewRing {
             // for each star in star board
             for (DaoEpicActorBoard daoEpicActorBoard : orderedStarBoard) {
                 // format title: moniker, tally, tic
-                String title = daoEpicActorBoard.getStarMoniker() + "  " +
+                String title = daoEpicActorBoard.getActorMoniker() + "  " +
                         daoEpicActorBoard.getTally().toString() + "  " +
                         daoEpicActorBoard.getTic().toString();
                 // find actor color
-                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicActorBoard.getStarMoniker());
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpicActorBoard.getActorMoniker());
                 if (daoActor != null) {
                     color = daoActor.getForeColor();
                 }

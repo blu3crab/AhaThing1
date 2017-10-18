@@ -107,58 +107,32 @@ public class DaoEpic extends DaoBase {
 
 	///////////////////////////////////////////////////////////////////////////
 	// star registration
-	public Boolean addActorBoard(DaoActor daoActor) {
-
-//		// add star, device name, with initial tally & tics
-//		if (getActorList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
-//			// if star present on same device
-//			if (getActorList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
-//				Log.d(TAG,"addActorBoard TRUE for existing star " + daoActor.getMoniker() + ".");
-//				return true;
-//			}
-//			else {
-//				// if star present but on different device, remove both star & device stale entries
-//				int staleStarInx = getActorList().indexOf(deviceName);
-//				Log.d(TAG,"addActorBoard removing star " + actorBoardList.get(staleStarInx).getStarMoniker() + " at inx " + staleStarInx);
-//				removeActor(daoStage, staleStarInx);
-//				int staleDeviceInx = getDeviceList().indexOf(deviceName);
-//				Log.d(TAG,"addActorBoard removing device " + actorBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-//				removeActor(daoStage, staleDeviceInx);
-//			}
-//		}
-//		else if (getDeviceList().contains(deviceName)) {
-//			// if new star but device is allocated, remove stale device entry
-//			int staleDeviceInx = getDeviceList().indexOf(deviceName);
-//			Log.d(TAG,"addActorBoard removing device " + actorBoardList.get(staleDeviceInx).getDeviceId() + " at inx " + staleDeviceInx);
-//			removeActor(daoStage, staleDeviceInx);
-//		}
-		// create star, device with init tally, tic
-		Log.d(TAG,"addActorBoard adding to actorBoard for " + daoActor.getMoniker());
+	public Integer addActorBoard(String actorMoniker) {
+		// create actorMoniker with init tally, tic
+		Log.d(TAG,"addActorBoard adding to actorBoard for " + actorMoniker);
 		DaoEpicActorBoard daoEpicActorBoard = new DaoEpicActorBoard();
-		daoEpicActorBoard.setStarMoniker(daoActor.getMoniker());
+		daoEpicActorBoard.setActorMoniker(actorMoniker);
 		daoEpicActorBoard.setTally(0);
 		daoEpicActorBoard.setTic(0);
 		actorBoardList.add(daoEpicActorBoard);
-		return true;
+		return actorBoardList.size()-1;
 	}
-//	///////////////////////////////////////////////////////////////////////////
-//	public Boolean isStar(DaoActor daoActor, String deviceName) {
-//		// if star & device are present
-//		if (getActorList().contains(daoActor.getMoniker()) && getDeviceList().contains(deviceName)) {
-//			// if star present on same device
-//			if (getActorList().indexOf(daoActor.getMoniker()) == getDeviceList().indexOf(deviceName)) {
-//				Log.d(TAG, "isStar TRUE for existing star " + daoActor.getMoniker() + ".");
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	///////////////////////////////////////////////////////////////////////////
+	public Integer isActorBoard(String actorMoniker) {
+		Integer position = DaoDefs.INIT_INTEGER_MARKER;
+		// if actor is present
+		if (getActorList().contains(actorMoniker)) {
+			position = getActorList().indexOf(actorMoniker);
+		}
+		Log.d(TAG, "isActorBoard position " + position + " for actor " + actorMoniker);
+		return position;
+	}
 	///////////////////////////////////////////////////////////////////////////
 	// return list of all actors on the actor board
 	public List<String> getActorList() {
 		List<String> actorList = new ArrayList<>();
 		for (DaoEpicActorBoard daoEpicActorBoard : actorBoardList) {
-			actorList.add(daoEpicActorBoard.getStarMoniker());
+			actorList.add(daoEpicActorBoard.getActorMoniker());
 		}
 		return actorList;
 	}
@@ -174,7 +148,7 @@ public class DaoEpic extends DaoBase {
 	public Boolean removeActor(DaoStage daoStage, int staleInx) {
 		if (staleInx < actorBoardList.size()) {
 			// scan stage actor list for stale actor - if found, reset stage locus
-			String staleActor = actorBoardList.get(staleInx).getStarMoniker();
+			String staleActor = actorBoardList.get(staleInx).getActorMoniker();
 			if (daoStage != null) {
 				if (daoStage.getActorList() != null) {
 					for (String actor : daoStage.getActorList()) {

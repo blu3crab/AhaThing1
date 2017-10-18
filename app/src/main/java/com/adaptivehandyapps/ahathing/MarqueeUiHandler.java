@@ -102,94 +102,18 @@ public class MarqueeUiHandler {
             // dereference epic
             mActiveEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
             if (mStarGateList != null && mActiveEpic != null) {
+                // establish button handlers
+                handleUpdateButton(op, objType, moniker);
+                handleCancelButton(op, objType, moniker);
                 // xfer object to view
                 mMarqueeViewXfer.fromEpic(mActiveEpic, mStarGateList);
             }
-            // establish button handlers
-            handleUpdateButton(op, objType, moniker);
-            handleCancelButton(op, objType, moniker);
         }
         else {
             Log.e(TAG, "MarqueeUiHandler invalid incoming! op " + op + ", objtype" + objType + ", moniker " + moniker);
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean handleTagList(final String objType) {
-
-        // list handler
-        int resId = R.layout.tag_list_item;
-        List<String> tagNameList = new ArrayList<>();
-        List<String> tagLabelList = new ArrayList<>();
-        List<Integer> tagImageResIdList = new ArrayList<>();
-        List<Integer> tagBgColorList = new ArrayList<>();
-
-        if (objType.equals(DaoDefs.DAOOBJ_TYPE_AUDIT_MONIKER)) {
-            LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_tags);
-            ll.setVisibility(View.VISIBLE);
-            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-            // build list of audit trail entries
-            for (int i = mParent.getRepoProvider().getDaoAuditRepo().size()-1; i > -1 ; i--) {
-                DaoAudit audit = mParent.getRepoProvider().getDaoAuditRepo().get(i);
-                tagNameList.add(audit.toFormattedString());
-//                tagLabelList.add("");
-                int imageResId = DaoDefs.DAOOBJ_TYPE_AUDIT_IMAGE_RESID;
-                tagImageResIdList.add(imageResId);
-                tagBgColorList.add(bgColor);
-            }
-        }
-        else {
-            return false;
-        }
-
-        // instantiate list adapter
-        mTagListAdapter =
-                new TagListAdapter(mRootView.getContext(),
-                        resId,
-                        tagNameList,
-                        tagLabelList,
-                        tagImageResIdList,
-                        tagBgColorList);
-
-        ListView lv = (ListView) mRootView.findViewById(R.id.listview_tags);
-        if (mTagListAdapter != null && lv != null) {
-            lv.setAdapter(mTagListAdapter);
-        } else {
-            // pipe_list_item_site panel ahs no alert list
-            Log.e(TAG, "NULL mTagListAdapter? " + mTagListAdapter + ", R.id.listview? " + lv);
-            return false;
-        }
-        // establish listener
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> adapter, View v, int position,
-                                    long arg3)
-            {
-                String value = (String)adapter.getItemAtPosition(position);
-                Log.d(TAG,"handleTagList item " + value + " at position " + position);
-                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-
-                // if taglist contains selection
-                if (mTagList.contains(value)) {
-                    // find epic in taglist & remove
-                    int i = mTagList.indexOf(value);
-                    mTagList.remove(i);
-                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
-                }
-                else {
-                    // add selection to taglist
-                    mTagList.add(value);
-                    // set color selected
-                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mTagList.size()-1));
-                }
-
-                v.setBackgroundColor(bgColor);
-            }
-        });
-        return true;
-    }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean handleUpdateButton(final String op, final String objType, final String moniker) {
         // establish create button visibility & click listener
@@ -200,10 +124,10 @@ public class MarqueeUiHandler {
         buttonUpdate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.v(TAG, "buttonUpdate.setOnClickListener: ");
-                if (objType.equals(DaoDefs.DAOOBJ_TYPE_MARQUEE_MONIKER)) {
-                    mMarqueeViewXfer.toEpic(op, moniker);
-                }
+                mMarqueeViewXfer.toEpic(op, moniker);
 
+                Log.d(TAG, "buttonCreate.setOnClickListener callback invoked...");
+                if (mCallback != null) mCallback.onContentHandlerResult(op, objType, moniker);
             }
         });
 

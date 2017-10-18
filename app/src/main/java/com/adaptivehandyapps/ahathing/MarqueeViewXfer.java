@@ -20,30 +20,16 @@ package com.adaptivehandyapps.ahathing;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.dao.DaoAction;
-import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicActorBoard;
-import com.adaptivehandyapps.ahathing.dao.DaoOutcome;
-import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import com.adaptivehandyapps.ahathing.dao.DaoStarGate;
-import com.adaptivehandyapps.ahathing.dao.DaoStory;
-import com.adaptivehandyapps.ahathing.dao.DaoTheatre;
-import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,16 +39,29 @@ import java.util.List;
 public class MarqueeViewXfer {
     private static final String TAG = MarqueeViewXfer.class.getSimpleName();
 
+    private static final int RADIOGROUP_LINK_EPIC = 0;
+    private static final int RADIOGROUP_LINK_STAR = 1;
+
     private ContentFragment mParent;
     private View mRootView;
+    private DaoEpic mDaoEpic;
+    private List<DaoStarGate> mStarGateList;
+
     // epic controls
-    private TagListAdapter mStoryListAdapter = null;
-    private List<String> mStoryList;
+    private RadioGroup mRadioGroupLink;
+    private int mCheckedRadioIndex;
 
     private TagListAdapter mStarListAdapter = null;
-    private List<Boolean> mStarListSelected;
-    private int mPrevStarPosition = DaoDefs.INIT_INTEGER_MARKER;
-    private View mPrevStarView = null;
+    private List<String> mStarLabelList;
+    private List<Boolean> mStarSelected;
+    private int mStarSelectedPosition = DaoDefs.INIT_INTEGER_MARKER;
+    private View mSelectedStarView = null;
+
+    private TagListAdapter mActorListAdapter = null;
+
+    private List<Boolean> mActorEpicSelected;
+    private List<String> mActorStarMap;
+    private List<String> mActorStarLabelMap;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
@@ -74,45 +73,77 @@ public class MarqueeViewXfer {
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean fromEpic(DaoEpic daoEpic, List<DaoStarGate> starGateList) {
+        mDaoEpic = daoEpic;
+        mStarGateList = starGateList;
 
-        // set epic views visible
-        LinearLayout llStarList = (LinearLayout) mRootView.findViewById(R.id.ll_starlist);
-        llStarList.setVisibility(View.VISIBLE);
-        LinearLayout llActorList = (LinearLayout) mRootView.findViewById(R.id.ll_starlist);
-        llActorList.setVisibility(View.VISIBLE);
-
-        // load star list
-        loadStarList(starGateList);
-
-        // display actor list
-        List<DaoEpicActorBoard> actorBoardList = daoEpic.getActorBoardList();
-        for (DaoEpicActorBoard starBoard : actorBoardList) {
-            Log.d(TAG, starBoard.toString());
+        // handle actor link radio group
+        mRadioGroupLink = (RadioGroup) mRootView.findViewById(R.id.rg_link);
+        mCheckedRadioIndex = mRadioGroupLink.indexOfChild(mRootView.findViewById(mRadioGroupLink.getCheckedRadioButtonId()));
+        // get selected option
+        if (mCheckedRadioIndex == RADIOGROUP_LINK_STAR) {
+            // load star list
+            loadStarList(starGateList);
         }
+        // load actor list
+        loadActorList(daoEpic, starGateList);
+
+        final List<DaoStarGate> finalStarGateList = starGateList;
+        // This overrides the radiogroup onCheckListener
+        mRadioGroupLink.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                Log.d(TAG,"Link radio group checked id: " + checkedId);
+                // radiobutton that has changed in its check state
+                RadioButton checkedRadioButton = (RadioButton)group.findViewById(checkedId);
+                // if radio button is now checked...
+                if (checkedRadioButton.isChecked())
+                {
+                    mCheckedRadioIndex = mRadioGroupLink.indexOfChild(checkedRadioButton);
+                    if (mCheckedRadioIndex == RADIOGROUP_LINK_STAR) {
+                        // load star list
+                        loadStarList(finalStarGateList);
+                    }
+                    else {
+                        // link to epic - banish star list
+                        LinearLayout llStarList = (LinearLayout) mRootView.findViewById(R.id.ll_starlist);
+                        llStarList.setVisibility(View.GONE);
+                        // load actor list
+                        loadActorList(mDaoEpic, mStarGateList);
+                    }
+                }
+            }
+        });
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     private Boolean loadStarList(List<DaoStarGate> starGateList) {
+        LinearLayout llStarList = (LinearLayout) mRootView.findViewById(R.id.ll_starlist);
+        llStarList.setVisibility(View.VISIBLE);
+
         List<String> tagNameList = new ArrayList<>();
         List<String> tagLabelList = new ArrayList<>();
         List<Integer> tagImageResIdList = new ArrayList<>();
         List<Integer> tagBgColorList = new ArrayList<>();
-        mStarListSelected = new ArrayList<>();
+        mStarSelected = new ArrayList<>();
+        mStarLabelList = new ArrayList<>();
 
-        // for each story in repo
+        // for each star in repo
         for (DaoStarGate starGate : starGateList) {
             // build list of stars names, labels & images
             tagNameList.add(starGate.getStarMoniker());
             tagLabelList.add(starGate.getDeviceDescription());
-            int imageResId = DaoDefs.DAOOBJ_TYPE_STARGATE_IMAGE_RESID;
+            int imageResId = DaoDefs.DAOOBJ_TYPE_MARQUEE_IMAGE_RESID;
             tagImageResIdList.add(imageResId);
             // set unselected color
             int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
             tagBgColorList.add(bgColor);
             // init selected state
-            mStarListSelected.add(false);
+            mStarSelected.add(false);
+            // cat star name & description list
+            String label = starGate.getStarMoniker() + "(" + starGate.getDeviceDescription() + ")";
+            mStarLabelList.add(label);
         }
-
         // instantiate list adapter
         int resId = R.layout.tag_list_item;
         mStarListAdapter =
@@ -141,61 +172,94 @@ public class MarqueeViewXfer {
                 Log.d(TAG,"handleTagList item " + value + " at position " + position);
                 int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
                 // if not selected
-                if (!mStarListSelected.get(position)) {
+                if (!mStarSelected.get(position)) {
                     // set color selected
                     bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-                    mStarListSelected.set(position, true);
+                    mStarSelected.set(position, true);
                 }
                 else {
-                    mStarListSelected.set(position, false);
+                    mStarSelected.set(position, false);
                 }
                 v.setBackgroundColor(bgColor);
                 // if former selection defined & not current selection
-                if (mPrevStarPosition != DaoDefs.INIT_INTEGER_MARKER && mPrevStarPosition != position) {
+                if (mStarSelectedPosition != DaoDefs.INIT_INTEGER_MARKER && mStarSelectedPosition != position) {
                     // toggle former selection
-                    mStarListSelected.set(mPrevStarPosition, false);
-                    mPrevStarView.setBackgroundColor(mRootView.getResources().getColor(R.color.colorTagListNotSelected));
+                    mStarSelected.set(mStarSelectedPosition, false);
+                    mSelectedStarView.setBackgroundColor(mRootView.getResources().getColor(R.color.colorTagListNotSelected));
                 }
                 // retain position
-                mPrevStarPosition = position;
-                mPrevStarView = v;
+                mStarSelectedPosition = position;
+                mSelectedStarView = v;
             }
         });
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean loadStoryList() {
+    private Boolean loadActorList(DaoEpic daoEpic, final List<DaoStarGate> starGateList) {
+        LinearLayout llActorList = (LinearLayout) mRootView.findViewById(R.id.ll_actorlist);
+        llActorList.setVisibility(View.VISIBLE);
+
         List<String> tagNameList = new ArrayList<>();
         List<String> tagLabelList = new ArrayList<>();
         List<Integer> tagImageResIdList = new ArrayList<>();
         List<Integer> tagBgColorList = new ArrayList<>();
+        if (mActorEpicSelected == null) {
+            mActorEpicSelected = new ArrayList<>();
+            mActorStarMap = new ArrayList<>();
+            mActorStarLabelMap = new ArrayList<>();
+        }
 
-        // dereference story repo dao list - all stories
-        List<DaoStory> daoStoryList = (List<DaoStory>)(List<?>) mParent.getRepoProvider().getDalStory().getDaoRepo().getDaoList();
-        // for each story in repo
-        for (DaoStory story : daoStoryList) {
-            // build list of story names, labels & images
-            tagNameList.add(story.getMoniker());
-            if (!story.getHeadline().equals(DaoDefs.INIT_STRING_MARKER)) {
-                tagLabelList.add(story.getHeadline());
-            }
-            else {
-                tagLabelList.add("epic headline activity here...");
-            }
-            int imageResId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-            tagImageResIdList.add(imageResId);
-            // story is in tag list - set selected color
-            int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
-            if (mStoryList.contains(story.getMoniker())) {
-                // highlight list item
-                bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-            }
-            tagBgColorList.add(bgColor);
+        // display actor list
+        List<String> actorMonikerList = (List<String>) (List<?>) mParent.getRepoProvider().getDalActor().getDaoRepo().getMonikerList();
+        Integer position = 0;
+        for (String actorMoniker : actorMonikerList) {
+            Log.d(TAG, actorMoniker + " at position " + position);
+//            // skip actor wildcards
+//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_MARKER)) {
+                // build list of actor names, labels & images
+                tagNameList.add(actorMoniker);
+                tagLabelList.add("");
+                int imageResId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
+                tagImageResIdList.add(imageResId);
+                // story is in tag list - set selected color
+                int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
+                if (mActorEpicSelected.size() < actorMonikerList.size()) {
+                    // init selected state
+                    mActorEpicSelected.add(false);
+                    mActorStarMap.add(DaoDefs.INIT_STRING_MARKER);
+                    mActorStarLabelMap.add(DaoDefs.INIT_STRING_MARKER);
+                    // if actor board list contains this actor
+                    Integer actorBoardInx = daoEpic.isActorBoard(actorMoniker);
+                    if (actorBoardInx != DaoDefs.INIT_INTEGER_MARKER) {
+                        // set actor selected
+                        mActorEpicSelected.set(position, true);
+                    }
+                }
+                // if actor selected for epic
+                if (mActorEpicSelected.get(position)) {
+                    // highlight list item
+                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+                    // if actor linked to star
+                    Integer actorBoardInx = daoEpic.isActorBoard(actorMoniker);
+                    if (actorBoardInx != DaoDefs.INIT_INTEGER_MARKER && mActorStarMap.get(position) == DaoDefs.INIT_STRING_MARKER) {
+                        mActorStarMap.set(position, daoEpic.getActorBoardList().get(actorBoardInx).getStarMoniker());
+                        String label = daoEpic.getActorBoardList().get(actorBoardInx).getStarLabel();
+                        mActorStarLabelMap.set(position, daoEpic.getActorBoardList().get(actorBoardInx).getStarLabel());
+                        tagLabelList.set(tagLabelList.size()-1, mActorStarLabelMap.get(position));
+                    }
+                    else {
+                        tagLabelList.set(tagLabelList.size()-1, mActorStarLabelMap.get(position));
+                    }
+
+                }
+                tagBgColorList.add(bgColor);
+                ++position;
+//            }
         }
 
         // instantiate list adapter
         int resId = R.layout.tag_list_item;
-        mStoryListAdapter =
+        mActorListAdapter =
                 new TagListAdapter(mRootView.getContext(),
                         resId,
                         tagNameList,
@@ -203,11 +267,11 @@ public class MarqueeViewXfer {
                         tagImageResIdList,
                         tagBgColorList);
 
-        ListView lv = (ListView) mRootView.findViewById(R.id.listview_stories);
-        if (mStoryListAdapter != null && lv != null) {
-            lv.setAdapter(mStoryListAdapter);
+        ListView lv = (ListView) mRootView.findViewById(R.id.listview_actorlist);
+        if (mActorListAdapter != null && lv != null) {
+            lv.setAdapter(mActorListAdapter);
         } else {
-            Log.e(TAG, "NULL mStoryListAdapter? " + mStoryListAdapter + ", R.id.listview? " + lv);
+            Log.e(TAG, "NULL mActorListAdapter? " + mActorListAdapter + ", R.id.listview? " + lv);
             return false;
         }
         // establish listener
@@ -221,21 +285,36 @@ public class MarqueeViewXfer {
                 Log.d(TAG,"handleTagList item " + value + " at position " + position);
                 int bgColor = mRootView.getResources().getColor(R.color.colorTagListNotSelected);
 
-                // if taglist contains selection
-                if (mStoryList.contains(value)) {
-                    // find epic in taglist & remove
-                    int i = mStoryList.indexOf(value);
-                    mStoryList.remove(i);
-                    Log.d(TAG,"handleTagList remove item " + value + " at position " + i);
+                // epic selection checked
+                if (mCheckedRadioIndex == RADIOGROUP_LINK_EPIC) {
+                    // if epic not selected
+                    if (!mActorEpicSelected.get(position)) {
+                        // set epic selected
+                        bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
+                        mActorEpicSelected.set(position, true);
+                    } else {
+                        // unselect epic
+                        mActorEpicSelected.set(position, false);
+                    }
                 }
-                else {
-                    // add selection to taglist
-                    mStoryList.add(value);
-                    // set color selected
-                    bgColor = mRootView.getResources().getColor(R.color.colorTagListSelected);
-                    Log.d(TAG,"handleTagList add item " + value + " at position " + (mStoryList.size()-1));
+                else if (mCheckedRadioIndex == RADIOGROUP_LINK_STAR) {
+                    String label = DaoDefs.INIT_STRING_MARKER;
+                    // star selection checked & star selected at position
+                    if (mStarSelectedPosition >= 0 && mStarSelectedPosition < mStarSelected.size() &&
+                            mStarSelected.get(mStarSelectedPosition)) {
+                        // set star
+                        mActorStarMap.set(position, starGateList.get(mStarSelectedPosition).getMoniker());
+                        label = mStarLabelList.get(mStarSelectedPosition);
+                        mActorStarLabelMap.set(position, label);
+                    } else {
+                        mActorStarMap.set(position, DaoDefs.INIT_STRING_MARKER);
+                        label = "bot";
+                        mActorStarLabelMap.set(position, label);
+                    }
+                    mActorListAdapter.setLabel(position, label);
+                    TextView txtLabel = (TextView) v.findViewById(R.id.tv_tag_label);
+                    txtLabel.setText(label);
                 }
-
                 v.setBackgroundColor(bgColor);
             }
         });
@@ -243,24 +322,38 @@ public class MarqueeViewXfer {
     }
     ///////////////////////////////////////////////////////////////////////////
     public Boolean toEpic(String op, String moniker) {
-        // active object
-        DaoEpic activeEpic = null;
-        // xfer view to object
-        if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_MARQUEE)) {
-            activeEpic = (DaoEpic) mParent.getRepoProvider().getDalEpic().getDaoRepo().get(moniker);
+        // dereference list of all actors
+        List<String> actorMonikerList = (List<String>) (List<?>) mParent.getRepoProvider().getDalActor().getDaoRepo().getMonikerList();
+        // for each actor
+        Integer position = 0;
+        Boolean update = false;
+        for (Boolean actorSelected : mActorEpicSelected) {
+            String actorMoniker = actorMonikerList.get(position);
+            // if actor selected
+            if (actorSelected) {
+                Integer actorBoardIndex = mDaoEpic.isActorBoard(actorMoniker);
+                // if actor not in actor board list, add star
+                if (actorBoardIndex == DaoDefs.INIT_INTEGER_MARKER) {
+                    // add actor to actor board list
+                    actorBoardIndex = mDaoEpic.addActorBoard(actorMoniker);
+                }
+                // if update actor board
+                if (!mActorStarMap.get(position).equals(DaoDefs.INIT_STRING_MARKER)) {
+                    mDaoEpic.getActorBoardList().get(actorBoardIndex).setStarMoniker(mActorStarMap.get(position));
+                    mDaoEpic.getActorBoardList().get(actorBoardIndex).setStarLabel(mActorStarLabelMap.get(position));
+                }
+                Log.d(TAG, "toEpic update -> " + mDaoEpic.getActorBoardList().get(actorBoardIndex).toString());
+                update = true;
+            }
+//            // skip actor wildcards
+//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_MARKER))
+            ++position;
         }
-        if (activeEpic == null) {
-            // error: never should edit NULL object!  create a placeholder & carry on
-            activeEpic = new DaoEpic();
-            Log.e(TAG, "toEpic: new object....");
+        if (update) {
+            // update repo
+            mParent.getRepoProvider().getDalEpic().update(mDaoEpic, true);
         }
-//        // update star-to-actor mappings with edited values
-//        activeEpic.setTagList(mStoryList);
-//        mParent.getPlayListService().setActiveEpic(activeEpic);
-//
-//        // update repo
-//        mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
-        return true;
+        return update;
     }
     ///////////////////////////////////////////////////////////////////////////
 }
