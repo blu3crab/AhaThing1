@@ -22,8 +22,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoEpic;
 import com.adaptivehandyapps.ahathing.dao.DaoEpicActorBoard;
@@ -139,15 +141,8 @@ public class StageManager {
         mParent = (MainActivity) context;
         if (mParent != null) {
             Log.v(TAG, "StageManager ready with parent " + mParent.toString() + "...");
-            if (getSoundManager() != null && isSoundMusic()) {
-                getSoundManager().startSound(
-                        getSoundManager().getMpMusic(),
-                        SoundManager.SOUND_VOLUME_QTR,
-                        SoundManager.SOUND_VOLUME_QTR,
-                        SoundManager.SOUND_START_TIC_NADA,
-                        SoundManager.SOUND_START_TIC_NADA);
-            }
-//            else Log.e(TAG, "Oops!  SoundManager NULL?");
+            // if music not playing & theatre music is enabled, start background music
+            playSoundMusic();
         }
         else {
             Log.e(TAG, "Oops!  StageManager Parent context (MainActivity) NULL!");
@@ -157,123 +152,154 @@ public class StageManager {
     ///////////////////////////////////////////////////////////////////////////
     // Actions
     public Boolean onAction(StageViewRing stageViewRing, StageModelRing stageModelRing, String action) {
+        Boolean success = false;
         Log.d(TAG, "onAction action " + action);
+
         // if music not playing & theatre music is enabled, start background music
-        if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
-            getSoundManager().startSound(
-                    getSoundManager().getMpMusic(),
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
+        playSoundMusic();
+        // get active epic
+        DaoEpic daoEpic = getPlayListService().getActiveEpic();
+        DaoStage daoStage = getPlayListService().getActiveStage();
+        // confirm actor at touch selection is epic active actor
+        if (daoEpic != null && daoStage != null) {
+            for (String actor : daoEpic.getEpicActorList()) {
+                int actorInx = daoEpic.getEpicActorList().indexOf(actor);
+                Log.d(TAG, "ActorBoard-> actor " + actor + "(" + actorInx + ")");
+            }
+            // TODO: if select action on marked actor, advance to net actor
+            // if active actor is allowed
+            if (getPlayListService().getActiveActor() != null && isActorAllowed(daoEpic, daoStage, stageViewRing)) {
+
+                // if story exists associating the active actor (or all actors) with the action
+                if (updatePlaylist(action)) {
+
+                    // if prereq satisfied
+                    if (isPreReqSatisfied(stageViewRing)) {
+                        // do NOT pause playing music
+                        Boolean pauseMusic = false;
+                        if (pauseMusic) pauseSoundMusic();
+
+                        // play action sounds
+                        playSoundAction(action);
+
+                        // increment active actors actor board tic
+                        int actorBoardInx = daoEpic.getEpicActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                        if (actorBoardInx > -1) {
+                            // increment tic for actor
+                            int tic = daoEpic.getActorBoardList().get(actorBoardInx).getTic();
+                            daoEpic.getActorBoardList().get(actorBoardInx).setTic(++tic);
+                            Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getActorBoardList().get(actorBoardInx).getActorMoniker());
+                            // update epic tally based on stage ring locations occupied
+                            daoEpic.updateEpicTally(daoStage);
+                            // update epic repo
+                            getRepoProvider().getDalEpic().update(daoEpic, true);
+                        }
+                        // deliver outcome
+                        DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
+                        if (daoOutcome != null) {
+                            onOutcome(stageViewRing, stageModelRing, daoOutcome.getMoniker());
+                        } else {
+                            Log.e(TAG, "Oops! no active outcome...");
+                        }
+
+                        // if post-operation indicated
+                        onPostOp();
+
+                        // resume
+                        if (pauseMusic) resumeSoundMusic();
+
+                    } else {
+                        // play uh-uh sound
+                        playSoundFlorish();
+                        Log.d(TAG, "Oops! Prereq not satisfied...");
+                    }
+                    success = true;
+                } else {
+                    Log.d(TAG, "Oops! Story not found...");
+                }
+            }
+            else {
+                if (getPlayListService().getActiveActor() == null) Log.e(TAG, "Oops! Active actor NULL! ");
+                else Log.d(TAG, "Oops! Active actor " + daoEpic.getActiveActor() + " not selected...");
+            }
         }
+        else {
+            if (daoEpic == null) Log.e(TAG, "Oops! Active epic NULL! ");
+            else if (daoStage == null) Log.e(TAG, "Oops! Active stage NULL! ");
+            else Log.d(TAG, "Oops! OnAction epic/stage incoherent...");
 
-        // if story exists associating the active actor (or all actors) with the action
-        if (updatePlaylist(action)) {
-            int musicPosition = 0;
-
-            // if prereq satisfied
-            if (isPreReqSatisfied(stageViewRing)) {
-
-                // if theatre action sounds enabled
-                if (isSoundAction()) {
-                    // if music playing, pause for action sound
-//            if (isSoundMusic())
-//                getSoundManager().pauseSound(
-//                        getSoundManager().getMpMusic(),
-//                        SoundManager.SOUND_VOLUME_HALF,
-//                        SoundManager.SOUND_VOLUME_HALF,
-//                        SoundManager.SOUND_START_TIC_NADA,
-//                        SoundManager.SOUND_START_TIC_NADA);
-                    // play sound associated with action
-                    switch (action) {
-                        case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                            getSoundManager().startSound(
-                                    getSoundManager().getMpTap(),
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_START_TIC_SHORT,
-                                    SoundManager.SOUND_START_TIC_SHORT);
-                            break;
-                        case DaoAction.ACTION_TYPE_LONG_PRESS:
-                            getSoundManager().startSound(
-                                    getSoundManager().getMpPress(),
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_START_TIC_MEDIUM,
-                                    SoundManager.SOUND_START_TIC_MEDIUM);
-                            break;
-                        case DaoAction.ACTION_TYPE_FLING:
-                            getSoundManager().startSound(
-                                    getSoundManager().getMpFling(),
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_VOLUME_FULL,
-                                    SoundManager.SOUND_START_TIC_LONG,
-                                    SoundManager.SOUND_START_TIC_LONG);
-                            break;
-                        case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                            break;
-                        default:
-                            Log.e(TAG, "Oops! Unknown action? " + action);
-                            return false;
-                    }
-                }
-
-                // increment active actors star board tic
-                DaoEpic daoEpic = getPlayListService().getActiveEpic();
-                DaoStage daoStage = getPlayListService().getActiveStage();
-                if (daoEpic != null && daoStage != null && getPlayListService().getActiveActor() != null) {
-                    int starInx = daoEpic.getActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
-                    if (starInx > -1) {
-                        // increment tic for actor
-                        int tic = daoEpic.getActorBoardList().get(starInx).getTic();
-                        daoEpic.getActorBoardList().get(starInx).setTic(++tic);
-                        Log.d(TAG, "Tic " + tic + " for actor " + daoEpic.getActorBoardList().get(starInx).getActorMoniker());
-                        // update epic tally based on stage ring locations occupied
-                        daoEpic.updateEpicTally(daoStage);
-                        // update epic repo
-                        getRepoProvider().getDalEpic().update(daoEpic, true);
-                    }
-                    // deliver outcome
-                    DaoOutcome daoOutcome = getPlayListService().getActiveOutcome();
-                    if (daoOutcome != null) {
-                        onOutcome(stageViewRing, stageModelRing, daoOutcome.getMoniker());
-                    }
-                    else {
-                        Log.e(TAG,"Oops! no active outcome...");
-                    }
-
-                    // if post-operation indicated
-                    onPostOp();
-                }
-                else {
-                    if (daoEpic == null ) Log.e(TAG, "Oops! Active epic NULL! ");
-                    else if (daoStage == null) Log.e(TAG, "Oops! Active stage NULL! ");
-                    else Log.e(TAG, "Oops! Active actor NULL! ");
-                }
+        }
+        return success;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean isActorAllowed(DaoEpic daoEpic, DaoStage daoStage, StageViewRing stageViewRing) {
+        // if order not random (last entry in order list)
+        if (!daoEpic.getOrder().equals(DaoEpic.EPIC_ORDER_LIST.get(DaoEpic.EPIC_ORDER_LIST.size()-1))) {
+            String vertActor = DaoDefs.INIT_STRING_MARKER;
+            // get ring index of touch to determine actor at vert
+            float touchX = getTouchX();
+            float touchY = getTouchY();
+            float z = 0.0f;
+            int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
+            // if touch locus found
+            if (selectIndex >= 0 && selectIndex < daoStage.getActorList().size()) {
+                vertActor = daoStage.getActorList().get(selectIndex);
+                // if actor at touch matches active actor or locus is empty
+                if (vertActor.equals(daoEpic.getActiveActor()) ||
+                        vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
             }
-            else if (isSoundFlourish()){
-                // play uh-uh sound
-                getSoundManager().startSound(
-                        getSoundManager().getMpUhuh(),
-                        SoundManager.SOUND_VOLUME_FULL,
-                        SoundManager.SOUND_VOLUME_FULL,
-                        SoundManager.SOUND_START_TIC_NADA,
-                        SoundManager.SOUND_START_TIC_NADA);
-            }
-//            if (isSoundMusic())
-//            // resume background music sound
-//            getSoundManager().resumeSound(
-//                    getSoundManager().getMpMusic(),
-//                    SoundManager.SOUND_VOLUME_HALF,
-//                    SoundManager.SOUND_VOLUME_HALF,
-//                    SoundManager.SOUND_START_TIC_NADA,
-//                    SoundManager.SOUND_START_TIC_NADA);
-
+            // no match between epic active actor & actor at touch selection
+            Toast.makeText(mContext, "Active actor " + daoEpic.getActiveActor() + " not found at selection (" + vertActor + "...", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        // random order allows any actor
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean updatePlaylist(String action) {
+        Log.d(TAG, "updatePlaylist action " + action);
+        // if story exists associating the active actor (or all actor) with the action
+        DaoStory daoStory = isStory(action);
+        if (daoStory != null) {
+            // set active: story, action, outcome  (actor is already active)
+            getPlayListService().setActiveStory(daoStory);
+            DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
+            getPlayListService().setActiveAction(daoAction);
+            DaoOutcome daoOutcome = (DaoOutcome) getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
+            getPlayListService().setActiveOutcome(daoOutcome);
             return true;
         }
-
         return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // if active actor is associated with incoming action - return story
+    private DaoStory isStory(String action) {
+        DaoEpic activeEpic = getPlayListService().getActiveEpic();
+        if (activeEpic != null) {
+            // for each story in epic
+            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
+                String storyMoniker = activeEpic.getTagList().get(i);
+                DaoStory daoStory = (DaoStory) getRepoProvider().getDalStory().getDaoRepo().get(storyMoniker);
+                if (daoStory != null && getPlayListService().getActiveActor() != null) {
+                    Log.v(TAG, "test story " + daoStory);
+                    // if any actor or active actor  &&  action match
+                    if ((daoStory.getActor().contains(DaoDefs.ANY_ACTOR_WILDCARD) ||
+                            daoStory.getActor().equals(getPlayListService().getActiveActor().getMoniker())) &&
+                            daoStory.getAction().equals(action)) {
+                        Log.v(TAG, "returning outcome " + daoStory.getOutcome());
+                        return daoStory;
+                    }
+                }
+                else {
+                    if (daoStory == null) Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
+                    else Log.e(TAG,"Oops! no active actor");
+                }
+            }
+        }
+        else {
+            Log.e(TAG, "Oops! no active epic...");
+        }
+        return null;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -327,149 +353,6 @@ public class StageManager {
             else Log.e(TAG, "Oops! No active actor...");
         }
         return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean onPostOp() {
-        DaoStory activeStory = getPlayListService().getActiveStory();
-        if (activeStory != null) {
-            // return true if no post-op defined
-            if (activeStory.getPostOp().equals(DaoDefs.INIT_STRING_MARKER) ||
-                    activeStory.getPreReq().equals(DaoStory.STORY_POSTOP_NONE)) {
-                Log.d(TAG, "onPostOp-> no post-op defined...");
-                return true;
-            } else {
-                DaoStage daoStage = getPlayListService().getActiveStage();
-                if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
-                    if (activeStory.getPostOp().equals(DaoStory.STORY_POSTOP_CURTAIN_CALL)) {
-                        DaoEpic daoEpic = getPlayListService().getActiveEpic();
-                        if (daoEpic != null) {
-                            // curtains should come down
-                            if (daoEpic.isCurtainClose()) {
-                                // bring down the curtain!  prompt for an encore
-                                List<DaoEpicActorBoard> starBoardList = daoEpic.getTallyOrder(false);
-                                String title = starBoardList.get(0).getActorMoniker() + " dominates the universe of Marbles!";
-                                postCurtainCloseDialog(mContext, title, daoEpic, daoStage);
-                            }
-                        }
-                        else {
-                            Log.e(TAG, "Oops!  no active epic...");
-                        }
-
-//                    for (String star : daoEpic.getActorList()) {
-//                        int starInx = daoEpic.getActorList().indexOf(star);
-//                        Log.d(TAG, " star " + star + "(" + starInx + ") has tally " + daoEpic.getStarBoardList().get(starInx).getTally());
-//                    }
-                    }
-                    else {
-                        Log.e(TAG, "Oops!  Unknown postop " + activeStory.getPostOp());
-                    }
-                }
-                else {
-                    if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
-                    else Log.e(TAG, "Oops! Unknown stage type " + daoStage.getStageType());
-                }
-            }
-        }
-        else {
-            Log.e(TAG, "Oops!  no active story...");
-        }
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
-//    public static Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
-        final Context context = c;
-        final DaoEpic daoEpic = epic;
-        final DaoStage daoStage = stage;
-
-
-        // post alert dialog
-        new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage("Play an encore?")
-                .setNegativeButton("Encore!", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - negative...");
-                        // restart epic with all current stars
-                        // TODO: separate clear stage from reset tally/tic
-                        daoEpic.resetEpicStageTallyTic(daoStage, true, true);
-//                        daoEpic.resetStarBoard();
-                        // update repo
-                        getRepoProvider().getDalEpic().update(daoEpic, true);
-                        getRepoProvider().getDalStage().update(daoStage, true);
-
-                    }
-                })
-                .setNeutralButton("Go Back.", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - neutral...");
-                        // leave it be...
-                    }
-                })
-                .setPositiveButton("Sign me out.", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i(TAG, "curtain closing dialog - positive...");
-
-                        // remove this star from starboard
-                        int starInx = daoEpic.getActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
-                        daoEpic.removeActor(daoStage, starInx);
-                        getRepoProvider().getDalEpic().update(daoEpic, true);
-                        getRepoProvider().getDalStage().update(daoStage, true);
-
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
-        ;
-        return true;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean updatePlaylist(String action) {
-        Log.d(TAG, "updatePlaylist action " + action);
-            // if story exists associating the active actor (or all actor) with the action
-            DaoStory daoStory = isStory(action);
-            if (daoStory != null) {
-                // set active: story, action, outcome  (actor is already active)
-                getPlayListService().setActiveStory(daoStory);
-                DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(daoStory.getAction());
-                getPlayListService().setActiveAction(daoAction);
-                DaoOutcome daoOutcome = (DaoOutcome) getRepoProvider().getDalOutcome().getDaoRepo().get(daoStory.getOutcome());
-                getPlayListService().setActiveOutcome(daoOutcome);
-                return true;
-            }
-//        }
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    // if active actor is associated with incoming action - return story
-    private DaoStory isStory(String action) {
-        DaoEpic activeEpic = getPlayListService().getActiveEpic();
-        if (activeEpic != null) {
-            // for each story in epic
-            for (Integer i = 0; i < activeEpic.getTagList().size(); i++) {
-                String storyMoniker = activeEpic.getTagList().get(i);
-                DaoStory daoStory = (DaoStory) getRepoProvider().getDalStory().getDaoRepo().get(storyMoniker);
-                if (daoStory != null && getPlayListService().getActiveActor() != null) {
-                    Log.v(TAG, "test story " + daoStory);
-                    // if any actor or active actor  &&  action match
-                    if ((daoStory.getActor().contains(DaoDefs.ANY_ACTOR_MARKER) ||
-                            daoStory.getActor().equals(getPlayListService().getActiveActor().getMoniker())) &&
-                            daoStory.getAction().equals(action)) {
-                        Log.v(TAG, "returning outcome " + daoStory.getOutcome());
-                        return daoStory;
-                    }
-                }
-                else {
-                    if (daoStory == null) Log.e(TAG, "oops! no story found matching " + activeEpic.getTagList().get(i) + "...");
-                    else Log.e(TAG,"Oops! no active actor");
-                }
-            }
-        }
-        else {
-            Log.e(TAG, "Oops! no active epic...");
-        }
-        return null;
     }
     ///////////////////////////////////////////////////////////////////////////
     // Outcomes
@@ -534,28 +417,137 @@ public class StageManager {
         return false;
     }
     ///////////////////////////////////////////////////////////////////////////
-    // select actor at selection
+    private Boolean onPostOp() {
+        DaoStory activeStory = getPlayListService().getActiveStory();
+        if (activeStory != null) {
+            // return true if no post-op defined
+            if (activeStory.getPostOp().equals(DaoDefs.INIT_STRING_MARKER) ||
+                    activeStory.getPreReq().equals(DaoStory.STORY_POSTOP_NONE)) {
+                Log.d(TAG, "onPostOp-> no post-op defined...");
+                return true;
+            } else {
+                DaoStage daoStage = getPlayListService().getActiveStage();
+                if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+                    if (activeStory.getPostOp().equals(DaoStory.STORY_POSTOP_CURTAIN_CALL)) {
+                        DaoEpic daoEpic = getPlayListService().getActiveEpic();
+                        if (daoEpic != null) {
+                            // curtains should come down
+                            if (daoEpic.isCurtainClose()) {
+                                // bring down the curtain!  prompt for an encore
+                                List<DaoEpicActorBoard> starBoardList = daoEpic.getTallyOrder(false);
+                                String title = starBoardList.get(0).getActorMoniker() + " dominates the universe of Marbles!";
+                                postCurtainCloseDialog(mContext, title, daoEpic, daoStage);
+                            }
+                        }
+                        else {
+                            Log.e(TAG, "Oops!  no active epic...");
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "Oops!  Unknown postop " + activeStory.getPostOp());
+                    }
+                }
+                else {
+                    if (daoStage == null) Log.e(TAG, "Oops!  no active stage...");
+                    else Log.e(TAG, "Oops! Unknown stage type " + daoStage.getStageType());
+                }
+            }
+        }
+        else {
+            Log.e(TAG, "Oops!  no active story...");
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
+//    public static Boolean postCurtainCloseDialog(Context c, String title, DaoEpic epic, DaoStage stage) {
+        final Context context = c;
+        final DaoEpic daoEpic = epic;
+        final DaoStage daoStage = stage;
+
+
+        // post alert dialog
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage("Play an encore?")
+                .setNegativeButton("Encore!", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "curtain closing dialog - negative...");
+                        // restart epic with all current stars
+                        // TODO: separate clear stage from reset tally/tic
+                        daoEpic.resetEpicStageTallyTic(daoStage, true, true);
+//                        daoEpic.resetStarBoard();
+                        // update repo
+                        getRepoProvider().getDalEpic().update(daoEpic, true);
+                        getRepoProvider().getDalStage().update(daoStage, true);
+
+                    }
+                })
+                .setNeutralButton("Go Back.", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "curtain closing dialog - neutral...");
+                        // leave it be...
+                    }
+                })
+                .setPositiveButton("Sign me out.", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(TAG, "curtain closing dialog - positive...");
+
+                        // remove this star from starboard
+                        int starInx = daoEpic.getEpicActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
+                        daoEpic.removeActor(daoStage, starInx);
+                        getRepoProvider().getDalEpic().update(daoEpic, true);
+                        getRepoProvider().getDalStage().update(daoStage, true);
+
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
+        ;
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // mark actor at selection
     private Boolean markActor(StageViewRing stageViewRing, StageModelRing stageModelRing,
                              float touchX, float touchY, float z) {
         Log.d(TAG, "markActor touch (x,y) " + touchX + ", " + touchY);
+        DaoEpic daoEpic = getPlayListService().getActiveEpic();
         DaoStage daoStage = getPlayListService().getActiveStage();
-        if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+        if (daoEpic != null && daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             if (stageViewRing != null && stageModelRing != null) {
                 // get ring index
                 int selectIndex = stageViewRing.getRingIndex(touchX, touchY, z);
-                // if touch found & actor present
-                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER &&
-                        !daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
-                    // mark actor
-                    setMarkIndex(selectIndex);
-                    Log.d(TAG, "markActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
-                    return true;
+                // if touch found
+                if (selectIndex != DaoDefs.INIT_INTEGER_MARKER) {
+                    // if no actor present
+                    if (!daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        // if touch of marked actor
+                        if (selectIndex == getMarkIndex()) {
+                            // clear mark
+                            setMarkIndex(DaoDefs.INIT_INTEGER_MARKER);
+                            Log.d(TAG, "unmarkActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
+                            // TODO: advance active actor based on order
+                            daoEpic.advanceActiveActor();
+                            DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpic.getActiveActor());
+                            getPlayListService().setActiveActor(daoActor);
+
+                        }
+                        else {
+                            // mark actor
+                            setMarkIndex(selectIndex);
+                            Log.d(TAG, "markActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
+                        }
+                        // indicate mark or unmark occurred
+                        return true;
+                    }
                 }
             } else {
                 Log.e(TAG, "Oops! stageViewRing NULL or stageModelRing NULL...");
             }
         } else {
-            if (daoStage == null) Log.e(TAG, "Oops! No active stage...");
+            if (daoEpic == null) Log.e(TAG, "Oops! No active epic...");
+            else if (daoStage == null) Log.e(TAG, "Oops! No active stage...");
             else Log.e(TAG, "markActor UNKNOWN stage type: " + daoStage.getStageType());
         }
         return false;
@@ -803,6 +795,103 @@ public class StageManager {
             else Log.e(TAG, "Oops! UNKNOWN stage type? " + daoStage.getStageType());
         }
         return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    // sound helpers
+    private Boolean playSoundMusic() {
+        // if music not playing & theatre music is enabled, start background music
+        if (getSoundManager() != null && !getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
+            getSoundManager().startSound(
+                    getSoundManager().getMpMusic(),
+                    SoundManager.SOUND_VOLUME_QTR,
+                    SoundManager.SOUND_VOLUME_QTR,
+                    SoundManager.SOUND_START_TIC_NADA,
+                    SoundManager.SOUND_START_TIC_NADA);
+            return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean pauseSoundMusic() {
+        if (isSoundMusic()) {
+            getSoundManager().pauseSound(
+                    getSoundManager().getMpMusic(),
+                    SoundManager.SOUND_VOLUME_HALF,
+                    SoundManager.SOUND_VOLUME_HALF,
+                    SoundManager.SOUND_START_TIC_NADA,
+                    SoundManager.SOUND_START_TIC_NADA);
+            return true;
+        }
+        return false;
+}
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean resumeSoundMusic() {
+        if (isSoundMusic()) {
+            // resume background music sound
+            getSoundManager().resumeSound(
+                    getSoundManager().getMpMusic(),
+                    SoundManager.SOUND_VOLUME_HALF,
+                    SoundManager.SOUND_VOLUME_HALF,
+                    SoundManager.SOUND_START_TIC_NADA,
+                    SoundManager.SOUND_START_TIC_NADA);
+            return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean playSoundAction(String action) {
+        // if theatre action sounds enabled
+        if (isSoundAction()) {
+
+            // play sound associated with action
+            switch (action) {
+                case DaoAction.ACTION_TYPE_SINGLE_TAP:
+                    getSoundManager().startSound(
+                            getSoundManager().getMpTap(),
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_START_TIC_SHORT,
+                            SoundManager.SOUND_START_TIC_SHORT);
+                    break;
+                case DaoAction.ACTION_TYPE_LONG_PRESS:
+                    getSoundManager().startSound(
+                            getSoundManager().getMpPress(),
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_START_TIC_MEDIUM,
+                            SoundManager.SOUND_START_TIC_MEDIUM);
+                    break;
+                case DaoAction.ACTION_TYPE_FLING:
+                    getSoundManager().startSound(
+                            getSoundManager().getMpFling(),
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_VOLUME_FULL,
+                            SoundManager.SOUND_START_TIC_LONG,
+                            SoundManager.SOUND_START_TIC_LONG);
+                    break;
+                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
+                    break;
+                default:
+                    Log.e(TAG, "Oops! Unknown action? " + action);
+                    return false;
+            }
+        }
+
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean playSoundFlorish() {
+        if (isSoundFlourish()){
+            // play uh-uh sound
+            getSoundManager().startSound(
+                    getSoundManager().getMpUhuh(),
+                    SoundManager.SOUND_VOLUME_FULL,
+                    SoundManager.SOUND_VOLUME_FULL,
+                    SoundManager.SOUND_START_TIC_NADA,
+                    SoundManager.SOUND_START_TIC_NADA);
+            return true;
+        }
+        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
 }
