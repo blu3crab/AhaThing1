@@ -27,10 +27,9 @@ public class DaoStarGate extends DaoBase {
 
 	private static final long serialVersionUID = 1L;
 
-    // DeviceId base class moniker (key)
     @SerializedName("starMoniker")			// star moniker - displayname
     private String starMoniker;
-//	@SerializedName("deviceId")				// deviceId where star signed in
+//	@SerializedName("deviceId")				// deviceId refactored base class moniker as unique key
 //	private String deviceId;
 	@SerializedName("deviceDescription")	// device description (manufacturer/model/build)
 	private String deviceDescription;

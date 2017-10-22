@@ -423,8 +423,9 @@ public class StageViewRing {
     private Boolean drawLocus(Canvas canvas) {
         int color;
         // if stage established
+        DaoEpic daoEpic = getPlayListService().getActiveEpic();
         DaoStage daoStage = getPlayListService().getActiveStage();
-        if (daoStage != null) {
+        if (daoEpic != null && daoStage != null) {
             Log.v(TAG, "Stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
 
             // if stage locus list defined
@@ -440,15 +441,33 @@ public class StageViewRing {
                     mPaintMapRect.setStyle(Paint.Style.FILL);
                     // find index of locus
                     int i = daoLocusList.locii.indexOf(daoLocus);
-                    if (i < daoStage.getActorList().size() && !daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
-                        // if actor present, set selected color & fill
+                    // indexOf should never be -1 or >= size
+                    if (!daoStage.getActorList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                        // if actor present, set actor color & fill
                         DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                         if (daoActor != null) {
-                            color = daoActor.getForeColor();
+                            // highlight locus if nothing marked, active actor present
+                            if (mParentViewController.getStageManager().getMarkIndex() == DaoDefs.INIT_INTEGER_MARKER &&
+                                    daoStage.getActorList().get(i).equals(daoEpic.getActiveActor())){
+                                Log.d(TAG, "drawMark " + daoStage.getActorList().get(i) + " at locus " + i);
+                                // paint filled rect with primary color
+                                color = daoActor.getBackColor();
+                                mPaintMapRect.setStyle(Paint.Style.FILL);
+                                mPaintMapRect.setColor(color);
+                                canvas.drawOval(mRectList.get(i), mPaintMapRect);
+                                color = daoActor.getForeColor();
+                                mPaintMapRect.setStrokeWidth(DEFAULT_HIGHLIGHT_DP);
+                                mPaintMapRect.setStyle(Paint.Style.STROKE);
+                                mPaintMapRect.setColor(color);
+//                                canvas.drawOval(mRectList.get(i), mPaintMapRect);
+                            }
+                            else {
+                                color = daoActor.getForeColor();
+                                mPaintMapRect.setStyle(Paint.Style.FILL);
+                            }
                         }
-                        mPaintMapRect.setStyle(Paint.Style.FILL);
                     }
-                    else if (i < daoStage.getPropList().size() && !daoStage.getPropList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                    else if (!daoStage.getPropList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
                         // if prop present, set selected color & fill
                         if (daoStage.getPropList().get(i).equals(DaoStage.PROP_TYPE_FORBIDDEN)) {
                             color = DaoStage.PROP_COLOR_FORBIDDEN;
@@ -456,11 +475,11 @@ public class StageViewRing {
                         // TODO: else hint color
                         mPaintMapRect.setStyle(Paint.Style.FILL);
                     }
-                    else if (i >= daoStage.getActorList().size() || i >= daoStage.getActorList().size()) {
-                        Log.e(TAG, "invalid locii index " + i +
-                                " for stage actor list size = " + daoStage.getActorList().size() +
-                                " for stage prop list size = " + daoStage.getPropList().size());
-                    }
+//                    else if (i >= daoStage.getActorList().size() || i >= daoStage.getActorList().size()) {
+//                        Log.e(TAG, "invalid locii index " + i +
+//                                " for stage actor list size = " + daoStage.getActorList().size() +
+//                                " for stage prop list size = " + daoStage.getPropList().size());
+//                    }
                     else {
                         // set unselected color & no fill
                         //color = getRingColor(daoLocus);
@@ -482,11 +501,9 @@ public class StageViewRing {
                 // if locus is marked, highlight
                 if (mParentViewController.getStageManager().getMarkIndex() != DaoDefs.INIT_INTEGER_MARKER) {
                     int i = mParentViewController.getStageManager().getMarkIndex();
-//                    color = mContext.getResources().getColor(R.color.colorLightGrey);
                     // if actor present, set selected color & fill
                     DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                     if (daoActor != null) {
-//                        color = daoActor.getBackColor();
                         Log.d(TAG, "drawMark " + daoStage.getActorList().get(i) + " at locus " + i);
                         // paint filled rect with primary color
                         color = daoActor.getBackColor();
@@ -502,10 +519,6 @@ public class StageViewRing {
                         canvas.drawOval(mRectList.get(i), mPaintMapRect);
 //                        mPaintMapRect.setStrokeWidth(strokeWidth);
                     }
-//                    mPaintMapRect.setColor(color);
-//                    mPaintMapRect.setStyle(Paint.Style.FILL);
-//                    // draw locus
-//                    canvas.drawOval(mRectList.get(i), mPaintMapRect);
                 }
                 return true;
             }
@@ -514,7 +527,7 @@ public class StageViewRing {
             }
         }
         else {
-            Log.e(TAG, "Oops!  no active stage...");
+            Log.e(TAG, "Oops!  no active epic or stage...");
         }
         return false;
     }
@@ -576,9 +589,9 @@ public class StageViewRing {
             }
 
             // order starboard by descending (false) tally
-            List<DaoEpicActorBoard> orderedStarBoard = daoEpic.getTallyOrder(false);
+            List<DaoEpicActorBoard> orderedActorBoard = daoEpic.getTallyOrder(false);
             // for each star in star board
-            for (DaoEpicActorBoard daoEpicActorBoard : orderedStarBoard) {
+            for (DaoEpicActorBoard daoEpicActorBoard : orderedActorBoard) {
                 // format title: moniker, tally, tic
                 String title = daoEpicActorBoard.getActorMoniker() + "  " +
                         daoEpicActorBoard.getTally().toString() + "  " +

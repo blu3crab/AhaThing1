@@ -215,7 +215,7 @@ public class MarqueeViewXfer {
         for (String actorMoniker : actorMonikerList) {
             Log.d(TAG, actorMoniker + " at position " + position);
 //            // skip actor wildcards
-//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_MARKER)) {
+//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_WILDCARD)) {
                 // build list of actor names, labels & images
                 tagNameList.add(actorMoniker);
                 tagLabelList.add("");
@@ -346,7 +346,7 @@ public class MarqueeViewXfer {
                 update = true;
             }
 //            // skip actor wildcards
-//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_MARKER))
+//            if (!actorMoniker.contains(DaoDefs.ANY_ACTOR_WILDCARD))
             ++position;
         }
         if (update) {

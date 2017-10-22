@@ -150,12 +150,25 @@ public class DaoStage extends DaoBase {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	public List<String> getUniqueActorList() {
+		List<String> uniqueActorList = new ArrayList<>();
+		// for actor at each locus
+		for (String actor : getActorList()) {
+			// if actor defined & not contained in unique list
+			if (!actor.equals(DaoDefs.INIT_STRING_MARKER) && !uniqueActorList.contains(actor)) {
+				// add actor to unique list
+				uniqueActorList.add(actor);
+			}
+		}
+		return uniqueActorList;
+	}
+
 	public Boolean togglePropList(String propMoniker, Integer selectIndex) {
 		// if stage prop list empty at ring location
 		if (getPropList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
 			// set stage to prop at selected location
             getPropList().set(selectIndex, propMoniker);
-//            getActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+//            getEpicActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
 		}
 		else {
 			// clear stage prop list at selected location

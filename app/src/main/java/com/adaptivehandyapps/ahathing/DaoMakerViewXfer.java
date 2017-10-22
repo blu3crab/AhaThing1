@@ -1021,14 +1021,22 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     public Boolean toStage(String op, String moniker, String editedMoniker, String headline, Boolean removeOriginalOnMonikerChange) {
         // active object
         DaoStage activeStage = null;
+        Boolean copyStageTemplate = false;
         // xfer view to object
         if (op.equals(ContentFragment.ARG_CONTENT_VALUE_OP_EDIT)) {
             activeStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(moniker);
             if (activeStage != null) {
-                // if moniker has been edited
-                if (!moniker.equals(editedMoniker) && removeOriginalOnMonikerChange) {
-                    // remove obsolete entry
-                    mParent.getRepoProvider().getDalStage().remove(activeStage, true);
+                // if existing stage renamed (moniker has been edited)
+                if (!moniker.equals(editedMoniker)) {
+                    // if replace original
+                    if (removeOriginalOnMonikerChange) {
+                        // remove obsolete entry
+                        mParent.getRepoProvider().getDalStage().remove(activeStage, true);
+                    }
+                    else {
+                        // copy stage as template in progress
+                        copyStageTemplate = true;
+                    }
                 }
             }
         }
@@ -1053,6 +1061,25 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // update repo
         mParent.getPlayListService().setActiveStage(activeStage);
         mParent.getRepoProvider().getDalStage().update(activeStage, true);
+
+        // copy stage template in progress
+        if (copyStageTemplate) {
+            // if active epic
+            DaoEpic activeEpic = mParent.getPlayListService().getActiveEpic();
+            if (activeEpic != null) {
+                // update epic stage
+                activeEpic.setStage(editedMoniker);
+                // reset epic actor board & active actor
+                activeEpic.resetActorBoard(activeStage, true);
+                // set active actor
+                DaoActor daoActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(activeEpic.getActiveActor());
+                Log.d(TAG,"epic active actor after reset " + activeEpic.getActiveActor());
+                mParent.getPlayListService().setActiveActor(daoActor);
+                // update epic repo
+                mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
+            }
+
+        }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

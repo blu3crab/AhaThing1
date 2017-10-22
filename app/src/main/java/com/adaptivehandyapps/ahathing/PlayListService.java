@@ -371,17 +371,14 @@ public class PlayListService extends Service {
     public void setActiveStage(DaoStage activeDao) {
         if (mRepoProviderBound && mRepoProvider != null) {
             // if object defined & not current active stage
-            if (activeDao != null && !isActiveStage(activeDao)) {
+            if (activeDao != null) {
+//                if (activeDao != null && !isActiveStage(activeDao)) {
                 // extract moniker
                 String moniker = activeDao.getMoniker();
-
-//                // create new stage model, view, controller
-//                mRepoProvider.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
-//                mRepoProvider.getStageModelRing().buildModel(activeDao);
-//                Log.d(TAG, "NEW StageModelRing for repo " + mRepoProvider.toString() + " at " + mRepoProvider.getStageModelRing().toString());
                 // set prefs & active object
                 PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STAGE_KEY, moniker);
             }
+            // set active object
             mActiveStage = activeDao;
         }
         else {
