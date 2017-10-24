@@ -40,7 +40,6 @@ public class StageManager {
     private static final String TAG = StageManager.class.getSimpleName();
 
     private Context mContext;
-//    private StageViewController mParentViewController;
     private MainActivity mParent;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -60,28 +59,6 @@ public class StageManager {
     }
     private RepoProvider getRepoProvider() {
         return mParent.getRepoProvider();
-    }
-    private SoundManager getSoundManager() {
-        return mParent.getSoundManager();
-    }
-
-    private Boolean isSoundFlourish() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundFlourish();
-        }
-        return false;
-    }
-    private Boolean isSoundMusic() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundMusic();
-        }
-        return false;
-    }
-    private Boolean isSoundAction() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundAction();
-        }
-        return false;
     }
 
     public float getTouchX() {
@@ -142,7 +119,7 @@ public class StageManager {
         if (mParent != null) {
             Log.v(TAG, "StageManager ready with parent " + mParent.toString() + "...");
             // if music not playing & theatre music is enabled, start background music
-            playSoundMusic();
+            SoundCheck.playSoundMusic(mParent);
         }
         else {
             Log.e(TAG, "Oops!  StageManager Parent context (MainActivity) NULL!");
@@ -156,7 +133,7 @@ public class StageManager {
         Log.d(TAG, "onAction action " + action);
 
         // if music not playing & theatre music is enabled, start background music
-        playSoundMusic();
+        SoundCheck.playSoundMusic(mParent);
         // get active epic
         DaoEpic daoEpic = getPlayListService().getActiveEpic();
         DaoStage daoStage = getPlayListService().getActiveStage();
@@ -175,12 +152,11 @@ public class StageManager {
 
                     // if prereq satisfied
                     if (isPreReqSatisfied(stageViewRing)) {
-                        // do NOT pause playing music
-                        Boolean pauseMusic = false;
-                        if (pauseMusic) pauseSoundMusic();
+                        // pause music?
+                        SoundCheck.pauseSoundMusic(mParent);
 
                         // play action sounds
-                        playSoundAction(action);
+                        SoundCheck.playSoundAction(mParent, action);
 
                         // increment active actors actor board tic
                         int actorBoardInx = daoEpic.getEpicActorList().indexOf(getPlayListService().getActiveActor().getMoniker());
@@ -205,12 +181,12 @@ public class StageManager {
                         // if post-operation indicated
                         onPostOp();
 
-                        // resume
-                        if (pauseMusic) resumeSoundMusic();
+                        // resume music?
+                        SoundCheck.resumeSoundMusic(mParent);
 
                     } else {
                         // play uh-uh sound
-                        playSoundFlorish();
+                        SoundCheck.playSoundFlorish(mParent);
                         Log.d(TAG, "Oops! Prereq not satisfied...");
                     }
                     success = true;
@@ -795,103 +771,6 @@ public class StageManager {
             else Log.e(TAG, "Oops! UNKNOWN stage type? " + daoStage.getStageType());
         }
         return true;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    // sound helpers
-    private Boolean playSoundMusic() {
-        // if music not playing & theatre music is enabled, start background music
-        if (getSoundManager() != null && !getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
-            getSoundManager().startSound(
-                    getSoundManager().getMpMusic(),
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
-            return true;
-        }
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean pauseSoundMusic() {
-        if (isSoundMusic()) {
-            getSoundManager().pauseSound(
-                    getSoundManager().getMpMusic(),
-                    SoundManager.SOUND_VOLUME_HALF,
-                    SoundManager.SOUND_VOLUME_HALF,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
-            return true;
-        }
-        return false;
-}
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean resumeSoundMusic() {
-        if (isSoundMusic()) {
-            // resume background music sound
-            getSoundManager().resumeSound(
-                    getSoundManager().getMpMusic(),
-                    SoundManager.SOUND_VOLUME_HALF,
-                    SoundManager.SOUND_VOLUME_HALF,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
-            return true;
-        }
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean playSoundAction(String action) {
-        // if theatre action sounds enabled
-        if (isSoundAction()) {
-
-            // play sound associated with action
-            switch (action) {
-                case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                    getSoundManager().startSound(
-                            getSoundManager().getMpTap(),
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_START_TIC_SHORT,
-                            SoundManager.SOUND_START_TIC_SHORT);
-                    break;
-                case DaoAction.ACTION_TYPE_LONG_PRESS:
-                    getSoundManager().startSound(
-                            getSoundManager().getMpPress(),
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_START_TIC_MEDIUM,
-                            SoundManager.SOUND_START_TIC_MEDIUM);
-                    break;
-                case DaoAction.ACTION_TYPE_FLING:
-                    getSoundManager().startSound(
-                            getSoundManager().getMpFling(),
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_VOLUME_FULL,
-                            SoundManager.SOUND_START_TIC_LONG,
-                            SoundManager.SOUND_START_TIC_LONG);
-                    break;
-                case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                    break;
-                default:
-                    Log.e(TAG, "Oops! Unknown action? " + action);
-                    return false;
-            }
-        }
-
-        return false;
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    private Boolean playSoundFlorish() {
-        if (isSoundFlourish()){
-            // play uh-uh sound
-            getSoundManager().startSound(
-                    getSoundManager().getMpUhuh(),
-                    SoundManager.SOUND_VOLUME_FULL,
-                    SoundManager.SOUND_VOLUME_FULL,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
-            return true;
-        }
-        return false;
     }
     ///////////////////////////////////////////////////////////////////////////
 }

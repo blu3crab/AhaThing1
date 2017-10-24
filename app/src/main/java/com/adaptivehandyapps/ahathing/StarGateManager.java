@@ -128,9 +128,9 @@ public class StarGateManager {
     private RepoProvider getRepoProvider() {
         return getParent().getRepoProvider();
     }
-    private SoundManager getSoundManager() {
-        return getParent().getSoundManager();
-    }
+//    private SoundManager getSoundManager() {
+//        return getParent().getSoundManager();
+//    }
 
     public StarGateView getStarGateView() {
         return mStarGateView;
@@ -195,26 +195,26 @@ public class StarGateManager {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    // sound settings
-    private Boolean isSoundFlourish() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundFlourish();
-        }
-        return false;
-    }
-    private Boolean isSoundMusic() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundMusic();
-        }
-        return false;
-    }
-    private Boolean isSoundAction() {
-        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
-            return getPlayListService().getActiveTheatre().getSoundAction();
-        }
-        return false;
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    // sound settings
+//    private Boolean isSoundFlourish() {
+//        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+//            return getPlayListService().getActiveTheatre().getSoundFlourish();
+//        }
+//        return false;
+//    }
+//    private Boolean isSoundMusic() {
+//        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+//            return getPlayListService().getActiveTheatre().getSoundMusic();
+//        }
+//        return false;
+//    }
+//    private Boolean isSoundAction() {
+//        if (getPlayListService() != null && getPlayListService().getActiveTheatre() != null) {
+//            return getPlayListService().getActiveTheatre().getSoundAction();
+//        }
+//        return false;
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // activity setters/getters
@@ -320,15 +320,7 @@ public class StarGateManager {
         setParent ((MainActivity) context);
         if (getParent() != null) {
             Log.v(TAG, "StarGateManager ready with parent " + getParent().toString() + "...");
-            if (getSoundManager() != null && isSoundMusic()) {
-                getSoundManager().startSound(
-                        getSoundManager().getMpMusic(),
-                        SoundManager.SOUND_VOLUME_QTR,
-                        SoundManager.SOUND_VOLUME_QTR,
-                        SoundManager.SOUND_START_TIC_NADA,
-                        SoundManager.SOUND_START_TIC_NADA);
-            }
-//            else Log.e(TAG, "Oops!  SoundManager NULL?");
+            SoundCheck.playSoundMusic(getParent());
         }
         else {
             Log.e(TAG, "Oops!  StarGateManager Parent context (MainActivity) NULL!");
@@ -410,62 +402,16 @@ public class StarGateManager {
         Log.d(TAG, "onAction action " + action);
         setStarGateModel(starGateModel);
         setStarGateView(starGateView);
-        // if music not playing & theatre music is enabled, start background music
-        if (!getSoundManager().getMpMusic().isPlaying() && isSoundMusic()) {
-            getSoundManager().startSound(
-                    getSoundManager().getMpMusic(),
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_VOLUME_QTR,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
-        }
+
+        SoundCheck.playSoundMusic(getParent());
 
         // if an activity is associated with action
         if (onActivity(action, getTouchX(), getTouchY(), 0.0f)) {
-            // if theatre action sounds enabled
-            if (isSoundAction()) {
-                // play sound associated with action
-                switch (action) {
-                    case DaoAction.ACTION_TYPE_SINGLE_TAP:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpTap(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_SHORT,
-                                SoundManager.SOUND_START_TIC_SHORT);
-                        break;
-                    case DaoAction.ACTION_TYPE_LONG_PRESS:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpPress(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_MEDIUM,
-                                SoundManager.SOUND_START_TIC_MEDIUM);
-                        break;
-                    case DaoAction.ACTION_TYPE_FLING:
-                        getSoundManager().startSound(
-                                getSoundManager().getMpFling(),
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_VOLUME_FULL,
-                                SoundManager.SOUND_START_TIC_LONG,
-                                SoundManager.SOUND_START_TIC_LONG);
-                        break;
-                    case DaoAction.ACTION_TYPE_DOUBLE_TAP:
-                        break;
-                    default:
-                        Log.e(TAG, "Oops! Unknown action? " + action);
-                        return false;
-                }
-            }
+            // play action sounds
+            SoundCheck.playSoundAction(mParent, action);
         }
-        else if (isSoundFlourish()){
-            // no activity associated with action, play uh-uh sound
-            getSoundManager().startSound(
-                    getSoundManager().getMpUhuh(),
-                    SoundManager.SOUND_VOLUME_FULL,
-                    SoundManager.SOUND_VOLUME_FULL,
-                    SoundManager.SOUND_START_TIC_NADA,
-                    SoundManager.SOUND_START_TIC_NADA);
+        else {
+            SoundCheck.playSoundFlorish(getParent());
         }
 
         return false;
