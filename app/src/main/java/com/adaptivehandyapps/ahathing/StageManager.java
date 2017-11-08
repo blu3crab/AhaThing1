@@ -503,11 +503,14 @@ public class StageManager {
                             // clear mark
                             setMarkIndex(DaoDefs.INIT_INTEGER_MARKER);
                             Log.d(TAG, "unmarkActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
-                            // TODO: advance active actor based on order
+                            // advance active actor based on order
                             daoEpic.advanceActiveActor();
                             DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoEpic.getActiveActor());
-                            getPlayListService().setActiveActor(daoActor);
-
+                            if (daoActor != null) {
+                                getPlayListService().setActiveActor(daoActor);
+                                // update epic repo
+                                mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
+                            }
                         }
                         else {
                             // mark actor

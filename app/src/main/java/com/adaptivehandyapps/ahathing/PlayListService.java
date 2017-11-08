@@ -296,9 +296,18 @@ public class PlayListService extends Service {
     public Boolean updateActiveEpic(DaoEpic dao) {
         // if this object matches prefs
         String prefsMoniker = PrefsUtils.getPrefs(getContext(), PrefsUtils.ACTIVE_EPIC_KEY);
-        if (prefsMoniker.equals(dao.getMoniker())) {
+        if (dao != null && prefsMoniker.equals(dao.getMoniker())) {
             // set active to updated object
             setActiveEpic(dao);
+            // if repo connected & active actor is defined
+            if (getRepoProvider() != null && !dao.getActiveActor().equals(DaoDefs.INIT_STRING_MARKER)) {
+                // set active actor
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(dao.getActiveActor());
+                if (daoActor != null) setActiveActor(daoActor);
+                // set active stage
+                DaoStage daoStage = (DaoStage) getRepoProvider().getDalStage().getDaoRepo().get(dao.getStage());
+                if (daoStage != null) setActiveStage(daoStage);
+            }
             return true;
         }
         return false;

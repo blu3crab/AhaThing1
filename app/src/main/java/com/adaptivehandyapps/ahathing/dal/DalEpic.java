@@ -251,14 +251,14 @@ public class DalEpic {
         if (daoEpic != null) {
             // if no recent local activity
             DaoAudit daoAudit = mRepoProvider.getDaoAuditRepo().get(daoEpic.getMoniker());
-            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
+//            if (daoAudit == null || !daoAudit.isRecent(System.currentTimeMillis())) {
                 Log.d(TAG, "onChildAdded daoEpic (remote trigger): " + daoEpic.toString());
                 // update repo but not db
                 update(daoEpic, false);
-            }
-            else {
-                Log.d(TAG, "onChildAdded: daoEpic (ignore local|multiple trigger): " + daoEpic.toString());
-            }
+//            }
+//            else {
+//                Log.d(TAG, "onChildAdded: daoEpic (ignore local|multiple trigger): " + daoEpic.toString());
+//            }
         }
         else {
             Log.e(TAG, "onChildAdded: NULL daoEpic?");
