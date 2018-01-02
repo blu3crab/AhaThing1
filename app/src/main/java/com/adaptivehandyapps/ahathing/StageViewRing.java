@@ -447,7 +447,7 @@ public class StageViewRing {
                         DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                         if (daoActor != null) {
                             // highlight locus if nothing marked, active actor present
-                            if (mParentViewController.getStageManager().getMarkIndex() == DaoDefs.INIT_INTEGER_MARKER &&
+                            if (daoStage.getMarkIndex() == DaoDefs.INIT_INTEGER_MARKER &&
                                     daoStage.getActorList().get(i).equals(daoEpic.getActiveActor())){
                                 Log.d(TAG, "drawMark " + daoStage.getActorList().get(i) + " at locus " + i);
                                 // paint filled rect with primary color
@@ -499,8 +499,8 @@ public class StageViewRing {
                     drawText(canvas, id, mPaintMinorText, mRectList.get(i).centerX(), mRectList.get(i).centerY());
                 }
                 // if locus is marked, highlight
-                if (mParentViewController.getStageManager().getMarkIndex() != DaoDefs.INIT_INTEGER_MARKER) {
-                    int i = mParentViewController.getStageManager().getMarkIndex();
+                if (daoStage.getMarkIndex() != DaoDefs.INIT_INTEGER_MARKER) {
+                    int i = daoStage.getMarkIndex();
                     // if actor present, set selected color & fill
                     DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(daoStage.getActorList().get(i));
                     if (daoActor != null) {

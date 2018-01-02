@@ -30,6 +30,16 @@ import android.util.Log;
 public class NetUtils {
     private static final String TAG = "NetUtils";
 
+    public static boolean isInternetAvailable(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
+
     public static boolean isNetworkAvailable(Context c) {
         boolean isWifiConn = false;
         boolean isMobileConn = false;

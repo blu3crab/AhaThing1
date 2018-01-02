@@ -51,7 +51,7 @@ public class StageManager {
     private MotionEvent mEvent1;
     private MotionEvent mEvent2;
 
-    private int mMarkIndex = DaoDefs.INIT_INTEGER_MARKER;
+//    private int mMarkIndex = DaoDefs.INIT_INTEGER_MARKER;
     ///////////////////////////////////////////////////////////////////////////
     // setters/getters
     private PlayListService getPlayListService() {
@@ -104,12 +104,14 @@ public class StageManager {
         this.mEvent2 = event2;
     }
 
-    public int getMarkIndex() {
-        return mMarkIndex;
-    }
+//    public int getMarkIndex() {
+//        return mMarkIndex;
+//    }
     public void setMarkIndex(int markIndex) {
-        this.mMarkIndex = markIndex;
+        // TODO: if mark, set stage, update repo, start timer
+        // TODO: if unmark, set stage, update repo, clear timer
     }
+    // TODO: set timer, when countdown unmark, advance turn order
 
     ///////////////////////////////////////////////////////////////////////////
     public StageManager(Context context) {
@@ -499,9 +501,9 @@ public class StageManager {
                     // if no actor present
                     if (!daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
                         // if touch of marked actor
-                        if (selectIndex == getMarkIndex()) {
+                        if (selectIndex == daoStage.getMarkIndex()) {
                             // clear mark
-                            setMarkIndex(DaoDefs.INIT_INTEGER_MARKER);
+                            daoStage.setMarkIndex(DaoDefs.INIT_INTEGER_MARKER);
                             Log.d(TAG, "unmarkActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
                             // advance active actor based on order
                             daoEpic.advanceActiveActor();
@@ -514,9 +516,11 @@ public class StageManager {
                         }
                         else {
                             // mark actor
-                            setMarkIndex(selectIndex);
+                            daoStage.setMarkIndex(selectIndex);
                             Log.d(TAG, "markActor " + daoStage.getActorList().get(selectIndex) + " at locus " + selectIndex);
                         }
+                        // update stage repo
+                        mParent.getRepoProvider().getDalStage().update(daoStage, true);
                         // indicate mark or unmark occurred
                         return true;
                     }
@@ -544,15 +548,15 @@ public class StageManager {
                 // if touch found & actor not present
                 if (selectIndex != DaoDefs.INIT_INTEGER_MARKER &&
                         daoStage.getActorList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
-                    if (getMarkIndex() > DaoDefs.INIT_INTEGER_MARKER) {
-                        Log.d(TAG, "moveActor " + daoStage.getActorList().get(getMarkIndex()) + " from locus " + +getMarkIndex() + " to " + selectIndex);
+                    if (daoStage.getMarkIndex() > DaoDefs.INIT_INTEGER_MARKER) {
+                        Log.d(TAG, "moveActor " + daoStage.getActorList().get(daoStage.getMarkIndex()) + " from locus " + daoStage.getMarkIndex() + " to " + selectIndex);
                         // move actor from mark to move selection
-                        daoStage.getActorList().set(selectIndex, daoStage.getActorList().get(getMarkIndex()));
+                        daoStage.getActorList().set(selectIndex, daoStage.getActorList().get(daoStage.getMarkIndex()));
                         // clear actor at mark index
-                        daoStage.getActorList().set(getMarkIndex(), DaoDefs.INIT_STRING_MARKER);
+                        daoStage.getActorList().set(daoStage.getMarkIndex(), DaoDefs.INIT_STRING_MARKER);
                     }
                     // reset mark index to select
-                    setMarkIndex(selectIndex);
+                    daoStage.setMarkIndex(selectIndex);
                     // update object
                     getRepoProvider().getDalStage().update(daoStage, true);
                     return true;

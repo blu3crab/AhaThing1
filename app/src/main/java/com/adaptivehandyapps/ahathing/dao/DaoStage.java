@@ -44,6 +44,9 @@ public class DaoStage extends DaoBase {
 	@SerializedName("ringSize")			// stage ring type: # rings
 	private Integer ringSize;
 
+	@SerializedName("markIndex")		// marked locus
+	private Integer markIndex;
+
 	@SerializedName("locusList")		// locus list
 	private DaoLocusList locusList;
 
@@ -61,6 +64,7 @@ public class DaoStage extends DaoBase {
 		super();
 		this.stageType = STAGE_TYPE_RING;
 		this.ringSize = STAGE_TYPE_RING_SIZE_DEFAULT;
+		this.markIndex = DaoDefs.INIT_INTEGER_MARKER;
 		this.locusList = new DaoLocusList();
 		this.actorList = new ArrayList<>();
 		this.propList = new ArrayList<>();
@@ -77,6 +81,7 @@ public class DaoStage extends DaoBase {
 
 			String stageType,
 			Integer ringSize,
+			Integer markIndex,
 			DaoLocusList locusList,
 			List<String> actorList,
 			List<String> propList,
@@ -86,6 +91,7 @@ public class DaoStage extends DaoBase {
 
 		this.stageType = stageType;
 		this.ringSize = ringSize;
+		this.markIndex = markIndex;
 		this.locusList = locusList;
 		this.actorList = actorList;
 		this.propList = propList;
@@ -94,7 +100,7 @@ public class DaoStage extends DaoBase {
 
 	/////////////////////////////helpers//////////////////////////////////
 	public String toString() {
-		return super.toString() + ", " + stageType + ", " + locusList + ", " + actorList + ", " + propList + ", " + reserve2;
+		return super.toString() + ", " + stageType + ", "  + ringSize + ", " + markIndex + ", " + locusList + ", " + actorList + ", " + propList + ", " + reserve2;
 	}
 
 	public static long getSerialVersionUID() {
@@ -115,6 +121,14 @@ public class DaoStage extends DaoBase {
 
 	public void setRingSize(Integer ringSize) {
 		this.ringSize = ringSize;
+	}
+
+	public Integer getMarkIndex() {
+		return markIndex;
+	}
+
+	public void setMarkIndex(Integer markIndex) {
+		this.markIndex = markIndex;
 	}
 
 	public DaoLocusList getLocusList() {

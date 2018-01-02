@@ -74,7 +74,7 @@ public class DaoMakerUiHandler {
     private OnContentHandlerResult mCallback = null; //call back interface
 
     ///////////////////////////////////////////////////////////////////////////
-    // interface for a callback invoked when a result occurs e.g. ok/cancal
+    // interface for a callback invoked when a result occurs e.g. ok/cancel
     public interface OnContentHandlerResult {
         void onContentHandlerResult(String op, String objType, String moniker);
     }
