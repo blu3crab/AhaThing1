@@ -20,6 +20,7 @@ package com.adaptivehandyapps.ahathing;
 import android.graphics.RectF;
 import android.util.Log;
 
+import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
 import com.adaptivehandyapps.ahathing.dao.DaoLocus;
 import com.adaptivehandyapps.ahathing.dao.DaoLocusList;
@@ -65,6 +66,13 @@ public class StageModelRing {
 
     ///////////////////////////////////////////////////////////////////////////
     // getters, setters, helpers
+    private RepoProvider mRepoProvider;
+    public RepoProvider getRepoProvider() {
+        return mRepoProvider;
+    }
+    public void setRepoProvider(RepoProvider repoProvider) {
+        mRepoProvider = repoProvider;
+    }
     private PlayListService mPlayListService;
     public PlayListService getPlayListService() {
         return mPlayListService;
@@ -114,7 +122,11 @@ public class StageModelRing {
     }
     ///////////////////////////////////////////////////////////////////////////
     // constructor
-    public StageModelRing(PlayListService playListService) { setPlayListService(playListService); }
+//    public StageModelRing(PlayListService playListService) { setPlayListService(playListService); }
+    public StageModelRing(RepoProvider repoProvider) {
+        setRepoProvider(repoProvider);
+        setPlayListService(getRepoProvider().getPlayListService());
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // builder
@@ -129,6 +141,10 @@ public class StageModelRing {
             // create stage locus list  mirroring locus list
             List<String> propList = new ArrayList<>();
             activeStage.setPropList(propList);
+            List<Integer> propFgColorList = new ArrayList<>();
+            activeStage.setPropFgColorList(propFgColorList);
+            List<Integer> propBgColorList = new ArrayList<>();
+            activeStage.setPropBgColorList(propBgColorList);
 
             // create prop list
             DaoLocusList daoLocusList = new DaoLocusList();
@@ -142,7 +158,7 @@ public class StageModelRing {
             // seed 1st locus at 0,0
             DaoLocus origin = new DaoLocus();
             // mirror locus list add with actor & prop
-            mirrorLociiAdd(origin, daoLocusList, actorList, propList);
+            mirrorLociiAdd(origin, daoLocusList, actorList, propList, propFgColorList, propBgColorList);
             // set nickname, seed vert
             origin.setNickname(setLocusName(ring, ringMaxId.get(ring)));
             origin.setVertX(RING_CENTER_X);
@@ -152,7 +168,8 @@ public class StageModelRing {
 
             // populate 1st ring around origin
             ++ring; // 1st
-            ringId = populateLocii(ring, ringMaxId.get(ring - 1), daoLocusList, origin, actorList, propList);
+            ringId = populateLocii(ring, ringMaxId.get(ring - 1), daoLocusList, origin, actorList,
+                                    propList, propFgColorList, propBgColorList);
             ringMaxId.add(ringId);
 
             // populate next ring by expanding around each locus in previous ring
@@ -163,7 +180,8 @@ public class StageModelRing {
                 ringId = ringMaxId.get(ring - 1);
                 while (locusIndex < ringMaxId.get(ring - 1) + 1) {
                     origin = daoLocusList.locii.get(locusIndex);
-                    ringId = populateLocii(ring, ringId, daoLocusList, origin, actorList, propList);
+                    ringId = populateLocii(ring, ringId, daoLocusList, origin, actorList,
+                                            propList, propFgColorList, propBgColorList);
                     ++locusIndex;
                 }
                 ringMaxId.add(ringId);
@@ -173,11 +191,70 @@ public class StageModelRing {
             // create bounding rect
             initBoundingRect(activeStage);
         }
+        else if (activeStage.getPropFgColorList() == null ||
+                activeStage.getPropBgColorList() == null ||
+                activeStage.getPropFgColorList().size() != activeStage.getPropList().size() ||
+                activeStage.getPropBgColorList().size() != activeStage.getPropList().size()) {
+            Log.e(TAG, "BuildModel finds depopulated FG,BG Color Lists...repairing...");
+            List<Integer> propFgColorList = new ArrayList<>();
+            activeStage.setPropFgColorList(propFgColorList);
+            List<Integer> propBgColorList = new ArrayList<>();
+            activeStage.setPropBgColorList(propBgColorList);
+            // for each prop
+            for (int i = 0; i < activeStage.getPropList().size(); i++) {
+                // if prop defined
+                if (!activeStage.getPropList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
+                    Log.d(TAG, "buildModel repairing prop(" + i + ") " + activeStage.getPropList().get(i));
+                    if (activeStage.getPropList().get(i).equals(DaoActor.ACTOR_MONIKER_FORBIDDEN)) {
+                        propFgColorList.add(DaoStage.STAGE_BG_COLOR);
+                        propBgColorList.add(DaoStage.STAGE_BG_COLOR);
+                    } else if (activeStage.getPropList().get(i).equals(DaoActor.ACTOR_MONIKER_MIRROR)) {
+                        String actorMoniker = activeStage.getActorList().get(i);
+                        if (!actorMoniker.equals(DaoDefs.INIT_STRING_MARKER)) {
+                            DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(actorMoniker);
+                            if (daoActor != null) {
+                                propFgColorList.add(daoActor.getForeColor());
+                                propBgColorList.add(DaoStage.STAGE_BG_COLOR);
+                                Log.d(TAG,"buildModel adds mirror for actor " + daoActor.getMoniker() + " at " + i);
+                            }
+                            else {
+                                // add empty fg/bg color
+                                propFgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                                propBgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                            }
+                        }
+                    }
+                }
+                else {
+                    String actorMoniker = activeStage.getActorList().get(i);
+                    if (!actorMoniker.equals(DaoDefs.INIT_STRING_MARKER)) {
+                        DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(actorMoniker);
+                        if (daoActor != null) {
+                            activeStage.getPropList().set(i, DaoActor.ACTOR_MONIKER_MIRROR);
+                            propFgColorList.add(daoActor.getForeColor());
+                            propBgColorList.add(DaoStage.STAGE_BG_COLOR);
+                            Log.d(TAG,"buildModel adds mirror for actor " + daoActor.getMoniker() + " at " + i);
+                        }
+                        else {
+                            // add empty fg/bg color
+                            propFgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                            propBgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                        }
+                    }
+                    else {
+                        // add empty fg/bg color
+                        propFgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                        propBgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+                    }
+                }
+            }
+        }
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
     private Integer populateLocii(Integer ring, Integer locusIdStart, DaoLocusList daoLocusList, DaoLocus origin,
-                                  List<String> actorList, List<String> propList) {
+                                  List<String> actorList,
+                                  List<String> propList, List<Integer> propFgColorList, List<Integer> propBgColorList) {
         Integer locusId = locusIdStart;
         Log.d(TAG, origin.getNickname() + " origin: " + origin.toString());
         Double rad = RADIAN_START;
@@ -191,7 +268,7 @@ public class StageModelRing {
                 ++locusId;
                 DaoLocus locus = new DaoLocus();
                 // mirror locus list add with actor & prop
-                mirrorLociiAdd(locus, daoLocusList, actorList, propList);
+                mirrorLociiAdd(locus, daoLocusList, actorList, propList, propFgColorList, propBgColorList);
                 locus.setNickname(setLocusName(ring, locusId));
                 locus.setVertX(x);
                 locus.setVertY(y);
@@ -220,10 +297,13 @@ public class StageModelRing {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
-    private Boolean mirrorLociiAdd(DaoLocus locus, DaoLocusList daoLocusList, List<String> actorList, List<String> propList) {
+    private Boolean mirrorLociiAdd(DaoLocus locus, DaoLocusList daoLocusList, List<String> actorList,
+                                   List<String> propList, List<Integer> propFgColorList, List<Integer> propBgColorList) {
         daoLocusList.locii.add(locus);
         actorList.add(DaoDefs.INIT_STRING_MARKER);
         propList.add(DaoDefs.INIT_STRING_MARKER);
+        propFgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
+        propBgColorList.add(DaoDefs.INIT_INTEGER_MARKER);
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////

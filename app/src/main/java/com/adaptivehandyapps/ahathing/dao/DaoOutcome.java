@@ -36,6 +36,7 @@ public class DaoOutcome extends DaoBase {
 
 	public static final String OUTCOME_TYPE_TOGGLE_PROP = "ToggleProp";
 	public static final String OUTCOME_TYPE_TOGGLE_AREA = "ToggleArea";
+	public static final String OUTCOME_TYPE_TOGGLE_MIRROR = "ToggleMirror";
 
 	public static final String OUTCOME_TYPE_MARK_ACTOR = "MarkActor";
 	public static final String OUTCOME_TYPE_MOVE_ACTOR = "MoveActor";
@@ -83,6 +84,7 @@ public class DaoOutcome extends DaoBase {
 				OUTCOME_TYPE_TOGGLE_PATH,
 				OUTCOME_TYPE_TOGGLE_PROP,
 				OUTCOME_TYPE_TOGGLE_AREA,
+				OUTCOME_TYPE_TOGGLE_MIRROR,
 				OUTCOME_TYPE_MARK_ACTOR,
 				OUTCOME_TYPE_MOVE_ACTOR,
 				OUTCOME_TYPE_MARKMOVE_ACTOR,

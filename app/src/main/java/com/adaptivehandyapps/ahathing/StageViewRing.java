@@ -153,7 +153,8 @@ public class StageViewRing {
         if (daoStage != null && daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
             Log.v(TAG, "Active stage ready for " + getPlayListService().getActiveStage().getMoniker() + "...");
             // create new stage model
-            mParentViewController.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+//            mParentViewController.setStageModelRing(new StageModelRing(mRepoProvider.getPlayListService()));
+            mParentViewController.setStageModelRing(new StageModelRing(getRepoProvider()));
             mParentViewController.getStageModelRing().buildModel(daoStage);
             Log.d(TAG, "NEW StageModelRing at " + mParentViewController.getStageModelRing().toString());
             // create bounding rect
@@ -455,6 +456,7 @@ public class StageViewRing {
                                 mPaintMapRect.setStyle(Paint.Style.FILL);
                                 mPaintMapRect.setColor(color);
                                 canvas.drawOval(mRectList.get(i), mPaintMapRect);
+                                // set stroke for foreground color
                                 color = daoActor.getForeColor();
                                 mPaintMapRect.setStrokeWidth(DEFAULT_HIGHLIGHT_DP);
                                 mPaintMapRect.setStyle(Paint.Style.STROKE);
@@ -468,12 +470,31 @@ public class StageViewRing {
                         }
                     }
                     else if (!daoStage.getPropList().get(i).equals(DaoDefs.INIT_STRING_MARKER)) {
-                        // if prop present, set selected color & fill
-                        if (daoStage.getPropList().get(i).equals(DaoStage.PROP_TYPE_FORBIDDEN)) {
-                            color = DaoStage.PROP_COLOR_FORBIDDEN;
+                        if (daoStage.getPropFgColorList().size() > i &&
+                                daoStage.getPropBgColorList().size() > i) {
+                            // if prop present, set selected color & fill
+                            if (daoStage.getPropList().get(i).equals(DaoActor.ACTOR_MONIKER_FORBIDDEN)) {
+                                // set fill for background color
+                                color = daoStage.getPropBgColorList().get(i);
+                                mPaintMapRect.setStyle(Paint.Style.FILL);
+                            } else if (daoStage.getPropList().get(i).equals(DaoActor.ACTOR_MONIKER_MIRROR)) {
+                                // paint filled rect with primary color
+                                color = daoStage.getPropBgColorList().get(i);
+                                mPaintMapRect.setStyle(Paint.Style.FILL);
+                                mPaintMapRect.setColor(color);
+                                canvas.drawOval(mRectList.get(i), mPaintMapRect);
+                                // set stroke for foreground color
+                                color = daoStage.getPropFgColorList().get(i);
+                                mPaintMapRect.setStrokeWidth(DEFAULT_LOWLIGHT_DP);
+                                mPaintMapRect.setStyle(Paint.Style.STROKE);
+                                mPaintMapRect.setColor(color);
+                                Log.d(TAG, "drawLocus draws mirror at " + i);
+                            }
                         }
-                        // TODO: else hint color
-                        mPaintMapRect.setStyle(Paint.Style.FILL);
+                        else {
+                            Log.e(TAG, "drawLocus finds de-populated Prop Fg,Bg Color List " +
+                                    daoStage.getPropFgColorList().size() + ", " + daoStage.getPropBgColorList().size());
+                        }
                     }
 //                    else if (i >= daoStage.getActorList().size() || i >= daoStage.getActorList().size()) {
 //                        Log.e(TAG, "invalid locii index " + i +

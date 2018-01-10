@@ -19,11 +19,9 @@
 package com.adaptivehandyapps.ahathing.dao;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +32,10 @@ public class DaoStage extends DaoBase {
 
 	public static final String STAGE_TYPE_RING = "RingWorld";
 	public static final Integer STAGE_TYPE_RING_SIZE_DEFAULT = 4;
+	public static final int STAGE_BG_COLOR = Color.BLUE;
 
-	public static final String PROP_TYPE_FORBIDDEN = "Forbidden";
-	public static final int PROP_COLOR_FORBIDDEN = Color.BLUE;
+//	public static final String PROP_TYPE_MIRROR = "Mirror";
+//	public static final String PROP_TYPE_FORBIDDEN = "Forbidden";
 
 	@SerializedName("stageType")		// stage type
 	private String stageType;
@@ -55,6 +54,10 @@ public class DaoStage extends DaoBase {
 
 	@SerializedName("propList")			// props list
 	private List<String> propList;
+	@SerializedName("propFgColorList")	// props color list
+	private List<Integer> propFgColorList;
+	@SerializedName("propBgColorList")	// props color list
+	private List<Integer> propBgColorList;
 
 	@SerializedName("reserve2")
 	private String reserve2;
@@ -68,6 +71,8 @@ public class DaoStage extends DaoBase {
 		this.locusList = new DaoLocusList();
 		this.actorList = new ArrayList<>();
 		this.propList = new ArrayList<>();
+		this.propFgColorList = new ArrayList<>();
+		this.propBgColorList = new ArrayList<>();
 
 		this.reserve2 = DaoDefs.INIT_STRING_MARKER;
 	}
@@ -85,6 +90,8 @@ public class DaoStage extends DaoBase {
 			DaoLocusList locusList,
 			List<String> actorList,
 			List<String> propList,
+			List<Integer> propFgColorList,
+			List<Integer> propBgColorList,
             String reserve2
     ) {
 		super(moniker, headline, timestamp, tagList, reserve1);
@@ -95,6 +102,8 @@ public class DaoStage extends DaoBase {
 		this.locusList = locusList;
 		this.actorList = actorList;
 		this.propList = propList;
+		this.propFgColorList = propFgColorList;
+		this.propBgColorList = propBgColorList;
 		this.reserve2 = reserve2;
 	}
 
@@ -110,7 +119,6 @@ public class DaoStage extends DaoBase {
 	public String getStageType() {
 		return stageType;
 	}
-
 	public void setStageType(String stageType) {
 		this.stageType = stageType;
 	}
@@ -118,7 +126,6 @@ public class DaoStage extends DaoBase {
 	public Integer getRingSize() {
 		return ringSize;
 	}
-
 	public void setRingSize(Integer ringSize) {
 		this.ringSize = ringSize;
 	}
@@ -126,7 +133,6 @@ public class DaoStage extends DaoBase {
 	public Integer getMarkIndex() {
 		return markIndex;
 	}
-
 	public void setMarkIndex(Integer markIndex) {
 		this.markIndex = markIndex;
 	}
@@ -134,7 +140,6 @@ public class DaoStage extends DaoBase {
 	public DaoLocusList getLocusList() {
 		return locusList;
 	}
-
 	public void setLocusList(DaoLocusList locusList) {
 		this.locusList = locusList;
 	}
@@ -142,7 +147,6 @@ public class DaoStage extends DaoBase {
 	public List<String> getActorList() {
 		return actorList;
 	}
-
 	public void setActorList(List<String> actorList) {
 		this.actorList = actorList;
 	}
@@ -150,15 +154,25 @@ public class DaoStage extends DaoBase {
 	public List<String> getPropList() {
 		return propList;
 	}
-
 	public void setPropList(List<String> propList) {
 		this.propList = propList;
+	}
+
+	public List<Integer> getPropFgColorList() {
+		return propFgColorList;
+	}
+	public void setPropFgColorList(List<Integer> propFgColorList) {this.propFgColorList = propFgColorList;}
+
+	public List<Integer> getPropBgColorList() {
+		return propBgColorList;
+	}
+	public void setPropBgColorList(List<Integer> propBgColorList) {
+		this.propBgColorList = propBgColorList;
 	}
 
 	public String getReserve2() {
 		return reserve2;
 	}
-
 	public void setReserve2(String reserve1) {
 		this.reserve2 = reserve1;
 	}
@@ -177,12 +191,14 @@ public class DaoStage extends DaoBase {
 		return uniqueActorList;
 	}
 
-	public Boolean togglePropList(String propMoniker, Integer selectIndex) {
+	public Boolean togglePropList(Integer selectIndex, String propMoniker, int fgColor, int bgColor) {
 		// if stage prop list empty at ring location
 		if (getPropList().get(selectIndex).equals(DaoDefs.INIT_STRING_MARKER)) {
 			// set stage to prop at selected location
             getPropList().set(selectIndex, propMoniker);
-//            getEpicActorList().set(selectIndex, DaoDefs.INIT_STRING_MARKER);
+			// set fore/back color
+			getPropFgColorList().set(selectIndex, fgColor);
+			getPropBgColorList().set(selectIndex, bgColor);
 		}
 		else {
 			// clear stage prop list at selected location

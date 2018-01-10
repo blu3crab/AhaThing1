@@ -98,7 +98,9 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private Spinner mSpinnerActionType;
     private ArrayAdapter<String> mOutcomeTypeListAdapter = null;
     private Spinner mSpinnerOutcomeType;
-
+    // actor controls
+    private ArrayAdapter<String> mActorTypeListAdapter = null;
+    private Spinner mSpinnerActorTypes;
     private Boolean mIsForeColor;
     private Integer mForeColor = DaoDefs.INIT_INTEGER_MARKER;
     private Integer mBackColor = DaoDefs.INIT_INTEGER_MARKER;
@@ -752,15 +754,22 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_actor);
         ll.setVisibility(View.VISIBLE);
 
-        DaoEpic daoEpic = mParent.getPlayListService().getActiveEpic();
-        if (daoEpic != null && daoActor != null) {
-//            // if actor is a star, check star checkbox
-//            if (daoEpic.isStar(daoActor, DevUtils.getDeviceName())) {
-//                Log.d(TAG, "toActor: existing STAR " + daoActor.getMoniker() + " on device " + DevUtils.getDeviceName() + "...");
-//                CheckBox cbStar = (CheckBox) mRootView.findViewById(R.id.cb_star);
-//                cbStar.setChecked(true);
-//            }
-
+        if (daoActor != null) {
+            // Actor type spinner
+            mActorTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+                    android.R.layout.simple_list_item_1,
+                    DaoActor.ACTOR_TYPE_LIST);
+            Log.d(TAG,"fromActor ACTOR_TYPE_LIST " + DaoActor.ACTOR_TYPE_LIST);
+            mSpinnerActorTypes = (Spinner) mRootView.findViewById(R.id.spinner_actortypes);
+            if (mActorTypeListAdapter != null && mSpinnerActorTypes != null) {
+                mSpinnerActorTypes.setAdapter(mActorTypeListAdapter);
+                int inx = DaoActor.speedToActorTypeInx(daoActor.getSpeed());
+                mSpinnerActorTypes.setSelection(inx);
+            } else {
+                // null list adapter or spinner
+                Log.e(TAG, "NULL mActorTypeListAdapter? " + mActorTypeListAdapter + ", R.id.spinner_Prereqs? " + mSpinnerActorTypes);
+                return false;
+            }
 
             // establish fore color button visibility & click listener
             mButtonForeColor = (Button) mRootView.findViewById(R.id.button_daomaker_forecolor);
@@ -794,8 +803,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
             });
         }
         else {
-            if (daoEpic == null) Log.e(TAG, "Oops!  no active epic...");
-            else Log.e(TAG, "Oops! actor NULL...");
+            Log.e(TAG, "Oops! actor NULL...");
         }
         return true;
     }
@@ -1105,6 +1113,11 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // update with edited values
         activeActor.setMoniker(editedMoniker);
         activeActor.setHeadline(headline);
+        // TODO mSpinnerActorTypes.getSelectedItem().toString() -1 exception
+        Integer speed = DaoActor.actorTypeToSpeed(mSpinnerActorTypes.getSelectedItem().toString());
+        activeActor.setSpeed(speed);
+        Log.d(TAG, "toActor selected actor type(" + speed + ") " + mSpinnerActorTypes.getSelectedItem().toString());
+
         if (getForeColor() != activeActor.getForeColor()) activeActor.setForeColor(getForeColor());
         if (getBackColor() != activeActor.getBackColor()) activeActor.setBackColor(getBackColor());
 //        // if starring on device

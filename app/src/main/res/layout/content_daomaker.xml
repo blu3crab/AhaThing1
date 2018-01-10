@@ -866,19 +866,35 @@
         android:layout_gravity="center_horizontal"
         android:orientation="vertical">
 
+        <!-- actor types -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/ll_actortypes"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <CheckBox android:id="@+id/cb_star"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:paddingLeft="@dimen/activity_horizontal_padding"
+                android:paddingRight="@dimen/activity_horizontal_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorNew"
-                android:text="Starring on this deviceId"/>
+                android:text="Actor Types:" />
 
+            <Spinner
+                android:id="@+id/spinner_actortypes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@color/colorTagListNotSelected"
+                android:textColor="@color/colorBrightGreen"
+                android:hint="Actors..."
+                >
+            </Spinner>
         </LinearLayout>
 
         <LinearLayout
