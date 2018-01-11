@@ -250,8 +250,13 @@ public class DaoEpic extends DaoBase {
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// epic runtime
-    public Boolean isCurtainClose() {
-        if (isEpicTallyAtLimit() || isEpicTicAtLimit()) {
+    public Boolean isCurtainClose(DaoStage daoStage) {
+		// increment active actor star board tic
+		updateEpicTic();
+		// update epic tally based on stage ring locations occupied
+		updateEpicTally(daoStage);
+
+		if (isEpicTallyAtLimit() || isEpicTicAtLimit()) {
             Log.d(TAG, "Limit tally, tic " + isEpicTallyAtLimit() + ", " + isEpicTicAtLimit());
             return true;
         }
@@ -342,6 +347,14 @@ public class DaoEpic extends DaoBase {
         if (!updateTally) resetEpicStageTallyTic(null, false, true);
         return true;
     }
+    public Integer updateEpicTic() {
+		// increment active actor star board tic
+		int actorBoardInx = getEpicActorList().indexOf(activeActor);
+		int tic = getActorBoardList().get(actorBoardInx).getTic();
+		getActorBoardList().get(actorBoardInx).setTic(++tic);
+		Log.d(TAG, "Tic " + tic + " for actor " + getActorBoardList().get(actorBoardInx).getActorMoniker());
+		return tic;
+	}
     public Boolean resetEpicStageTallyTic(DaoStage daoStage, Boolean resetTally, Boolean resetTic) {
 		// resetStage by resetting actor list to NADA...
 		if (daoStage != null) daoStage.setActorList(DaoDefs.INIT_STRING_MARKER);

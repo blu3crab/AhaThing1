@@ -88,6 +88,7 @@ public class StageViewController extends View implements
 
     // gesture marker: onLongPress, onSingleTapConfirmed, onDoubleTap, onScale
     private boolean mGestureDetected = false;
+    private boolean mLongPressDown = true;
     // gesture detector
     private GestureDetectorCompat mDetector;
     // touch position
@@ -378,7 +379,6 @@ public class StageViewController extends View implements
             setTouchX(event.getX());
             setTouchY(event.getY());
 
-            // TODO: add pan support
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     // if no gestures detected, start move
@@ -449,14 +449,23 @@ public class StageViewController extends View implements
 
     @Override
     public void onLongPress(MotionEvent event) {
-//        Log.d(TAG, "onLongPress: " + event.toString());
         Log.d(TAG, "onLongPress(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
         Toast.makeText(getContext(), "LongPress: gesture detected...", Toast.LENGTH_SHORT).show();
         mGestureDetected = true;
-        setTouchX(event.getX());
-        setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
-        invalidate();
+        mLongPressDown = true;
+//        setTouchX(event.getX());
+//        setTouchY(event.getY());
+//        Log.d(TAG, "onLongPress action(" + DaoAction.ACTION_TYPE_LONG_PRESS + ").");
+//        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
+//        invalidate();
+    }
+
+    @Override
+    public void onShowPress(MotionEvent event) {
+//        Log.d(TAG, "onShowPress: " + event.toString());
+        Log.d(TAG, "onShowPress(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
+        mGestureDetected = true;
+        mLongPressDown = true;
     }
 
     @Override
@@ -499,12 +508,6 @@ public class StageViewController extends View implements
     }
 
     @Override
-    public void onShowPress(MotionEvent event) {
-//        Log.d(TAG, "onShowPress: " + event.toString());
-        Log.d(TAG, "onLongPress(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
-   }
-
-    @Override
     public boolean onSingleTapUp(MotionEvent event) {
 //        Log.d(TAG, "onSingleTapUp: " + event.toString());
         Log.d(TAG, "onSingleTapUp(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
@@ -516,11 +519,25 @@ public class StageViewController extends View implements
 //        Log.d(TAG, "onSingleTapConfirmed: " + event.toString());
         Log.d(TAG, "onSingleTapConfirmed(" + StringUtils.actionToString(event.getActionMasked()) + "): " + "\n X,Y " + event.getX() + ", " + event.getY());
 //        Toast.makeText(getContext(), "onSingleTapConfirmed: gesture detected...", Toast.LENGTH_SHORT).show();
-        mGestureDetected = true;
-        setTouchX(event.getX());
-        setTouchY(event.getY());
-        getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
-        invalidate();
+        if (!mGestureDetected) {
+            mGestureDetected = true;
+            setTouchX(event.getX());
+            setTouchY(event.getY());
+            Log.d(TAG, "onSingleTapConfirmed action(" + DaoAction.ACTION_TYPE_SINGLE_TAP + ").");
+            getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_SINGLE_TAP);
+            invalidate();
+        }
+        else {
+            if (mLongPressDown) {
+                mGestureDetected = false;
+                mLongPressDown = false;
+                setTouchX(event.getX());
+                setTouchY(event.getY());
+                Log.d(TAG, "onSingleTapConfirmed action(" + DaoAction.ACTION_TYPE_LONG_PRESS + ").");
+                getStageManager().onAction(getStageViewRing(), getStageModelRing(), DaoAction.ACTION_TYPE_LONG_PRESS);
+                invalidate();
+            }
+        }
         return true;
     }
 
