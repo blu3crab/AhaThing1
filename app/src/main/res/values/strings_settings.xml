@@ -1,0 +1,152 @@
+<resources>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- order preferences key, label, value-->
+    <string name="pref_order_key">order</string>
+    <string name="pref_order_label">Navigation Drawer Order</string>
+    <string name="pref_order_label_date_ascending">Date Ascending</string>
+    <string name="pref_order_label_date_descending">Date Descending</string>
+    <string name="pref_order_label_alpha_ascending">Alpha Ascending</string>
+    <string name="pref_order_label_alpha_descending">Alpha Descending</string>
+    <string name="pref_order_default">alphaAscending</string>
+    <string name="pref_order_date_ascending">dateAscending</string>
+    <string name="pref_order_date_descending">dateDescending</string>
+    <string name="pref_order_alpha_ascending">alphaAscending</string>
+    <string name="pref_order_alpha_descending">alphaDescending</string>
+
+    <!-- units preferences key, label, value-->
+    <string name="pref_units_key">units</string>
+    <string name="pref_units_label">Measurement Units</string>
+    <string name="pref_units_label_liters">Liters</string>
+    <string name="pref_units_label_gallons">Gallons(US)</string>
+    <string name="pref_units_label_pulses">Pulses</string>
+    <string name="pref_units_default">pulses</string>
+    <string name="pref_units_liters">liters</string>
+    <string name="pref_units_gallons">gallons</string>
+    <string name="pref_units_pulses">pulses</string>
+
+    <!-- pressure preferences key, label, value-->
+    <string name="pref_pressure_key">pressure</string>
+    <string name="pref_pressure_label">Pressure Units</string>
+    <string name="pref_pressure_label_psi">PSI</string>
+    <string name="pref_pressure_label_adc">ADC</string>
+    <string name="pref_pressure_default">psi</string>
+    <string name="pref_pressure_psi">psi</string>
+    <string name="pref_pressure_adc">adc</string>
+
+    <!-- date preferences key, label, value-->
+    <string name="pref_date_key">date</string>
+    <string name="pref_date_label">Date Format</string>
+    <string name="pref_date_label_long">14Mar16 00:00:00 (ddMMMyy hh:mm:ss)</string>
+    <string name="pref_date_label_clear">14Mar16 (ddMMMyy)</string>
+    <string name="pref_date_label_full">March 14, 2016 (MMMM dd, yyyy)</string>
+    <string name="pref_date_label_us">03-14-16 (MM-dd-yy)</string>
+    <string name="pref_date_label_eu">14-03-16 (dd-MM-yy)</string>
+    <string name="pref_date_label_mil">2016-03-14 (yyyy-MM-dd)</string>
+    <string name="pref_date_default">ddMMMyy hh:mm:ss</string>
+    <string name="pref_date_long">ddMMMyy hh:mm:ss</string>
+    <string name="pref_date_clear">ddMMMyy</string>
+    <string name="pref_date_full">MMMM dd, yyyy</string>
+    <string name="pref_date_us">MM-dd-yy</string>
+    <string name="pref_date_eu">dd-MM-yy</string>
+    <string name="pref_date_mil">yyyy-MM-dd</string>
+
+    <!-- Notification Enabled preference -->
+    <string name="pref_enable_notifications_key" translatable="false">enable_notifications</string>
+    <string name="pref_enable_notifications_label">Event Notifications</string>
+
+    <string name="pref_enable_notifications_true">Enabled</string>
+    <string name="pref_enable_notifications_false">Not Enabled</string>
+    <string name="pref_enable_notifications_default" translatable="false">false</string>
+
+    <!-- show alert level-->
+    <string name="pref_show_alert_key">show_alert</string>
+    <string name="pref_show_alert_label">Show Alert Level</string>
+    <string name="pref_show_alert_label_red">Red (only)</string>
+    <string name="pref_show_alert_label_yellow">Yellow (red)</string>
+    <string name="pref_show_alert_label_green">Green (yellow, red)</string>
+    <string name="pref_show_alert_label_all">All</string>
+    <string name="pref_show_alert_default">all</string>
+    <string name="pref_show_alert_red">red</string>
+    <string name="pref_show_alert_yellow">yellow</string>
+    <string name="pref_show_alert_green">green</string>
+    <string name="pref_show_alert_all">all</string>
+
+    <!-- Show Archived Alerts preference -->
+    <string name="pref_show_alert_archive_key" translatable="false">show_alert_archive</string>
+    <string name="pref_show_alert_archive_label">Show Alert Archive</string>
+
+    <string name="pref_show_alert_archive_true">Enabled</string>
+    <string name="pref_show_alert_archive_false">Not Enabled</string>
+    <string name="pref_show_alert_archive_default" translatable="false">false</string>
+
+    <!-- SendLog Enabled preference -->
+    <string name="pref_enable_sendlog_key" translatable="false">enable_sendlog</string>
+    <string name="pref_enable_sendlog_label">Send Performance Log</string>
+
+    <string name="pref_enable_sendlog_true">Enabled</string>
+    <string name="pref_enable_sendlog_false">Not Enabled</string>
+    <string name="pref_enable_sendlog_default" translatable="false">true</string>
+
+    <!-- org label, key, default -->
+    <string name="pref_ace_addr_label">ACE IP Address</string>
+    <string name="pref_ace_addr_key">aceaddr</string>
+    <string name="pref_ace_addr_default">192.168.1.2</string>
+
+    <!-- last Notification -->
+    <string name="pref_last_notification">last_notification</string>
+    <!-- Notification Format
+    <string name="format_notification">
+    Forecast: <xliff:g id="condition">%1$s</xliff:g> High: <xliff:g id="high">%2$s</xliff:g> Low: <xliff:g id="low">%3$s</xliff:g>
+    </string> -->
+
+    <!-- org label, key, default -->
+    <string name="pref_org_label">Organization</string>
+    <string name="pref_org_key">org</string>
+    <string name="pref_org_default">nada</string>
+    <!-- site label, key, default -->
+    <string name="pref_site_label">Site</string>
+    <string name="pref_site_key">site</string>
+    <string name="pref_site_default">nada</string>
+    <!-- zone label, key, default -->
+    <string name="pref_zone_label">Zone</string>
+    <string name="pref_zone_key">zone</string>
+    <string name="pref_zone_default">nada</string>
+    <!-- sensor label, key, default -->
+    <string name="pref_sensor_label">Sensor</string>
+    <string name="pref_sensor_key">sensor</string>
+    <string name="pref_sensor_default">nada</string>
+
+    <!-- scenario label, key, default -->
+    <string name="pref_scenario_label">Scenario</string>
+    <string name="pref_scenario_key" translatable="false">scenario</string>
+    <string name="pref_scenario_default" translatable="false">0</string>
+
+    <!-- application state preferences -->
+    <string name="action_view_key">view</string>
+    <string name="action_view_default">Home</string>
+    <string name="action_view_home">Home</string>
+    <string name="action_view_tech">Tech</string>
+    <string name="action_view_wizard">Wizard</string>
+
+    <string name="pref_pipelist_position_key">pipelist_position</string>
+    <string name="pref_pipelist_aceurl_key">aceurl</string>
+
+    <string name="pref_feedfromdate_key">feedfromdate</string>
+    <string name="pref_feedtodate_key">feedtodate</string>
+    <string name="pref_showfromdate_key">showfromdate</string>
+    <string name="pref_showtodate_key">showtodate</string>
+
+    <string name="pref_feedfromdate_default">01Jan15 00:00:00</string>
+    <string name="pref_feedtodate_default">01Jan17 00:00:00</string>
+    <string name="pref_showfromdate_default">01Apr16 00:00:00</string>
+    <string name="pref_showtodate_default">01Apr16 00:00:00</string>
+
+    <string name="pref_meterdash_usageby_key">usageby</string>
+    <string name="pref_meterdash_timeby_key">timeby</string>
+    <string name="pref_meterdash_filterby_key">filterby</string>
+    <string name="pref_sitedash_showdiagalerts_key">showdiags</string>
+
+
+</resources>

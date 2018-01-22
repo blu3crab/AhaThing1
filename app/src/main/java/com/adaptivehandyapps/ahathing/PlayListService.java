@@ -239,12 +239,27 @@ public class PlayListService extends Service {
     public DaoTheatre getActiveTheatre() { return mActiveTheatre; }
     public Boolean setActiveTheatre(DaoTheatre activeDao) {
         Boolean defined = false;
-        String moniker = DaoDefs.INIT_STRING_MARKER;
         // if object defined
         if (activeDao != null) {
             defined = true;
             // set prefs only if valid
             PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_THEATRE_KEY, activeDao.getMoniker());
+            // if no active hierarchy object or active hierarchy object is defined but not included
+            if (getActiveEpic() == null ||
+                    (getActiveEpic() != null && !activeDao.getTagList().contains(getActiveEpic().getMoniker()))) {
+                // if epic defined in theatre, set 1st active
+                DaoEpic daoEpic = null;
+                if (activeDao.getTagList().size() > 0) {
+                    daoEpic = (DaoEpic) getRepoProvider().getDalEpic().getDaoRepo().get(0);
+                }
+                // set hierarchy
+                setActiveEpic(daoEpic);
+            }
+        }
+        // if object not defined
+        if (activeDao == null) {
+            // clear hierarchy
+            setActiveEpic(null);
         }
         // set active object
         mActiveTheatre = activeDao;
@@ -282,14 +297,35 @@ public class PlayListService extends Service {
     public DaoEpic getActiveEpic() { return mActiveEpic; }
     public Boolean setActiveEpic(DaoEpic activeDao) {
         Boolean defined = false;
-        String moniker = DaoDefs.INIT_STRING_MARKER;
         // if object defined
         if (activeDao != null) {
             defined = true;
             // set prefs
             PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_EPIC_KEY, activeDao.getMoniker());
+            // if no active hierarchy object or active hierarchy object is defined but not included
+            if (getActiveStage() == null ||
+                    (getActiveStage() != null && !activeDao.getStage().equals(getActiveStage().getMoniker()))) {
+                // if stage defined in epic
+                DaoStage daoStage = null;
+                if (!activeDao.getStage().equals(DaoDefs.INIT_STRING_MARKER)) {
+                    daoStage = (DaoStage) getRepoProvider().getDalStage().getDaoRepo().get(activeDao.getStage());
+                }
+                // set hierarchy
+                setActiveStage(daoStage);
+            }
+            if (getActiveStory() == null ||
+                    (getActiveStory() != null && !activeDao.getTagList().contains(getActiveStory().getMoniker()))) {
+                // clear hierarchy
+                setActiveStory(null);
+            }
         }
-        // set active object
+        // if object not defined or active hierarchy object is defined but not included
+        if (activeDao == null) {
+            // clear hierarchy
+            setActiveStage(null);
+            setActiveStory(null);
+        }
+        // set or clear active object
         mActiveEpic = activeDao;
         return defined;
     }
@@ -299,14 +335,21 @@ public class PlayListService extends Service {
         if (dao != null && prefsMoniker.equals(dao.getMoniker())) {
             // set active to updated object
             setActiveEpic(dao);
-            // if repo connected & active actor is defined
-            if (getRepoProvider() != null && !dao.getActiveActor().equals(DaoDefs.INIT_STRING_MARKER)) {
-                // set active actor
-                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(dao.getActiveActor());
-                if (daoActor != null) setActiveActor(daoActor);
+            // if repo connected
+            if (getRepoProvider() != null) {
                 // set active stage
                 DaoStage daoStage = (DaoStage) getRepoProvider().getDalStage().getDaoRepo().get(dao.getStage());
-                if (daoStage != null) setActiveStage(daoStage);
+                setActiveStage(daoStage);
+                // set active actor
+                DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(dao.getActiveActor());
+                setActiveActor(daoActor);
+                // if epic stories defined & if no active story or active story not in epic
+                if (dao.getTagList().size() > 0 &&
+                        (getActiveStory() == null || !dao.getTagList().contains(getActiveStory().getMoniker()))) {
+                    // set active story to 1st story in epic
+                    DaoStory daoStory = (DaoStory) getRepoProvider().getDalStory().getDaoRepo().get(0);
+                    setActiveStory(daoStory);
+                }
             }
             return true;
         }
@@ -338,6 +381,13 @@ public class PlayListService extends Service {
             // set prefs & active object
             PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STORY_KEY, activeDao.getMoniker());
         }
+        else {
+            // clearing active theatre, clear hierarchy
+            setActiveActor(null);
+            setActiveAction(null);
+            setActiveOutcome(null);
+        }
+        // set or clear active object
         mActiveStory = activeDao;
         return;
     }

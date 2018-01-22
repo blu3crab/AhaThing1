@@ -18,9 +18,11 @@
 package com.adaptivehandyapps.ahathing;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
@@ -29,19 +31,23 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adaptivehandyapps.ahathing.ahautils.BroadcastUtils;
 import com.adaptivehandyapps.ahathing.auth.AnonymousAuthActivity;
 import com.adaptivehandyapps.ahathing.auth.EmailPasswordActivity;
 import com.adaptivehandyapps.ahathing.auth.GoogleSignInActivity;
@@ -80,6 +86,8 @@ public class MainActivity extends AppCompatActivity
 //
     private static final Integer REQUEST_CODE_GALLERY = 1;
     private static final Boolean FORCE_PHOTO_SELECTION = true;
+
+    private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mVacating = false;
 
@@ -253,6 +261,7 @@ public class MainActivity extends AppCompatActivity
         // setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // TODO: clear active item by right drag on open drawer
         // setup drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         final DrawerLayout drawer = mDrawerLayout;
@@ -322,7 +331,7 @@ public class MainActivity extends AppCompatActivity
                              if (email != null) tv_email.setText(email);
                          }
                      }
-                    super.onDrawerStateChanged(newState);
+                     super.onDrawerStateChanged(newState);
                  }
             }
         };
@@ -333,7 +342,7 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setNavigationItemSelectedListener(this);
 
         // instantiate nav  menu & item
-        mNavMenu = new NavMenu();
+        mNavMenu = new NavMenu(this);
         mNavItem = new NavItem();
 
         // establish sound manager
@@ -371,10 +380,35 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+        // build broadcast rcvr
+        buildBroadcastReceiver();
     }
     ///////////////////////////////////////////////////////////////////////////
-    // getters/setters
-    ///////////////////////////////////////////////////////////////////////////////////////////
+    // buildout broadcast rcvr & nav menu
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean buildBroadcastReceiver() {
+        // create broadcast receiver
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String key = intent.getStringExtra(BroadcastUtils.AHA_MESSAGE);
+                Log.v(TAG, "BroadcastReceiver incoming key: " + key);
+                // get updated preference
+                if (key.equals(context.getString(R.string.pref_order_key))) {
+                    // display order change
+                    Log.d(TAG, "BroadcastReceiver " + key + " set to: " + PrefsUtils.getPrefsOrder(context));
+                }
+            }
+        };
+        // register broadcast receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver((mBroadcastReceiver),
+                new IntentFilter(BroadcastUtils.AHA_REFRESH));
+        Log.v(TAG, "BroadcastReceiver registered w/ intent filter " + BroadcastUtils.AHA_REFRESH);
+
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     public Boolean buildNavMenu() {
 
 //        if( !mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -405,7 +439,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -540,6 +574,9 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         else if (id == R.id.action_settings) {
+            // create intent & start activity
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -645,14 +682,19 @@ public class MainActivity extends AppCompatActivity
                         // bind playlist to repo
                         getPlayListService().bindRepoProvider();
                     }
-                    // set navigation menu
-                    buildNavMenu();
-                    // if op has been assigned
-                    if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
-                        ContentFragment.replaceFragment(mActivity, mContentOp, mContentObjType, mContentMoniker);
+                    if (refresh) {
+                        Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh refreshing stage, NavMenu");
+                        // set navigation menu
+                        buildNavMenu();
+                        // if op has been assigned
+                        if (!mContentOp.equals(ContentFragment.ARG_CONTENT_VALUE_OP_NADA)) {
+                            ContentFragment.replaceFragment(mActivity, mContentOp, mContentObjType, mContentMoniker);
+                        } else {
+                            Log.e(TAG, "Oops! Nada op... ");
+                        }
                     }
                     else {
-                        Log.e(TAG, "Oops! Nada op... ");
+                        Log.d(TAG, "getRepoProviderCallback OnRepoProviderRefresh NOT refreshing stage, NavMenu");
                     }
 
                 }

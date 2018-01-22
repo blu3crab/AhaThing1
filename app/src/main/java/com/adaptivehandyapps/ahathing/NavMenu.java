@@ -17,6 +17,7 @@
  */
 package com.adaptivehandyapps.ahathing;
 
+import android.content.Context;
 import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.Menu;
@@ -24,23 +25,34 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
+import com.adaptivehandyapps.ahathing.dao.DaoStory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 ///////////////////////////////////////////////////////////////////////////
 // NavMenu: build Nav menu & submenus
 public class NavMenu {
     private static final String TAG = "NavMenu";
 
+    private Context mContext;
+
     private PlayListService mPlayListService;
     private RepoProvider mRepoProvider;
 
     ///////////////////////////////////////////////////////////////////////////
-    public NavMenu() {}
+    public NavMenu(Context context) {
+        setContext(context);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // getters/setters
+    public Context getContext() {
+        return mContext;
+    }
+    public void setContext(Context context) { this.mContext = context; }
+
     public PlayListService getPlayListService() {
         return mPlayListService;
     }
@@ -186,38 +198,104 @@ public class NavMenu {
         if (objType == DaoDefs.DAOOBJ_TYPE_THEATRE) {
             title = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_THEATRE_IMAGE_RESID;
+            // show all available theatres
             monikerList = mRepoProvider.getDalTheatre().getDaoRepo().getMonikerList();
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_EPIC) {
             title = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_EPIC_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalEpic().getDaoRepo().getMonikerList();
+            // if active theatre, show only epics active in theatre
+            if (mPlayListService.getActiveTheatre() != null) {
+                monikerList = mPlayListService.getActiveTheatre().getTagList();
+            }
+            else {
+                // if no active theatre, show all epics
+                monikerList = mRepoProvider.getDalEpic().getDaoRepo().getMonikerList(); // all epics
+            }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STORY) {
             title = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STORY_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalStory().getDaoRepo().getMonikerList();
+            // if active epic, show only stories active in epic
+            if (mPlayListService.getActiveEpic() != null) {
+                monikerList = mPlayListService.getActiveEpic().getTagList();
+            }
+            else {
+                // if no active epic, show all stories
+                monikerList = mRepoProvider.getDalStory().getDaoRepo().getMonikerList();
+            }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_STAGE) {
             title = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_STAGE_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalStage().getDaoRepo().getMonikerList();
+            // if active epic, show only stage active in epic
+            if (mPlayListService.getActiveEpic() != null) {
+                monikerList.add(mPlayListService.getActiveEpic().getStage());
+            }
+            else {
+                // if no active epic, show all stories
+                monikerList = mRepoProvider.getDalStage().getDaoRepo().getMonikerList();
+            }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTOR) {
             title = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTOR_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalActor().getDaoRepo().getMonikerList();
+            // if active epic, show only epic starboard actors
+            if (mPlayListService.getActiveEpic() != null) {
+                monikerList = mPlayListService.getActiveEpic().getEpicActorList();
+            }
+            else {
+                // if no active epic, show all actors
+                monikerList = mRepoProvider.getDalActor().getDaoRepo().getMonikerList();
+            }
         }
         else if (objType == DaoDefs.DAOOBJ_TYPE_ACTION) {
             title = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_ACTION_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalAction().getDaoRepo().getMonikerList();
-        }
-        else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
+            // if active epic, show actions & outcomes in epic stories
+            if (mPlayListService.getActiveEpic() != null) {
+                for (String story : mPlayListService.getActiveEpic().getTagList()) {
+                    DaoStory daoStory = (DaoStory)mRepoProvider.getDalStory().getDaoRepo().get(story);
+                    if (daoStory != null) {
+                        String action = daoStory.getAction();
+                        if (!monikerList.contains(action)) {
+                            monikerList.add(action);
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "oops! addSubMenu finds story " + story + " undefined in repo.");
+                    }
+                }
+            }
+            else {
+                // if no active epic, show all actions
+                monikerList = mRepoProvider.getDalAction().getDaoRepo().getMonikerList();
+            }
+        } else if (objType == DaoDefs.DAOOBJ_TYPE_OUTCOME) {
             title = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
             iconId = DaoDefs.DAOOBJ_TYPE_OUTCOME_IMAGE_RESID;
-            monikerList = mRepoProvider.getDalOutcome().getDaoRepo().getMonikerList();
+            // if active epic, show actions & outcomes in epic stories
+            if (mPlayListService.getActiveEpic() != null) {
+                for (String story : mPlayListService.getActiveEpic().getTagList()) {
+                    DaoStory daoStory = (DaoStory)mRepoProvider.getDalStory().getDaoRepo().get(story);
+                    if (daoStory != null) {
+                        String outcome = daoStory.getOutcome();
+                        if (!monikerList.contains(outcome)) {
+                            monikerList.add(outcome);
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "oops! addSubMenu finds story " + story + " undefined in repo.");
+                    }
+                }
+            }
+            else {
+                // if no active epic, show all outcomes
+                monikerList = mRepoProvider.getDalOutcome().getDaoRepo().getMonikerList();
+            }
         }
+        // determine display order from settings
+        monikerList = orderList(monikerList);
         // add submenu from moniker list plus a "new" item
         Menu menu = navigationView.getMenu();
         SubMenu subMenu = menu.addSubMenu(title);
@@ -232,6 +310,35 @@ public class NavMenu {
         subMenuItem.setIcon(iconId);
 //        Log.d(TAG, "addSubMenu submenu item:" + subMenuItem.getItemId() + ", itemname: " + subMenuItem.toString());
         return subMenu;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private List<String> orderList(List<String> originalList) {
+        List<String> orderedList = new ArrayList<>(originalList);
+        // determine display order from settings
+        String order = PrefsUtils.getPrefsOrder(getContext());
+//        Log.d(TAG, "orderList settings display order " + order);
+        if (order.equals(getContext().getString(R.string.pref_order_date_ascending))) {
+            // no change (oldest to newest)
+//            Log.d(TAG, "orderList " + orderedList);
+            return orderedList;
+        }
+        else if (order.equals(getContext().getString(R.string.pref_order_date_descending))) {
+            // reverse order (newest to oldest)
+            Collections.reverse(orderedList);
+//            Log.d(TAG, "orderList " + orderedList);
+        }
+        else if (order.equals(getContext().getString(R.string.pref_order_alpha_ascending))) {
+            // alpha order
+            Collections.sort(orderedList);
+//            Log.d(TAG, "orderList " + orderedList);
+        }
+        else if (order.equals(getContext().getString(R.string.pref_order_alpha_descending))) {
+            // reverse alpha order
+            Collections.sort(orderedList);
+            Collections.reverse(orderedList);
+//            Log.d(TAG, "orderList " + orderedList);
+        }
+        return orderedList;
     }
     ///////////////////////////////////////////////////////////////////////////
 

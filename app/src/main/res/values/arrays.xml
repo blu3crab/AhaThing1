@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- settings -->
+    <string-array name="pref_order_options">
+        <item>@string/pref_order_label_date_ascending</item>
+        <item>@string/pref_order_label_date_descending</item>
+        <item>@string/pref_order_label_alpha_ascending</item>
+        <item>@string/pref_order_label_alpha_descending</item>
+    </string-array>
+
+    <string-array name="pref_order_values">
+        <item>@string/pref_order_date_ascending</item>
+        <item>@string/pref_order_date_descending</item>
+        <item>@string/pref_order_alpha_ascending</item>
+        <item>@string/pref_order_alpha_descending</item>
+    </string-array>
+
+
+    <!-- wizard -->
+    <string-array name="GridHeaders">
+        <item>Name\nType Subtype</item>
+        <item>Flow Start</item>
+        <item>Secs Duration</item>
+        <item>Pulses\n(Learned)</item>
+        <item>Amplitude\n(Learned)</item>
+        <item>Delta Meter</item>
+    </string-array>
+
+    <string-array name="wizard_room_labels">
+        <item>master</item>
+        <item>family</item>
+        <item>guest</item>
+        <item>laundry</item>
+        <item>kitchen</item>
+        <item>exterior</item>
+        <item>other</item>
+    </string-array>
+
+    <string-array name="wizard_room_tags">
+        <item>#master</item>
+        <item>#family</item>
+        <item>#guest</item>
+        <item>#laundry</item>
+        <item>#kitchen</item>
+        <item>#exterior</item>
+        <item>#other</item>
+    </string-array>
+
+    <string-array name="wizard_type_labels">
+        <item>sink</item>
+        <item>bath</item>
+        <item>shower</item>
+        <item>toilet</item>
+        <item>washer</item>
+        <item>dishwasher</item>
+        <item>refrigerator</item>
+        <item>faucet</item>
+        <item>hottub</item>
+        <item>jacuzzi</item>
+        <item>pool</item>
+        <item>other</item>
+    </string-array>
+
+    <string-array name="wizard_subtype_labels">
+        <item>hot</item>
+        <item>cold</item>
+        <item>combo</item>
+        <item>front</item>
+        <item>back</item>
+        <item>side1</item>
+        <item>side2</item>
+        <item>north</item>
+        <item>south</item>
+        <item>east</item>
+        <item>west</item>
+        <item>other</item>
+    </string-array>
+
+    <!-- settings -->
+    <string-array name="pref_units_options">
+        <item>@string/pref_units_label_liters</item>
+        <item>@string/pref_units_label_gallons</item>
+        <item>@string/pref_units_label_pulses</item>
+    </string-array>
+
+    <string-array name="pref_units_values">
+        <item>@string/pref_units_liters</item>
+        <item>@string/pref_units_gallons</item>
+        <item>@string/pref_units_pulses</item>
+    </string-array>
+
+    <string-array name="pref_pressure_options">
+        <item>@string/pref_pressure_label_psi</item>
+        <item>@string/pref_pressure_label_adc</item>
+    </string-array>
+
+    <string-array name="pref_pressure_values">
+        <item>@string/pref_pressure_psi</item>
+        <item>@string/pref_pressure_adc</item>
+    </string-array>
+
+    <string-array name="pref_date_options">
+        <item>@string/pref_date_label_long</item>
+        <item>@string/pref_date_label_clear</item>
+        <item>@string/pref_date_label_full</item>
+        <item>@string/pref_date_label_us</item>
+        <item>@string/pref_date_label_eu</item>
+        <item>@string/pref_date_label_mil</item>
+    </string-array>
+
+    <string-array name="pref_date_values">
+        <item>@string/pref_date_long</item>
+        <item>@string/pref_date_clear</item>
+        <item>@string/pref_date_full</item>
+        <item>@string/pref_date_us</item>
+        <item>@string/pref_date_eu</item>
+        <item>@string/pref_date_mil</item>
+    </string-array>
+
+    <string-array name="pref_show_alert_options">
+        <item>@string/pref_show_alert_label_red</item>
+        <item>@string/pref_show_alert_label_yellow</item>
+        <item>@string/pref_show_alert_label_green</item>
+        <item>@string/pref_show_alert_label_all</item>
+    </string-array>
+
+    <string-array name="pref_show_alert_values">
+        <item>@string/pref_show_alert_red</item>
+        <item>@string/pref_show_alert_yellow</item>
+        <item>@string/pref_show_alert_green</item>
+        <item>@string/pref_show_alert_all</item>
+    </string-array>
+
+    <string name="flow_usageby_label">"View By"</string>
+    <string name="flow_usageby_kind">"Contribution"</string>
+    <string name="flow_usageby_time">"Time Series"</string>
+
+    <string name="flow_timeby_label">"Time By"</string>
+    <string name="flow_timeby_hour">"Hourly (0:23)"</string>
+    <string name="flow_timeby_day">"Daily (7 days)"</string>
+    <string name="flow_timeby_month">"Monthly (12 mo)"</string>
+
+    <!-- flowdash -->
+    <string-array name="spinnerUsageByItems">
+        <item>@string/flow_usageby_kind</item>
+        <item>@string/flow_usageby_time</item>
+    </string-array>
+    <string-array name="spinnerTimeByItems">
+        <item>@string/flow_timeby_hour</item>
+        <item>@string/flow_timeby_day</item>
+        <item>@string/flow_timeby_month</item>
+    </string-array>
+
+    <!-- valve control options
+    <string-array name="spinner_valvecontrol_options">
+        <item>@string/valvecontrol_automated</item>
+        <item>@string/valvecontrol_alwaysopen</item>
+        <item>@string/valvecontrol_alwaysclosed</item>
+    </string-array>
+-->
+    <!-- general purpose -->
+    <string-array name="spinner_numbers">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+</resources>

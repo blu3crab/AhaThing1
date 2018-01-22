@@ -27,9 +27,9 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 public class BroadcastUtils {
 
-    static final public String AHA_REFRESH = "com.brainpipes.brainpipesy.REQUEST_REFRESH";
+    static final public String AHA_REFRESH = "com.adaptivehandyapps.ahathing.REQUEST_REFRESH";
 
-    static final public String AHA_MESSAGE = "com.brainpipes.brainpipesy.MESSAGE";
+    static final public String AHA_MESSAGE = "com.adaptivehandyapps.ahathing.MESSAGE";
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // notify listeners of result

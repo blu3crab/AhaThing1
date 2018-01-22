@@ -140,8 +140,8 @@ public class DalStarGate {
             mFirebaseReference.child(dao.getMoniker()).setValue(dao);
         }
 
-        // refresh
-        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(true);
+        // TODO: do not refresh navmenu & stage
+        if (mRepoProvider.getCallback() != null) mRepoProvider.getCallback().onRepoProviderRefresh(false);
 
         return true;
     }

@@ -53,6 +53,8 @@ import java.util.List;
 public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = DaoMakerViewXfer.class.getSimpleName();
 
+    private static final Boolean TEST_SET_PLAYLIST = false;
+
     private static final String TALLY_LIMIT_TEXT = "Tally Limit ";
     private static final String TIC_LIMIT_TEXT   = "Tic Limit ";
     private static final int MAX_TALLY_DEFAULT = 64;
@@ -925,7 +927,6 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeTheatre.setHeadline(headline);
 //        activeTheatre.setTagList(tagList);
         activeTheatre.setTagList(mEpicList);
-        mParent.getPlayListService().setActiveTheatre(activeTheatre);
         // set checkboxes for flourish, music & action sounds
         mCheckFlourishSound = (CheckBox) mRootView.findViewById(R.id.cb_soundflourish);
         activeTheatre.setSoundFlourish(mCheckFlourishSound.isChecked());
@@ -934,6 +935,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         mCheckActionSound = (CheckBox) mRootView.findViewById(R.id.cb_soundaction);
         activeTheatre.setSoundAction(mCheckActionSound.isChecked());
 
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveTheatre(activeTheatre);
         // update repo
         mParent.getRepoProvider().getDalTheatre().update(activeTheatre, true);
         return true;
@@ -965,7 +967,6 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeEpic.setStage(mSpinnerStages.getSelectedItem().toString());
 //        activeEpic.setTagList(tagList);
         activeEpic.setTagList(mStoryList);
-        mParent.getPlayListService().setActiveEpic(activeEpic);
 
         // set order radio group
         mRadioGroupOrder = (RadioGroup) mRootView.findViewById(R.id.rg_order);
@@ -980,6 +981,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // tic progress
         activeEpic.setTicLimit(mTicProgress);
 
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveEpic(activeEpic);
         // update repo
         mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
         return true;
@@ -1020,7 +1022,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         Log.d(TAG, "toStory selected postop " + mSpinnerPostOps.getSelectedItem().toString());
         activeStory.setPostOp(mSpinnerPostOps.getSelectedItem().toString());
 
-        mParent.getPlayListService().setActiveStory(activeStory);
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveStory(activeStory);
         // update repo
         mParent.getRepoProvider().getDalStory().update(activeStory, true);
         return true;
@@ -1066,8 +1068,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         catch (Exception ex) {
             activeStage.setRingSize(DaoStage.STAGE_TYPE_RING_SIZE_DEFAULT);
         }
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveStage(activeStage);
         // update repo
-        mParent.getPlayListService().setActiveStage(activeStage);
         mParent.getRepoProvider().getDalStage().update(activeStage, true);
 
         // copy stage template in progress
@@ -1082,11 +1084,10 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
                 // set active actor
                 DaoActor daoActor = (DaoActor) mParent.getRepoProvider().getDalActor().getDaoRepo().get(activeEpic.getActiveActor());
                 Log.d(TAG,"epic active actor after reset " + activeEpic.getActiveActor());
-                mParent.getPlayListService().setActiveActor(daoActor);
+                if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveActor(daoActor);
                 // update epic repo
                 mParent.getRepoProvider().getDalEpic().update(activeEpic, true);
             }
-
         }
         return true;
     }
@@ -1131,8 +1132,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
 //            mParent.getRepoProvider().getDalEpic().update(daoEpic, true);
 //        }
 
-        // TODO: setActiveActor on create/update?
-        mParent.getPlayListService().setActiveActor(activeActor);
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveActor(activeActor);
         // update repo
         mParent.getRepoProvider().getDalActor().update(activeActor, true);
         return true;
@@ -1162,7 +1162,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeAction.setHeadline(headline);
         Log.d(TAG, "toAction selected action type " + mSpinnerActionType.getSelectedItem().toString());
         activeAction.setActionType(mSpinnerActionType.getSelectedItem().toString());
-        mParent.getPlayListService().setActiveAction(activeAction);
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveAction(activeAction);
         // update repo
         mParent.getRepoProvider().getDalAction().update(activeAction, true);
         return true;
@@ -1197,7 +1197,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         activeOutcome.setHeadline(headline);
         Log.d(TAG, "toOutcome selected action type " + mSpinnerOutcomeType.getSelectedItem().toString());
         activeOutcome.setOutcomeType(mSpinnerOutcomeType.getSelectedItem().toString());
-        mParent.getPlayListService().setActiveOutcome(activeOutcome);
+
+        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveOutcome(activeOutcome);
         // update repo
         mParent.getRepoProvider().getDalOutcome().update(activeOutcome, true);
         return true;

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListPreference
+        android:title="@string/pref_order_label"
+        android:defaultValue="@string/pref_order_date_ascending"
+        android:key="@string/pref_order_key"
+        android:entries="@array/pref_order_options"
+        android:entryValues="@array/pref_order_values"/>
+
+    <ListPreference
+        android:title="@string/pref_units_label"
+        android:defaultValue="@string/pref_units_liters"
+        android:key="@string/pref_units_key"
+        android:entries="@array/pref_units_options"
+        android:entryValues="@array/pref_units_values"/>
+
+    <ListPreference
+        android:title="@string/pref_pressure_label"
+        android:defaultValue="@string/pref_pressure_psi"
+        android:key="@string/pref_pressure_key"
+        android:entries="@array/pref_pressure_options"
+        android:entryValues="@array/pref_pressure_values"/>
+
+    <ListPreference
+        android:title="@string/pref_date_label"
+        android:defaultValue="@string/pref_date_default"
+        android:key="@string/pref_date_key"
+        android:entries="@array/pref_date_options"
+        android:entryValues="@array/pref_date_values"/>
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_notifications_label"
+        android:key="@string/pref_enable_notifications_key"
+        android:summaryOff="@string/pref_enable_notifications_false"
+        android:summaryOn="@string/pref_enable_notifications_true"
+        android:defaultValue="@string/pref_enable_notifications_default" />
+
+    <ListPreference
+        android:title="@string/pref_show_alert_label"
+        android:defaultValue="@string/pref_show_alert_all"
+        android:key="@string/pref_show_alert_key"
+        android:entries="@array/pref_show_alert_options"
+        android:entryValues="@array/pref_show_alert_values"/>
+
+    <CheckBoxPreference
+        android:title="@string/pref_show_alert_archive_label"
+        android:key="@string/pref_show_alert_archive_key"
+        android:summaryOff="@string/pref_show_alert_archive_false"
+        android:summaryOn="@string/pref_show_alert_archive_true"
+        android:defaultValue="@string/pref_show_alert_archive_default" />
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_sendlog_label"
+        android:key="@string/pref_enable_sendlog_key"
+        android:summaryOff="@string/pref_enable_sendlog_false"
+        android:summaryOn="@string/pref_enable_sendlog_true"
+        android:defaultValue="@string/pref_enable_sendlog_default" />
+
+    <EditTextPreference
+        android:title="@string/pref_ace_addr_label"
+        android:key="@string/pref_ace_addr_key"
+        android:defaultValue="@string/pref_ace_addr_default"
+        android:digits="0123456789."
+        android:singleLine="true" />
+
+    <EditTextPreference
+        android:title="@string/pref_org_label"
+        android:key="@string/pref_org_key"
+        android:defaultValue="@string/pref_org_default"
+        android:inputType="text"
+        android:singleLine="true" />
+    <EditTextPreference
+        android:title="@string/pref_site_label"
+        android:key="@string/pref_site_key"
+        android:defaultValue="@string/pref_site_default"
+        android:inputType="text"
+        android:singleLine="true" />
+    <EditTextPreference
+        android:title="@string/pref_zone_label"
+        android:key="@string/pref_zone_key"
+        android:defaultValue="@string/pref_zone_default"
+        android:inputType="text"
+        android:singleLine="true" />
+    <EditTextPreference
+        android:title="@string/pref_sensor_label"
+        android:key="@string/pref_sensor_key"
+        android:defaultValue="@string/pref_sensor_default"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <EditTextPreference
+        android:title="@string/pref_scenario_label"
+        android:key="@string/pref_scenario_key"
+        android:defaultValue="@string/pref_scenario_default"
+        android:inputType="text"
+        android:singleLine="true" />
+
+</PreferenceScreen>

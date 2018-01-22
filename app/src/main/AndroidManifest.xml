@@ -32,6 +32,16 @@
             android:name=".auth.GoogleSignInActivity"
             android:label="@string/label_google_sign_in" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/SettingsTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <service
             android:name=".PlayListService"
             android:exported="false" />
