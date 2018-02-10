@@ -250,50 +250,56 @@ public class NavItem {
                 }
             }
             else {
-                // existing object - set active based on find object type
+                // existing object - set object type & moniker
                 mContentOp = ContentFragment.ARG_CONTENT_VALUE_OP_EDIT;
                 if (mRepoProvider.getDalTheatre().getDaoRepo().get(itemname) != null) {
-                    // theatre - set active
-                    getPlayListService().setActiveTheatre((DaoTheatre) mRepoProvider.getDalTheatre().getDaoRepo().get(itemname));
+                    // theatre selected - set object type & moniker
+                    DaoTheatre daoTheatre = (DaoTheatre) mRepoProvider.getDalTheatre().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveTheatre(daoTheatre);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_THEATRE_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveTheatre().getMoniker();
+                    mContentMoniker = daoTheatre.getMoniker();
                 }
                 else if (mRepoProvider.getDalEpic().getDaoRepo().get(itemname) != null) {
-                    // Epic - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveEpic((DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(itemname));
+                    // Epic selected - set object type & moniker
+                    DaoEpic daoEpic = (DaoEpic) mRepoProvider.getDalEpic().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveEpic(daoEpic);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_EPIC_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveEpic().getMoniker();
+                    mContentMoniker = daoEpic.getMoniker();
                 }
                 else if (mRepoProvider.getDalStory().getDaoRepo().get(itemname) != null) {
-                    // story - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveStory((DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(itemname));
+                    // story selected - set object type & moniker
+                    DaoStory daoStory = (DaoStory) mRepoProvider.getDalStory().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveStory(daoStory);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STORY_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveStory().getMoniker();
+                    mContentMoniker = daoStory.getMoniker();
                 }
                 else if (mRepoProvider.getDalStage().getDaoRepo().get(itemname) != null) {
-                    // stage - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveStage((DaoStage) mRepoProvider.getDalStage().getDaoRepo().get(itemname));
+                    // stage selected - set object type & moniker
+                    DaoStage daoStage = (DaoStage) mRepoProvider.getDalStage().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveStage(daoStage);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_STAGE_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveStage().getMoniker();
+                    mContentMoniker = daoStage.getMoniker();
                 }
                 else if (mRepoProvider.getDalActor().getDaoRepo().get(itemname) != null) {
-                    // Actor - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveActor((DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(itemname));
+                    // Actor selected - set object type & moniker
+                    DaoActor daoActor = (DaoActor) mRepoProvider.getDalActor().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveActor(daoActor);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTOR_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveActor().getMoniker();
+                    mContentMoniker = daoActor.getMoniker();
                 }
                 else if (mRepoProvider.getDalAction().getDaoRepo().get(itemname) != null) {
-                    // Action - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveAction((DaoAction) mRepoProvider.getDalAction().getDaoRepo().get(itemname));
+                    // Action selected - set object type & moniker
+                    DaoAction daoAction = (DaoAction) mRepoProvider.getDalAction().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveAction(daoAction);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_ACTION_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveAction().getMoniker();
+                    mContentMoniker = daoAction.getMoniker();
                 }
                 else if (mRepoProvider.getDalOutcome().getDaoRepo().get(itemname) != null) {
-                    // Outcome - set active
-                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveOutcome((DaoOutcome) mRepoProvider.getDalOutcome().getDaoRepo().get(itemname));
-                    // launch dao maker
+                    // Outcome selected - set object type & moniker
+                    DaoOutcome daoOutcome = (DaoOutcome) mRepoProvider.getDalOutcome().getDaoRepo().get(itemname);
+                    if (TEST_SET_PLAYLIST) getPlayListService().setActiveOutcome(daoOutcome);
                     mContentObjType = DaoDefs.DAOOBJ_TYPE_OUTCOME_MONIKER;
-                    mContentMoniker = getPlayListService().getActiveOutcome().getMoniker();
+                    mContentMoniker = daoOutcome.getMoniker();
                 }
                 else {
                     Log.e(TAG, "Oops!  Unknown (sub) object type " + mContentObjType);

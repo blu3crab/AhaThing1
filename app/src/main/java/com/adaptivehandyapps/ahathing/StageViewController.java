@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-
+//
+// Created by mat on 1/9/2017.
+//
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -46,10 +48,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 ///////////////////////////////////////////////////////////////////////////
-// StageViewController: extends View to manage interactions with stage view
+// StageViewController extends View to manage gestures on stage
 //  HAS A
-//      StageViewRing - draw view
-//          *StageModelRing - model math operations on stage
+//      StageViewRing to draw view, transform device<->screen, scale functions
+//          HAS A
+//              StageModelRing with stage objects locii, props, colors; find locii, rings
 public class StageViewController extends View implements
         GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 

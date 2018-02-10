@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 package com.adaptivehandyapps.ahathing;
-
+//
+// Created by mat on 1/31/2017.
+//
 import android.graphics.RectF;
 import android.util.Log;
 
@@ -29,11 +31,13 @@ import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import java.util.ArrayList;
 import java.util.List;
 
-//
-// Created by mat on 1/31/2017.
-//
 ///////////////////////////////////////////////////////////////////////////
-// RingWorld model
+// StageViewController extends View to manage gestures on stage
+//  HAS A
+//      StageViewRing to draw view, transform device<->screen, scale functions
+//          HAS A
+//              StageModelRing with stage objects locii, props, colors; find locii, rings
+
 public class StageModelRing {
     private static final String TAG = "StageModelRing";
 

@@ -33,7 +33,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adaptivehandyapps.ahathing.ahautils.DevUtils;
 import com.adaptivehandyapps.ahathing.dao.DaoAction;
 import com.adaptivehandyapps.ahathing.dao.DaoActor;
 import com.adaptivehandyapps.ahathing.dao.DaoDefs;
@@ -110,6 +109,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
 
     private Button mButtonForeColor;
     private Button mButtonBackColor;
+    private Button mButtonAcceptPalette;
+    private Button mButtonQuitPalette;
 
     ///////////////////////////////////////////////////////////////////////////
     // constructor
@@ -197,6 +198,67 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
                 }
             }
         });
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private Boolean showActorMakerUI() {
+        // title
+        TextView tv = (TextView) mRootView.findViewById(R.id.tv_title);
+        tv.setVisibility(View.VISIBLE);
+        // moniker
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_moniker);
+        ll.setVisibility(View.VISIBLE);
+        // headline
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_headline);
+        ll.setVisibility(View.VISIBLE);
+        // remove
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_remove_checkbox);
+        ll.setVisibility(View.VISIBLE);
+        // last updated
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_last_update);
+        ll.setVisibility(View.VISIBLE);
+        // update/destroy/cancel buttons
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_buttons);
+        ll.setVisibility(View.VISIBLE);
+        // actor
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_actor);
+        ll.setVisibility(View.VISIBLE);
+        return true;
+    }
+    private Boolean hideActorMakerUI() {
+        // title
+        TextView tv = (TextView) mRootView.findViewById(R.id.tv_title);
+        tv.setVisibility(View.GONE);
+        // moniker
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_moniker);
+        ll.setVisibility(View.GONE);
+        // headline
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_headline);
+        ll.setVisibility(View.GONE);
+        // remove
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_remove_checkbox);
+        ll.setVisibility(View.GONE);
+        // last updated
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_last_update);
+        ll.setVisibility(View.GONE);
+        // update/destroy/cancel buttons
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_buttons);
+        ll.setVisibility(View.GONE);
+        // actor
+        ll = (LinearLayout) mRootView.findViewById(R.id.ll_actor);
+        ll.setVisibility(View.GONE);
+        return true;
+    }
+    private Boolean showPaletteUI() {
+        // palette
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_palette);
+        ll.setVisibility(View.VISIBLE);
+        return true;
+    }
+    private Boolean hidePaletteUI() {
+        // palette
+        LinearLayout ll = (LinearLayout) mRootView.findViewById(R.id.ll_palette);
+        ll.setVisibility(View.GONE);
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -784,8 +846,37 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
                     Log.v(TAG, "buttonForeColor.setOnClickListener: ");
                     Toast.makeText(mRootView.getContext(), "buttonForeColor...", Toast.LENGTH_SHORT).show();
                     // launch color picker
-                    isForeColor(true);
-                    launchColorPicker(isForeColor(), getForeColor());
+//                    isForeColor(true);
+//                    launchColorPicker(isForeColor(), getForeColor());
+                    // setup handler for accept palette
+                    mButtonAcceptPalette = (Button) mRootView.findViewById(R.id.button_palette_accept);
+                    mButtonAcceptPalette.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            Log.v(TAG, "mButtonAcceptPalette.setOnClickListener: ");
+                            Toast.makeText(mRootView.getContext(), "mButtonAcceptPalette...", Toast.LENGTH_SHORT).show();
+                            // assign primary color from accept button
+                            // TODO:
+                            // hide palette UI & show actor UI
+                            hidePaletteUI();
+                            showActorMakerUI();
+                        }
+                    });
+
+                    // set handler for cancel palette
+                    mButtonQuitPalette = (Button) mRootView.findViewById(R.id.button_palette_quit);
+                    mButtonQuitPalette.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            Log.v(TAG, "mButtonQuitPalette.setOnClickListener: ");
+                            Toast.makeText(mRootView.getContext(), "mButtonQuitPalette...", Toast.LENGTH_SHORT).show();
+                            // hide palette UI & show actor UI
+                            hidePaletteUI();
+                            showActorMakerUI();
+                        }
+                    });
+                    // hide maker UI elements
+                    hideActorMakerUI();
+                    // show palette UI elements
+                    showPaletteUI();
                 }
             });
             // establish back color button visibility & click listener
@@ -935,7 +1026,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         mCheckActionSound = (CheckBox) mRootView.findViewById(R.id.cb_soundaction);
         activeTheatre.setSoundAction(mCheckActionSound.isChecked());
 
-        if (TEST_SET_PLAYLIST) mParent.getPlayListService().setActiveTheatre(activeTheatre);
+        // set theatre active
+        mParent.getPlayListService().setActiveTheatre(activeTheatre);
         // update repo
         mParent.getRepoProvider().getDalTheatre().update(activeTheatre, true);
         return true;

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/palette_picker"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.adaptivehandyapps.ahathing.PaletteViewController
+        android:id="@+id/view_palette"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <!-- accept/cancel buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button style="@style/Widget.AppCompat.Button.Colored"
+            android:id="@+id/button_palette_accept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_padding"
+            android:paddingRight="@dimen/activity_horizontal_padding"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorNewAccent"
+            android:background="@color/colorNew"
+            android:text="Accept"/>
+        <Button
+            android:id="@+id/button_palette_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_padding"
+            android:paddingRight="@dimen/activity_horizontal_padding"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorNewAccent"
+            android:background="@color/colorNew"
+            android:text="Cancel"/>
+
+    </LinearLayout>
+
+</LinearLayout>

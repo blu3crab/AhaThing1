@@ -238,6 +238,7 @@ public class StageManager {
                 vertActor = daoStage.getActorList().get(selectIndex);
                 // if actor at touch matches active actor or locus is empty
                 if (vertActor.equals(daoEpic.getActiveActor()) ||
+
                         vertActor.equals(DaoDefs.INIT_STRING_MARKER)) return true;
             }
             // no match between epic active actor & actor at touch selection

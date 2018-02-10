@@ -247,10 +247,14 @@ public class PlayListService extends Service {
             // if no active hierarchy object or active hierarchy object is defined but not included
             if (getActiveEpic() == null ||
                     (getActiveEpic() != null && !activeDao.getTagList().contains(getActiveEpic().getMoniker()))) {
-                // if epic defined in theatre, set 1st active
+                // if epic defined in theatre
                 DaoEpic daoEpic = null;
                 if (activeDao.getTagList().size() > 0) {
-                    daoEpic = (DaoEpic) getRepoProvider().getDalEpic().getDaoRepo().get(activeDao.getTagList().get(0));
+                    // if epic defined in theatre defined in repo
+                    if (getRepoProvider().getDalEpic().getDaoRepo().get(activeDao.getTagList().get(0)) != null) {
+                        // dereference 1st epic
+                        daoEpic = (DaoEpic) getRepoProvider().getDalEpic().getDaoRepo().get(activeDao.getTagList().get(0));
+                    }
                 }
                 // set hierarchy
                 setActiveEpic(daoEpic);
@@ -318,8 +322,12 @@ public class PlayListService extends Service {
                 // if epic stories defined & if no active story or active story not in epic
                 if (activeDao.getTagList().size() > 0 &&
                         (getActiveStory() == null || !activeDao.getTagList().contains(getActiveStory().getMoniker()))) {
-                    // set active story to 1st story in epic
-                    DaoStory daoStory = (DaoStory) getRepoProvider().getDalStory().getDaoRepo().get(activeDao.getTagList().get(0));
+                    DaoStory daoStory = null;
+                    // if story defined in epic defined in repo
+                    if (getRepoProvider().getDalStory().getDaoRepo().get(activeDao.getTagList().get(0)) != null) {
+                        // set active story to 1st story in epic
+                        daoStory = (DaoStory) getRepoProvider().getDalStory().getDaoRepo().get(activeDao.getTagList().get(0));
+                    }
                     setActiveStory(daoStory);
                 }
             }

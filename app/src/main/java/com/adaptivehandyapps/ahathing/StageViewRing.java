@@ -19,7 +19,6 @@ package com.adaptivehandyapps.ahathing;
 //
 // Created by mat on 1/9/2017.
 //
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -43,6 +42,12 @@ import com.adaptivehandyapps.ahathing.dao.DaoStage;
 import java.util.ArrayList;
 import java.util.List;
 
+///////////////////////////////////////////////////////////////////////////
+// StageViewController extends View to manage gestures on stage
+//  HAS A
+//      StageViewRing to draw view, transform device<->screen, scale functions
+//          HAS A
+//              StageModelRing with stage objects locii, props, colors; find locii, rings
 public class StageViewRing {
 
     private static final String TAG = StageViewRing.class.getSimpleName();
