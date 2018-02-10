@@ -5,17 +5,19 @@ Winter/Spring 2018
 ===============================================================================
 AhaTheatre is a framework for defining complex interactions through a series of object containers:
 
-Theatre - collections of Epics
-Epic - collections of Stories
-Story - Actor, Action, Outcome (optional pre-requisites, post-operation )
-Actor - human or object performing action for outcome
-Action - definition of action being performed by actor
-Outcome - definition of result or outcome of actor performing action
-Stage - arena where stories occur often changing as a result of actions/outcomes
+- Theatre - collections of Epics
+- Epic - collections of Stories
+- Story - Actor, Action, Outcome (optional pre-requisites, post-operation )
+- Actor - human or object performing action for outcome
+- Action - definition of action being performed by actor
+- Outcome - definition of result or outcome of actor performing action
+- Stage - arena where stories occur often changing as a result of actions/outcomes
 
-AhaThing1 - (apologies to Dr. Suess) Android activity framework
-RepoProvider - FireBase object hierarchy for distributed Theatre/Epic/Story performance
-ServiceProvider - maintains local playlist of activities on each device
+Activities & Services:
+
+- AhaThing1 - (apologies to Dr. Suess) Android activity framework
+- RepoProvider - FireBase object hierarchy for distributed Theatre/Epic/Story performance
+- ServiceProvider - maintains local playlist of activities on each device
 
 ![Screenshot](AhaThing1Mindmap.png)
 
