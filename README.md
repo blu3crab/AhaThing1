@@ -1,5 +1,7 @@
 "all the world's a stage..."
 
+M.A.Tucker
+Winter/Spring 2018
 ===============================================================================
 AhaTheatre is a framework for defining complex interactions through a series of object containers:
 
@@ -20,7 +22,7 @@ ServiceProvider - maintains local playlist of activities on each device
 ![Screenshot](RepoProviderMindmap.png)
 
 M.A.Tucker
-Winter/Spring 2018
+Winter/Spring 2017
 ===============================================================================
 (origin myth)
 Internet of Things apps often reference a hierarchy of things which may be viewed independently or as collections.
@@ -53,5 +55,4 @@ Long-range goals:
 - explore framework migration to a thing (e.g. Rapsberry Pi running AndroidThings?)
 - enable ML analysis of story outcomes
 
-M.A.Tucker
-Winter/Spring 2017
+(end of story)
