@@ -398,7 +398,10 @@ public class PlayListService extends Service {
             PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_STORY_KEY, activeDao.getMoniker());
             // set active Actor
             DaoActor daoActor = (DaoActor) getRepoProvider().getDalActor().getDaoRepo().get(activeDao.getActor());
-            setActiveActor(daoActor);
+            if (daoActor != null && !daoActor.getMoniker().contains(DaoDefs.ANY_ACTOR_WILDCARD) ||
+                    daoActor == null) {
+                setActiveActor(daoActor);
+            }
             // set active Action
             DaoAction daoAction = (DaoAction) getRepoProvider().getDalAction().getDaoRepo().get(activeDao.getAction());
             setActiveAction(daoAction);
@@ -504,6 +507,10 @@ public class PlayListService extends Service {
     public void setActiveActor(DaoActor activeDao) {
         // if object defined
         if (activeDao != null) {
+            if (activeDao.getMoniker().contains(DaoDefs.ANY_ACTOR_WILDCARD)) {
+//            if(activeDao.getMoniker().equals("Actor***")) {
+                Log.d(TAG, "Oops! setActiveActor says this looks wrong! " + activeDao.getMoniker());
+            }
             // set prefs & active object
             PrefsUtils.setPrefs(mContext, PrefsUtils.ACTIVE_ACTOR_KEY, activeDao.getMoniker());
         }

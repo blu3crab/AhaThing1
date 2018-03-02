@@ -53,6 +53,7 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = DaoMakerViewXfer.class.getSimpleName();
 
     private static final Boolean TEST_SET_PLAYLIST = false;
+    private static final Boolean LAUNCH_COLOR_PICKER = true;    // true - show old style color picker
 
     private static final String TALLY_LIMIT_TEXT = "Tally Limit ";
     private static final String TIC_LIMIT_TEXT   = "Tic Limit ";
@@ -845,38 +846,42 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
                 public void onClick(View v) {
                     Log.v(TAG, "buttonForeColor.setOnClickListener: ");
                     Toast.makeText(mRootView.getContext(), "buttonForeColor...", Toast.LENGTH_SHORT).show();
-                    // launch color picker
-//                    isForeColor(true);
-//                    launchColorPicker(isForeColor(), getForeColor());
-                    // setup handler for accept palette
-                    mButtonAcceptPalette = (Button) mRootView.findViewById(R.id.button_palette_accept);
-                    mButtonAcceptPalette.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Log.v(TAG, "mButtonAcceptPalette.setOnClickListener: ");
-                            Toast.makeText(mRootView.getContext(), "mButtonAcceptPalette...", Toast.LENGTH_SHORT).show();
-                            // assign primary color from accept button
-                            // TODO:
-                            // hide palette UI & show actor UI
-                            hidePaletteUI();
-                            showActorMakerUI();
-                        }
-                    });
+                    if (LAUNCH_COLOR_PICKER) {
+                        // launch color picker
+                        isForeColor(true);
+                        launchColorPicker(isForeColor(), getForeColor());
+                    }
+                    else {
+                        // setup handler for accept palette
+                        mButtonAcceptPalette = (Button) mRootView.findViewById(R.id.button_palette_accept);
+                        mButtonAcceptPalette.setOnClickListener(new View.OnClickListener() {
+                            public void onClick(View v) {
+                                Log.v(TAG, "mButtonAcceptPalette.setOnClickListener: ");
+                                Toast.makeText(mRootView.getContext(), "mButtonAcceptPalette...", Toast.LENGTH_SHORT).show();
+                                // assign primary color from accept button
+                                // TODO:
+                                // hide palette UI & show actor UI
+                                hidePaletteUI();
+                                showActorMakerUI();
+                            }
+                        });
 
-                    // set handler for cancel palette
-                    mButtonQuitPalette = (Button) mRootView.findViewById(R.id.button_palette_quit);
-                    mButtonQuitPalette.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Log.v(TAG, "mButtonQuitPalette.setOnClickListener: ");
-                            Toast.makeText(mRootView.getContext(), "mButtonQuitPalette...", Toast.LENGTH_SHORT).show();
-                            // hide palette UI & show actor UI
-                            hidePaletteUI();
-                            showActorMakerUI();
-                        }
-                    });
-                    // hide maker UI elements
-                    hideActorMakerUI();
-                    // show palette UI elements
-                    showPaletteUI();
+                        // set handler for cancel palette
+                        mButtonQuitPalette = (Button) mRootView.findViewById(R.id.button_palette_quit);
+                        mButtonQuitPalette.setOnClickListener(new View.OnClickListener() {
+                            public void onClick(View v) {
+                                Log.v(TAG, "mButtonQuitPalette.setOnClickListener: ");
+                                Toast.makeText(mRootView.getContext(), "mButtonQuitPalette...", Toast.LENGTH_SHORT).show();
+                                // hide palette UI & show actor UI
+                                hidePaletteUI();
+                                showActorMakerUI();
+                            }
+                        });
+                        // hide maker UI elements
+                        hideActorMakerUI();
+                        // show palette UI elements
+                        showPaletteUI();
+                    }
                 }
             });
             // establish back color button visibility & click listener
@@ -1055,8 +1060,37 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         // update with edited values
         activeEpic.setMoniker(editedMoniker);
         activeEpic.setHeadline(headline);
-        Log.d(TAG, "toEpic selected stage " + mSpinnerStages.getSelectedItem().toString());
-        activeEpic.setStage(mSpinnerStages.getSelectedItem().toString());
+
+//        Log.d(TAG, "toEpic selected stage " + mSpinnerStages.getSelectedItem().toString());
+//        activeEpic.setStage(mSpinnerStages.getSelectedItem().toString());
+        String selectedStageMoniker = mSpinnerStages.getSelectedItem().toString();
+        Log.d(TAG, "toEpic selected stage " + selectedStageMoniker);
+
+        CheckBox cbRestart = (CheckBox) mRootView.findViewById(R.id.cb_restart);
+        Boolean restartEpic = cbRestart.isChecked();
+        if (restartEpic) {
+            // if restart Epic selected, use selected stage as template for current stage
+            DaoStage selectedDaoStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(selectedStageMoniker);
+            if (selectedDaoStage != null) {
+                String currentStageMoniker = activeEpic.getStage();
+                DaoStage currentDaoStage = (DaoStage) mParent.getRepoProvider().getDalStage().getDaoRepo().get(currentStageMoniker);
+                if (currentDaoStage != null) {
+                    // make a copy of the template using the existing stage moniker
+                    toStage (op, selectedStageMoniker, currentStageMoniker, currentDaoStage.getHeadline(), false);
+                }
+                else {
+                    Log.e(TAG, "Oops! toEpic unable to find current stage " + currentStageMoniker);
+                }
+            }
+            else {
+                Log.e(TAG, "Oops! toEpic unable to find selected stage " + selectedStageMoniker);
+            }
+        }
+        else {
+            Log.d(TAG, "toEpic set active stage to selected stage " + selectedStageMoniker);
+            activeEpic.setStage(selectedStageMoniker);
+        }
+
 //        activeEpic.setTagList(tagList);
         activeEpic.setTagList(mStoryList);
 
