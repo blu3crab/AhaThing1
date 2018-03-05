@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity
 
     private BroadcastReceiver mBroadcastReceiver;
 
-    private boolean mVacating = false;
+    private Boolean mVacating = false;
+    private Boolean mSaveInstanceState = false;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -657,14 +658,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
+//      FragmentManager exceptions if called after onSaveInstanceState, exception ignored via:
+//          catch (IllegalStateException ignored) {
+//              Log.e(TAG, "replaceFragment ignores " + ignored.getMessage());
+        Log.v(TAG, "onSaveInstanceState setting " + mSaveInstanceState + " to TRUE.");
+        mSaveInstanceState = true;
         super.onSaveInstanceState(savedInstanceState);
-        Log.v(TAG, "onSaveInstanceState");
+        Log.v(TAG, "onSaveInstanceState ");
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, "onRestoreInstanceState setting " + mSaveInstanceState + " to FALSE.");
+        mSaveInstanceState = false;
         super.onRestoreInstanceState(savedInstanceState);
-        Log.v(TAG, "onRestoreInstanceState");
     }
     ///////////////////////////////////////////////////////////////////////////
     // provider refresh callback
