@@ -616,6 +616,17 @@ public class PlayListService extends Service {
         return true;
     }
     ///////////////////////////////////////////////////////////////////////////
+    private Boolean isRepoReady(String source) {
+        if (mRepoProvider == null) {
+            Log.e(TAG, "Oops! " + source + " finds mRepoProvider NULL.");
+            return false;
+        }
+        else if (!mRepoProviderBound) {
+            Log.e(TAG, "Oops! " + source + " finds RepoProvider NOT Bound.");
+        }
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
     // repair playlist - repair until not required or limit reach
     // TODO: refactor repairs to RepoProvider?
     public Boolean repairAll(Boolean removeIfUndefined, Boolean forceToActiveStage) {
