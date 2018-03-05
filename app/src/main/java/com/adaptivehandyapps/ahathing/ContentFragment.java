@@ -272,8 +272,13 @@ public class ContentFragment extends Fragment {
         args.putString(ContentFragment.ARG_CONTENT_KEY_MONIKER, moniker);
         fragment.setArguments(args);
 
-        FragmentManager fragmentManager = activity.getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
+        try {
+            FragmentManager fragmentManager = activity.getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_main, fragment).commit();
+        }
+        catch (IllegalStateException ignored) {
+            Log.e(TAG, "replaceFragment ignores " + ignored.getMessage());
+        }
 
         return true;
     }
