@@ -92,6 +92,9 @@ public class MainActivity extends AppCompatActivity
     private Boolean mVacating = false;
     private Boolean mSaveInstanceState = false;
 
+    // Set to true ensures requestInstall() triggers installation if necessary.
+    private boolean mUserRequestedInstall = true;
+
     ///////////////////////////////////////////////////////////////////////////
 
     private Activity mActivity;

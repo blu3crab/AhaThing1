@@ -788,7 +788,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/ll_ringtype"
+            android:id="@+id/ll_stagetype"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -801,7 +801,7 @@
                 android:paddingRight="@dimen/activity_horizontal_padding"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorNew"
-                android:text="Ring Type:" />
+                android:text="Stage Type:" />
 
             <Spinner
                 android:id="@+id/spinner_ringtype"
@@ -815,6 +815,7 @@
             </Spinner>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/ll_ringsize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -852,6 +853,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_lociisize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"

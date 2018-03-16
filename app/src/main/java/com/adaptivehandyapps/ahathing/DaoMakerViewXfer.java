@@ -94,8 +94,8 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
     private ArrayAdapter<String> mPostOpListAdapter = null;
     private Spinner mSpinnerPostOps;
     // stage controls
-    private ArrayAdapter<String> mRingTypeListAdapter = null;
-    private Spinner mSpinnerRingType;
+    private ArrayAdapter<String> mStageTypeListAdapter = null;
+    private Spinner mSpinnerStageType;
     private ArrayAdapter<String> mActionTypeListAdapter = null;
     private Spinner mSpinnerActionType;
     private ArrayAdapter<String> mOutcomeTypeListAdapter = null;
@@ -787,28 +787,73 @@ public class DaoMakerViewXfer implements SeekBar.OnSeekBarChangeListener {
         ll.setVisibility(View.VISIBLE);
 
         // ring type spinner
-        List<String> ringTypeList = new ArrayList<>();
-        ringTypeList.add(DaoStage.STAGE_TYPE_RING);
-        mRingTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
+//        List<String> stageTypeList = new ArrayList<>();
+//        stageTypeList.add(DaoStage.STAGE_TYPE_RING);
+        List<String> stageTypeList = DaoStage.STAGE_TYPE_LIST;
+        mStageTypeListAdapter = new ArrayAdapter<String>(mRootView.getContext(),
                 android.R.layout.simple_list_item_1,
-                ringTypeList);
+                stageTypeList);
 
-        mSpinnerRingType = (Spinner) mRootView.findViewById(R.id.spinner_ringtype);
-        if (mRingTypeListAdapter != null && mSpinnerRingType != null) {
-            mSpinnerRingType.setAdapter(mRingTypeListAdapter);
+        mSpinnerStageType = (Spinner) mRootView.findViewById(R.id.spinner_ringtype);
+        if (mStageTypeListAdapter != null && mSpinnerStageType != null) {
+            mSpinnerStageType.setAdapter(mStageTypeListAdapter);
         } else {
             // null list adapter or spinner
-            Log.e(TAG, "NULL mRingTypeListAdapter? " + mRingTypeListAdapter + ", spinner ringtype? " + mSpinnerRingType);
+            Log.e(TAG, "NULL mStageTypeListAdapter? " + mStageTypeListAdapter + ", spinner stagetype? " + mSpinnerStageType);
             return false;
         }
 
-        // set ring size, locii size
         EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
-        etRingSize.setText(daoStage.getRingSize().toString());
-
         TextView tvLociiSize = (TextView) mRootView.findViewById(R.id.tv_lociisize);
-        Integer size = daoStage.getLocusList().locii.size();
-        tvLociiSize.setText(size.toString());
+        Integer selectionInx = 0;
+        if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_RING)) {
+            selectionInx = 0;
+//            // set ring size, locii size
+//            etRingSize.setText(daoStage.getRingSize().toString());
+//            etRingSize.setVisibility(View.VISIBLE);
+//
+//            Integer size = daoStage.getLocusList().locii.size();
+//            tvLociiSize.setText(size.toString());
+//            tvLociiSize.setVisibility(View.VISIBLE);
+        }
+        else if (daoStage.getStageType().equals(DaoStage.STAGE_TYPE_ARCORE)) {
+            selectionInx = 1;
+//            etRingSize.setVisibility(View.GONE);
+//            tvLociiSize.setVisibility(View.GONE);
+        }
+        mSpinnerStageType.setSelection(selectionInx);
+
+        final DaoStage daoStageFinal = daoStage;
+        mSpinnerStageType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                LinearLayout llRingSize = (LinearLayout) mRootView.findViewById(R.id.ll_ringsize);
+                LinearLayout llLociiSize = (LinearLayout) mRootView.findViewById(R.id.ll_lociisize);
+                // STAGE_TYPE_RING
+                if (DaoStage.STAGE_TYPE_LIST.get(position).equals(DaoStage.STAGE_TYPE_RING)) {
+                    // set ring size, locii size
+                    llRingSize.setVisibility(View.VISIBLE);
+                    llLociiSize.setVisibility(View.VISIBLE);
+
+                    EditText etRingSize = (EditText) mRootView.findViewById(R.id.et_ringsize);
+                    etRingSize.setText(daoStageFinal.getRingSize().toString());
+
+                    TextView tvLociiSize = (TextView) mRootView.findViewById(R.id.tv_lociisize);
+                    Integer size = daoStageFinal.getLocusList().locii.size();
+                    tvLociiSize.setText(size.toString());
+                }
+                else if (DaoStage.STAGE_TYPE_LIST.get(position).equals(DaoStage.STAGE_TYPE_ARCORE)) {
+                    llRingSize.setVisibility(View.GONE);
+                    llLociiSize.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
 
         return true;
     }

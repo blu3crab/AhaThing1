@@ -22,7 +22,9 @@ import android.graphics.Color;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -31,11 +33,11 @@ public class DaoStage extends DaoBase {
 	private static final long serialVersionUID = 1L;
 
 	public static final String STAGE_TYPE_RING = "RingWorld";
+	public static final String STAGE_TYPE_ARCORE = "ARCore";
 	public static final Integer STAGE_TYPE_RING_SIZE_DEFAULT = 4;
 	public static final int STAGE_BG_COLOR = Color.BLUE;
 
-//	public static final String PROP_TYPE_MIRROR = "Mirror";
-//	public static final String PROP_TYPE_FORBIDDEN = "Forbidden";
+	public static final List<String> STAGE_TYPE_LIST = new ArrayList<>(Arrays.asList(STAGE_TYPE_RING, STAGE_TYPE_ARCORE));
 
 	@SerializedName("stageType")		// stage type
 	private String stageType;
